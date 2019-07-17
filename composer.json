@@ -1,16 +1,16 @@
 {
-    "name": "yiisoft/_____",
+    "name": "yiisoft/files",
     "type": "library",
-    "description": "_____",
-    "keywords": ["_____"],
+    "description": "",
+    "keywords": ["files"],
     "homepage": "http://www.yiiframework.com/",
     "license": "BSD-3-Clause",
     "support": {
-        "issues": "https://github.com/yiisoft/_____/issues?state=open",
+        "issues": "https://github.com/yiisoft/files/issues?state=open",
         "forum": "http://www.yiiframework.com/forum/",
         "wiki": "http://www.yiiframework.com/wiki/",
         "irc": "irc://irc.freenode.net/yii",
-        "source": "https://github.com/yiisoft/_____"
+        "source": "https://github.com/yiisoft/files"
     },
     "require": {
         "php": "^7.2"
@@ -20,12 +20,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Yiisoft\\_____\\": "src"
+            "Yiisoft\\Files\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Yiisoft\\_____\\Tests\\": "tests"
+            "Yiisoft\\Files\\Tests\\": "tests"
         }
     },
     "extra": {
