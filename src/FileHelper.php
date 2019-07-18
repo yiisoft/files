@@ -75,7 +75,7 @@ class FileHelper
                 }
                 $path = $directory . '/' . $file;
                 if (is_dir($path)) {
-                    self::removeDirectory($path);
+                    self::removeDirectory($path, $options);
                 } else {
                     self::unlink($path);
                 }
