@@ -16,3 +16,29 @@ The package prvides useful methods to manage files and directories.
 
 ## General usage
 
+Create a new directory:
+
+```php
+use \Yiisoft\Files\FileHelper;
+
+$directory = '/path/to/dir';
+FileHelper::createDirectory($directory);
+```
+
+Create a new directory with the permission to be set:
+
+```php
+use \Yiisoft\Files\FileHelper;
+
+$directory = '/path/to/dir';
+FileHelper::createDirectory($directory, 0775);
+```
+
+Remove a directory:
+
+```php
+use \Yiisoft\Files\FileHelper;
+
+$directory = '/path/to/dir';
+FileHelper::removeDirectory($directory);
+```
