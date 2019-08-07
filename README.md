@@ -42,3 +42,23 @@ use \Yiisoft\Files\FileHelper;
 $directory = '/path/to/dir';
 FileHelper::removeDirectory($directory);
 ```
+
+Remove a file or symlink:
+
+```php
+use \Yiisoft\Files\FileHelper;
+
+$file = '/path/to/file.txt';
+FileHelper::unlink($file);
+```
+
+Normalize path:
+
+```php
+use \Yiisoft\Files\FileHelper;
+
+$path = '/home/samdark/./test/..///dev\yii/';
+echo FileHelper::normalizePath($path);
+// outputs:
+// /home/samdark/dev/yii
+```
