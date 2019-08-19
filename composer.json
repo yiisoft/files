@@ -13,7 +13,8 @@
         "source": "https://github.com/yiisoft/files"
     },
     "require": {
-        "php": "^7.2"
+        "php": "^7.2",
+        "yiisoft/strings": "^3.0@dev"
     },
     "require-dev": {
         "phpunit/phpunit": "^7.2"

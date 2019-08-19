@@ -272,7 +272,7 @@ final class FileHelperTest extends TestCase
         // should not be touched.
         // https://msdn.microsoft.com/en-us/library/windows/desktop/aa365247%28v=vs.85%29.aspx
         // https://github.com/yiisoft/yii2/issues/13034
-        $this->assertEquals('\\\\server/share/path/file', FileHelper::normalizePath('\\\\server\share\path\file', '\\'));
+        $this->assertEquals('\\\\server/share/path/file', FileHelper::normalizePath('\\\\server\share\path\file'));
     }
 
     /**
@@ -284,7 +284,7 @@ final class FileHelperTest extends TestCase
      *
      * @return void
      */
-    private function createFileStructure(array $items, $basePath = null): void
+    private function createFileStructure(array $items, ?string $basePath = null): void
     {
         $basePath = $basePath ?? $this->testFilePath;
 
