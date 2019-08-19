@@ -531,6 +531,42 @@ final class FileHelperTest extends TestCase
         $this->assertTrue(true, 'no error');
     }
 
+    public function testsFilterPath()
+    {
+        $source = 'test_src_dir';
+        $files = [
+            'file1.txt' => 'file 1 content',
+            'file2.php' => 'file 2 content',
+            'web' => [],
+            'testweb' => []
+        ];
+
+        $this->createFileStructure([
+            $source => $files,
+        ]);
+
+        $basePath = $this->testFilePath;
+        $source = $basePath . '/' . $source;
+    
+        // tests callback true.
+        $options = [
+            'filter' => function ($source) {
+                return strpos($source, 'test') !== false;
+            },
+        ];
+
+        $this->assertTrue(FileHelper::filterPath($source, $options));
+
+        // tests callback false.
+        $options = [
+            'filter' => function ($source) {
+                return strpos($source, 'public') !== false;
+            },
+        ];
+
+        $this->assertFalse(FileHelper::filterPath($source, $options));
+    }
+
     /**
      * Creates test files structure.
      *

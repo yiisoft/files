@@ -10,9 +10,9 @@ use Yiisoft\Strings\StringHelper;
  */
 class FileHelper
 {
-    private const PATTERN_NODIR = 1;
-    private const PATTERN_ENDSWITH = 4;
-    private const PATTERN_MUSTBEDIR = 8;
+    private const PATTERN_NO_DIR = 1;
+    private const PATTERN_ENDS_WITH = 4;
+    private const PATTERN_MUST_BE_DIR = 8;
     private const PATTERN_NEGATIVE = 16;
     private const PATTERN_CASE_INSENSITIVE = 32;
 
@@ -312,6 +312,7 @@ class FileHelper
     {
         if (isset($options['filter'])) {
             $result = \call_user_func($options['filter'], $path);
+
             if (\is_bool($result)) {
                 return $result;
             }
@@ -345,7 +346,7 @@ class FileHelper
      *
      * @return int|bool position of first wildcard character or false if not found.
      */
-    private static function firstWildcardInPattern($pattern)
+    private static function firstWildcardInPattern(string $pattern)
     {
         $wildcards = ['*', '?', '[', '\\'];
         $wildcardSearch = function ($carry, $item) use ($pattern) {
@@ -387,11 +388,11 @@ class FileHelper
                 throw new \InvalidArgumentException('If exclude/include pattern is an array it must contain the pattern, flags and firstWildcard keys.');
             }
 
-            if (($exclude['flags'] & self::PATTERN_MUSTBEDIR) && !is_dir($path)) {
+            if (($exclude['flags'] & self::PATTERN_MUST_BE_DIR) && !is_dir($path)) {
                 continue;
             }
 
-            if ($exclude['flags'] & self::PATTERN_NODIR) {
+            if ($exclude['flags'] & self::PATTERN_NO_DIR) {
                 if (self::matchBasename(basename($path), $exclude['pattern'], $exclude['firstWildcard'], $exclude['flags'])) {
                     return $exclude;
                 }
@@ -418,13 +419,13 @@ class FileHelper
      *
      * @return bool whether the name matches against pattern
      */
-    private static function matchBasename(string $baseName, string $pattern, ?bool $firstWildcard, int $flags): bool
+    private static function matchBasename(string $baseName, string $pattern, $firstWildcard, int $flags): bool
     {
         if ($firstWildcard === false) {
             if ($pattern === $baseName) {
                 return true;
             }
-        } elseif ($flags & self::PATTERN_ENDSWITH) {
+        } elseif ($flags & self::PATTERN_ENDS_WITH) {
             /* "*literal" matching against "fooliteral" */
             $n = StringHelper::byteLength($pattern);
             if (StringHelper::byteSubstr($pattern, 1, $n) === StringHelper::byteSubstr($baseName, -$n, $n)) {
@@ -454,7 +455,7 @@ class FileHelper
      *
      * @return bool whether the path part matches against pattern
      */
-    private static function matchPathname(string $path, string $basePath, string $pattern, ?bool $firstWildcard, int $flags): bool
+    private static function matchPathname(string $path, string $basePath, string $pattern, $firstWildcard, int $flags): bool
     {
         // match with FNM_PATHNAME; the pattern has base implicitly in front of it.
         if (strpos($pattern, '/') === 0) {
@@ -507,16 +508,10 @@ class FileHelper
      * @param string $pattern
      * @param bool $caseSensitive
      *
-     * @throws \InvalidArgumentException
-     *
      * @return array with keys: (string) pattern, (int) flags, (int|bool) firstWildcard
      */
     private static function parseExcludePattern(string $pattern, bool $caseSensitive): array
     {
-        if (!\is_string($pattern)) {
-            throw new \InvalidArgumentException('Exclude/include pattern must be a string.');
-        }
-
         $result = [
             'pattern' => $pattern,
             'flags' => 0,
@@ -538,17 +533,17 @@ class FileHelper
 
         if (StringHelper::byteLength($pattern) && StringHelper::byteSubstr($pattern, -1, 1) === '/') {
             $pattern = StringHelper::byteSubstr($pattern, 0, -1);
-            $result['flags'] |= self::PATTERN_MUSTBEDIR;
+            $result['flags'] |= self::PATTERN_MUST_BE_DIR;
         }
 
         if (strpos($pattern, '/') === false) {
-            $result['flags'] |= self::PATTERN_NODIR;
+            $result['flags'] |= self::PATTERN_NO_DIR;
         }
 
         $result['firstWildcard'] = self::firstWildcardInPattern($pattern);
 
         if (strpos($pattern, '*') === 0 && self::firstWildcardInPattern(StringHelper::byteSubstr($pattern, 1, StringHelper::byteLength($pattern))) === false) {
-            $result['flags'] |= self::PATTERN_ENDSWITH;
+            $result['flags'] |= self::PATTERN_ENDS_WITH;
         }
 
         $result['pattern'] = $pattern;
