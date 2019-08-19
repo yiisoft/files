@@ -23,8 +23,8 @@ final class FileHelperTest extends TestCase
      */
     public function setUp(): void
     {
-        $this->testFilePath = sys_get_temp_dir() . '/' . get_class($this);
-        
+        $this->testFilePath = FileHelper::normalizePath(sys_get_temp_dir() . '/' . get_class($this));
+
         FileHelper::createDirectory($this->testFilePath, 0777);
 
         if (!file_exists($this->testFilePath)) {
@@ -273,37 +273,6 @@ final class FileHelperTest extends TestCase
         // https://msdn.microsoft.com/en-us/library/windows/desktop/aa365247%28v=vs.85%29.aspx
         // https://github.com/yiisoft/yii2/issues/13034
         $this->assertEquals('\\\\server/share/path/file', FileHelper::normalizePath('\\\\server\share\path\file'));
-    }
-
-    /**
-     * Creates test files structure.
-     *
-     * @param array $items file system objects to be created in format: objectName => objectContent
-     *                         Arrays specifies directories, other values - files.
-     * @param string $basePath structure base file path.
-     *
-     * @return void
-     */
-    private function createFileStructure(array $items, ?string $basePath = null): void
-    {
-        $basePath = $basePath ?? $this->testFilePath;
-
-        if (empty($basePath)) {
-            $basePath = $this->testFilePath;
-        }
-        foreach ($items as $name => $content) {
-            $itemName = $basePath . DIRECTORY_SEPARATOR . $name;
-            if (is_array($content)) {
-                if (isset($content[0], $content[1]) && $content[0] === 'symlink') {
-                    symlink($basePath . '/' . $content[1], $itemName);
-                } else {
-                    mkdir($itemName, 0777, true);
-                    $this->createFileStructure($content, $itemName);
-                }
-            } else {
-                file_put_contents($itemName, $content);
-            }
-        }
     }
 
     /**
@@ -560,5 +529,36 @@ final class FileHelperTest extends TestCase
         );
 
         $this->assertTrue(true, 'no error');
+    }
+
+    /**
+     * Creates test files structure.
+     *
+     * @param array $items file system objects to be created in format: objectName => objectContent
+     *                         Arrays specifies directories, other values - files.
+     * @param string $basePath structure base file path.
+     *
+     * @return void
+     */
+    private function createFileStructure(array $items, ?string $basePath = null): void
+    {
+        $basePath = $basePath ?? $this->testFilePath;
+
+        if (empty($basePath)) {
+            $basePath = $this->testFilePath;
+        }
+        foreach ($items as $name => $content) {
+            $itemName = $basePath . DIRECTORY_SEPARATOR . $name;
+            if (is_array($content)) {
+                if (isset($content[0], $content[1]) && $content[0] === 'symlink') {
+                    symlink($basePath . '/' . $content[1], $itemName);
+                } else {
+                    mkdir($itemName, 0777, true);
+                    $this->createFileStructure($content, $itemName);
+                }
+            } else {
+                file_put_contents($itemName, $content);
+            }
+        }
     }
 }
