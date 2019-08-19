@@ -1,9 +1,14 @@
 <?php
+declare(strict_types = 1);
+
 namespace Yiisoft\Files\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Yiisoft\Files\FileHelper;
 
+/**
+ * File helper tests class.
+ */
 final class FileHelperTest extends TestCase
 {
     /**
@@ -11,9 +16,15 @@ final class FileHelperTest extends TestCase
      */
     private $testFilePath = '';
 
-    public function setUp()
+    /**
+     * Setup.
+     *
+     * @return void
+     */
+    public function setUp(): void
     {
         $this->testFilePath = sys_get_temp_dir() . '/' . get_class($this);
+        
         FileHelper::createDirectory($this->testFilePath, 0777);
 
         if (!file_exists($this->testFilePath)) {
@@ -22,10 +33,9 @@ final class FileHelperTest extends TestCase
     }
 
     /**
-     * Check if chmod works as expected
+     * Check if chmod works as expected.
      *
-     * On remote file systems and vagrant mounts chmod returns true
-     * but file permissions are not set properly.
+     * On remote file systems and vagrant mounts chmod returns true but file permissions are not set properly.
      */
     private function isChmodReliable(): bool
     {
@@ -38,14 +48,21 @@ final class FileHelperTest extends TestCase
         return $mode === '0700';
     }
 
-    public function tearDown()
+    /**
+     * TearDown.
+     *
+     * @return void
+     */
+    public function tearDown(): void
     {
         FileHelper::removeDirectory($this->testFilePath);
     }
 
     /**
      * Get file permission mode.
+     *
      * @param string $file file name.
+     *
      * @return string permission mode.
      */
     private function getMode(string $file): string
@@ -55,9 +72,12 @@ final class FileHelperTest extends TestCase
 
     /**
      * Asserts that file has specific permission mode.
+     *
      * @param int $expectedMode expected file permission mode.
      * @param string $fileName file name.
      * @param string $message error message
+     *
+     * @return void
      */
     private function assertFileMode(int $expectedMode, string $fileName, string $message = ''): void
     {
@@ -65,8 +85,11 @@ final class FileHelperTest extends TestCase
         $this->assertEquals($expectedMode, $this->getMode($fileName), $message);
     }
 
-    // Tests :
-
+    /**
+     * Create directory.
+     *
+     * @return void
+     */
     public function testCreateDirectory(): void
     {
         $basePath = $this->testFilePath;
@@ -76,7 +99,11 @@ final class FileHelperTest extends TestCase
         $this->assertTrue(FileHelper::createDirectory($directory), 'FileHelper::createDirectory should return true for already existing directories!');
     }
 
-
+    /**
+     * Create directory permissions.
+     *
+     * @return void
+     */
     public function testCreateDirectoryPermissions(): void
     {
         if (!$this->isChmodReliable()) {
@@ -84,15 +111,21 @@ final class FileHelperTest extends TestCase
         }
 
         $basePath = $this->testFilePath;
-
         $dirName = $basePath . '/test_dir_perms';
+
         $this->assertTrue(FileHelper::createDirectory($dirName, 0700));
         $this->assertFileMode(0700, $dirName);
     }
 
+    /**
+     * Remove directory.
+     *
+     * @return void
+     */
     public function testRemoveDirectory(): void
     {
         $dirName = 'test_dir_for_remove';
+
         $this->createFileStructure([
             $dirName => [
                 'file1.txt' => 'file 1 content',
@@ -115,9 +148,15 @@ final class FileHelperTest extends TestCase
         FileHelper::removeDirectory($basePath . '/nonExisting');
     }
 
+    /**
+     * Remove directory symlinks1.
+     *
+     * @return void
+     */
     public function testRemoveDirectorySymlinks1(): void
     {
         $dirName = 'remove-directory-symlinks-1';
+
         $this->createFileStructure([
             $dirName => [
                 'file' => 'Symlinked file.',
@@ -133,6 +172,7 @@ final class FileHelperTest extends TestCase
         ]);
 
         $basePath = $this->testFilePath . '/' . $dirName . '/';
+
         $this->assertFileExists($basePath . 'file');
         $this->assertDirectoryExists($basePath . 'directory');
         $this->assertFileExists($basePath . 'directory/standard-file-1');
@@ -154,9 +194,15 @@ final class FileHelperTest extends TestCase
         $this->assertFileNotExists($basePath . 'symlinks/symlinked-directory/standard-file-1');
     }
 
+    /**
+     * Remove directory symlinks2.
+     *
+     * @return void
+     */
     public function testRemoveDirectorySymlinks2(): void
     {
         $dirName = 'remove-directory-symlinks-2';
+
         $this->createFileStructure([
             $dirName => [
                 'file' => 'Symlinked file.',
@@ -172,6 +218,7 @@ final class FileHelperTest extends TestCase
         ]);
 
         $basePath = $this->testFilePath . '/' . $dirName . '/';
+
         $this->assertFileExists($basePath . 'file');
         $this->assertDirectoryExists($basePath . 'directory');
         $this->assertFileExists($basePath . 'directory/standard-file-1');
@@ -193,6 +240,11 @@ final class FileHelperTest extends TestCase
         $this->assertFileNotExists($basePath . 'symlinks/symlinked-directory/standard-file-1');
     }
 
+    /**
+     * Normalize path.
+     *
+     * @return void
+     */
     public function testNormalizePath(): void
     {
         $this->assertEquals('/a/b', FileHelper::normalizePath('//a\\b/'));
@@ -225,9 +277,12 @@ final class FileHelperTest extends TestCase
 
     /**
      * Creates test files structure.
+     *
      * @param array $items file system objects to be created in format: objectName => objectContent
      *                         Arrays specifies directories, other values - files.
      * @param string $basePath structure base file path.
+     *
+     * @return void
      */
     private function createFileStructure(array $items, $basePath = null): void
     {
@@ -249,5 +304,261 @@ final class FileHelperTest extends TestCase
                 file_put_contents($itemName, $content);
             }
         }
+    }
+
+    /**
+     * Copy directory.
+     *
+     * @depends testCreateDirectory
+     *
+     * @return void
+     */
+    public function testCopyDirectory(): void
+    {
+        $source = 'test_src_dir';
+        $files = [
+            'file1.txt' => 'file 1 content',
+            'file2.txt' => 'file 2 content',
+        ];
+
+        $this->createFileStructure([
+            $source => $files,
+        ]);
+
+        $basePath = $this->testFilePath;
+        $source = $basePath . '/' . $source;
+        $destination = $basePath . '/test_dst_dir';
+
+        FileHelper::copyDirectory($source, $destination);
+
+        $this->assertFileExists($destination, 'Destination directory does not exist!');
+
+        foreach ($files as $name => $content) {
+            $fileName = $destination . '/' . $name;
+            $this->assertFileExists($fileName);
+            $this->assertStringEqualsFile($fileName, $content, 'Incorrect file content!');
+        }
+    }
+
+    /**
+     * Copy directory recursive.
+     *
+     * @return void
+     */
+    public function testCopyDirectoryRecursive(): void
+    {
+        $source = 'test_src_dir_rec';
+        $structure = [
+            'directory1' => [
+                'file1.txt' => 'file 1 content',
+                'file2.txt' => 'file 2 content',
+            ],
+            'directory2' => [
+                'file3.txt' => 'file 3 content',
+                'file4.txt' => 'file 4 content',
+            ],
+            'file5.txt' => 'file 5 content',
+        ];
+
+        $this->createFileStructure([
+            $source => $structure,
+        ]);
+
+        $basePath = $this->testFilePath;
+        $source = $basePath . '/' . $source;
+        $destination = $basePath . '/test_dst_dir';
+
+        FileHelper::copyDirectory($source, $destination);
+
+        $this->assertFileExists($destination, 'Destination directory does not exist!');
+
+        $checker = function ($structure, $dstDirName) use (&$checker) {
+            foreach ($structure as $name => $content) {
+                if (is_array($content)) {
+                    $checker($content, $dstDirName . '/' . $name);
+                } else {
+                    $fileName = $dstDirName . '/' . $name;
+                    $this->assertFileExists($fileName);
+                    $this->assertStringEqualsFile($fileName, $content, 'Incorrect file content!');
+                }
+            }
+        };
+        $checker($structure, $destination);
+    }
+
+    /**
+     * Copy directory not recursive.
+     *
+     * @return void
+     */
+    public function testCopyDirectoryNotRecursive(): void
+    {
+        $source = 'test_src_dir_not_rec';
+        $structure = [
+            'directory1' => [
+                'file1.txt' => 'file 1 content',
+                'file2.txt' => 'file 2 content',
+            ],
+            'directory2' => [
+                'file3.txt' => 'file 3 content',
+                'file4.txt' => 'file 4 content',
+            ],
+            'file5.txt' => 'file 5 content',
+        ];
+
+        $this->createFileStructure([
+            $source => $structure,
+        ]);
+
+        $basePath = $this->testFilePath;
+        $source = $basePath . '/' . $source;
+        $destination = $basePath . '/' . 'test_dst_dir';
+
+        FileHelper::copyDirectory($source, $destination, ['recursive' => false]);
+
+        $this->assertFileExists($destination, 'Destination directory does not exist!');
+
+        foreach ($structure as $name => $content) {
+            $fileName = $destination . '/' . $name;
+            if (is_array($content)) {
+                $this->assertFileNotExists($fileName);
+            } else {
+                $this->assertFileExists($fileName);
+                $this->assertStringEqualsFile($fileName, $content, 'Incorrect file content!');
+            }
+        }
+    }
+
+    /**
+     * Copy directory permissions.
+     *
+     * @depends testCopyDirectory
+     *
+     * @return void
+     */
+    public function testCopyDirectoryPermissions(): void
+    {
+        if (!$this->isChmodReliable()) {
+            $this->markTestSkipped('Skipping test since chmod is not reliable in this environment.');
+        }
+
+        $isWindows = DIRECTORY_SEPARATOR === '\\';
+
+        if ($isWindows) {
+            $this->markTestSkipped('Skipping tests on Windows because fileperms() always return 0777.');
+        }
+
+        $source = 'test_src_dir';
+        $subDirectory = 'test_sub_dir';
+        $fileName = 'test_file.txt';
+
+        $this->createFileStructure([
+            $source => [
+                $subDirectory => [],
+                $fileName => 'test file content',
+            ],
+        ]);
+
+        $basePath = $this->testFilePath;
+        $source = $basePath . '/' . $source;
+        $destination = $basePath . '/test_dst_dir';
+        $directoryMode = 0755;
+        $fileMode = 0755;
+        $options = [
+            'dirMode' => $directoryMode,
+            'fileMode' => $fileMode,
+        ];
+
+        FileHelper::copyDirectory($source, $destination, $options);
+
+        $this->assertFileMode($directoryMode, $destination, 'Destination directory has wrong mode!');
+        $this->assertFileMode($directoryMode, $destination . '/' . $subDirectory, 'Copied sub directory has wrong mode!');
+        $this->assertFileMode($fileMode, $destination . '/' . $fileName, 'Copied file has wrong mode!');
+    }
+
+    /**
+     * Copy directory to it self.
+     *
+     * @see https://github.com/yiisoft/yii2/issues/10710
+     *
+     * @return void
+     */
+    public function testCopyDirectoryToItself(): void
+    {
+        $directoryName = 'test_dir';
+
+        $this->createFileStructure([
+            $directoryName => [],
+        ]);
+        $this->expectException(\InvalidArgumentException::class);
+
+        $directoryName = $this->testFilePath . '/test_dir';
+
+        FileHelper::copyDirectory($directoryName, $directoryName);
+    }
+
+    /**
+     * Copy directory to sudirectory of it self.
+     *
+     * @see https://github.com/yiisoft/yii2/issues/10710
+     *
+     * @return void
+     */
+    public function testCopyDirToSubdirOfItself(): void
+    {
+        $this->createFileStructure([
+            'data' => [],
+            'backup' => ['data' => []],
+        ]);
+        $this->expectException(\InvalidArgumentException::class);
+
+        FileHelper::copyDirectory(
+            $this->testFilePath . '/backup',
+            $this->testFilePath . '/backup/data'
+        );
+    }
+
+    /**
+     * Copy directory to another with same name.
+     *
+     * @see https://github.com/yiisoft/yii2/issues/10710
+     *
+     * @return void
+     */
+    public function testCopyDirToAnotherWithSameName(): void
+    {
+        $this->createFileStructure([
+            'data' => [],
+            'backup' => ['data' => []],
+        ]);
+
+        FileHelper::copyDirectory(
+            $this->testFilePath . '/data',
+            $this->testFilePath . '/backup/data'
+        );
+
+        $this->assertFileExists($this->testFilePath . '/backup/data');
+    }
+
+    /**
+     * Copy directory with same name.
+     *
+     * @see https://github.com/yiisoft/yii2/issues/10710
+     *
+     * @return void
+     */
+    public function testCopyDirWithSameName(): void
+    {
+        $this->createFileStructure([
+            'data' => [],
+            'data-backup' => [],
+        ]);
+
+        FileHelper::copyDirectory(
+            $this->testFilePath . '/data',
+            $this->testFilePath . '/data-backup'
+        );
+
+        $this->assertTrue(true, 'no error');
     }
 }
