@@ -23,7 +23,7 @@ final class FileHelperTest extends TestCase
      */
     public function setUp(): void
     {
-        $this->testFilePath = FileHelper::normalizePath(sys_get_temp_dir() . '/' . get_class($this));
+        $this->testFilePath = sys_get_temp_dir() . '/' . get_class($this);
 
         FileHelper::createDirectory($this->testFilePath, 0777);
 
@@ -531,40 +531,230 @@ final class FileHelperTest extends TestCase
         $this->assertTrue(true, 'no error');
     }
 
-    public function testsFilterPath()
+    public function testsCopyDirectoryFilterPath()
     {
-        $source = 'test_src_dir';
-        $files = [
-            'file1.txt' => 'file 1 content',
-            'file2.php' => 'file 2 content',
-            'web' => [],
-            'testweb' => []
+        $source = 'boostrap4';
+
+        $structure = [
+            'css' => [
+                'bootstrap.css'           => 'file 1 content',
+                'bootstrap.css.map'       => 'file 2 content',
+                'bootstrap.min.css'       => 'file 3 content',
+                'bootstrap.min.css.map'   => 'file 4 content'
+            ],
+            'js' => [
+                'bootstrap.js'            => 'file 5 content',
+                'bootstrap.bundle.js'     => 'file 6 content',
+                'bootstrap.bundle.js.map' => 'file 7 content',
+                'bootstrap.min.js'        => 'file 8 content'
+            ]
         ];
 
         $this->createFileStructure([
-            $source => $files,
+            $source => $structure,
         ]);
 
         $basePath = $this->testFilePath;
         $source = $basePath . '/' . $source;
-    
-        // tests callback true.
-        $options = [
-            'filter' => function ($source) {
-                return strpos($source, 'test') !== false;
-            },
+        $destination = $basePath . '/assets';
+
+        // without filter options return all directory.
+        $options = [];
+
+        FileHelper::copyDirectory($source, $destination, $options);
+
+        $this->assertFileExists($destination, 'Destination directory does not exist!');
+
+        $checker = function ($structure, $dstDirName) use (&$checker) {
+            foreach ($structure as $name => $content) {
+                if (is_array($content)) {
+                    $checker($content, $dstDirName . '/' . $name);
+                } else {
+                    $fileName = $dstDirName . '/' . $name;
+                    $this->assertFileExists($fileName);
+                    $this->assertStringEqualsFile($fileName, $content, 'Incorrect file content!');
+                }
+            }
+        };
+
+        $checker($structure, $destination);
+    }
+
+    public function testsCopyDirectoryFilterPathOnly()
+    {
+        $source = 'boostrap4';
+
+        $structure = [
+            'css' => [
+                'bootstrap.css'           => 'file 1 content',
+                'bootstrap.css.map'       => 'file 2 content',
+                'bootstrap.min.css'       => 'file 3 content',
+                'bootstrap.min.css.map'   => 'file 4 content'
+            ],
+            'js' => [
+                'bootstrap.js'            => 'file 5 content',
+                'bootstrap.bundle.js'     => 'file 6 content',
+                'bootstrap.bundle.js.map' => 'file 7 content',
+                'bootstrap.min.js'        => 'file 8 content'
+            ]
         ];
 
-        $this->assertTrue(FileHelper::filterPath($source, $options));
-
-        // tests callback false.
-        $options = [
-            'filter' => function ($source) {
-                return strpos($source, 'public') !== false;
-            },
+        $exist = [
+            'css' => [
+                'bootstrap.css'           => 'file 1 content',
+                'bootstrap.min.css'       => 'file 3 content',
+            ]
         ];
 
-        $this->assertFalse(FileHelper::filterPath($source, $options));
+        $noexist = [
+            'css' => [
+                'bootstrap.css.map'       => 'file 2 content',
+                'bootstrap.min.css.map'   => 'file 4 content'
+            ],
+            'js' => [
+                'bootstrap.js'            => 'file 5 content',
+                'bootstrap.bundle.js'     => 'file 6 content',
+                'bootstrap.bundle.js.map' => 'file 7 content',
+                'bootstrap.min.js'        => 'file 8 content'
+            ]
+        ];
+
+        $this->createFileStructure([
+            $source => $structure,
+        ]);
+
+        $basePath = $this->testFilePath;
+        $source = $basePath . '/' . $source;
+        $destination = $basePath . '/assets';
+
+        // without filter options return all directory.
+        $options = [
+            // options default false AssetManager
+            'copyEmptyDirectories' => false,
+            'only' => [
+                'css/*.css',
+            ]
+        ];
+
+        FileHelper::copyDirectory($source, $destination, $options);
+
+        $this->assertFileExists($destination, 'Destination directory does not exist!');
+
+        $exist = function ($exist, $dstDirName) use (&$checker) {
+            foreach ($exist as $name => $content) {
+                if (is_array($content)) {
+                    $checker($content, $dstDirName . '/' . $name);
+                } else {
+                    $fileName = $dstDirName . '/' . $name;
+                    $this->assertFileExists($fileName);
+                    $this->assertStringEqualsFile($fileName, $content, 'Incorrect file content!');
+                }
+            }
+        };
+        $exist($exist, $destination);
+
+        $noexist = function ($noexist, $dstDirName) use (&$checker) {
+            foreach ($noexist as $name => $content) {
+                if (is_array($content)) {
+                    $checker($content, $dstDirName . '/' . $name);
+                } else {
+                    $fileName = $dstDirName . '/' . $name;
+                    $this->assertFileNotExists($fileName);
+                    $this->assertStringEqualsFile($fileName, $content, 'Incorrect file content!');
+                }
+            }
+        };
+        $noexist($noexist, $destination);
+    }
+
+    public function testsCopyDirectoryFilterPathExcept()
+    {
+        $source = 'boostrap4';
+
+        $structure = [
+            'css' => [
+                'bootstrap.css'           => 'file 1 content',
+                'bootstrap.css.map'       => 'file 2 content',
+                'bootstrap.min.css'       => 'file 3 content',
+                'bootstrap.min.css.map'   => 'file 4 content'
+            ],
+            'js' => [
+                'bootstrap.js'            => 'file 5 content',
+                'bootstrap.bundle.js'     => 'file 6 content',
+                'bootstrap.bundle.js.map' => 'file 7 content',
+                'bootstrap.min.js'        => 'file 8 content'
+            ]
+        ];
+
+        $exist = [
+            'css' => [
+                'bootstrap.css'           => 'file 1 content',
+            ]
+        ];
+
+        $noexist = [
+            'css' => [
+                'bootstrap.css.map'       => 'file 2 content',
+                'bootstrap.min.css'       => 'file 3 content',
+                'bootstrap.min.css.map'   => 'file 4 content'
+            ],
+            'js' => [
+                'bootstrap.js'            => 'file 5 content',
+                'bootstrap.bundle.js'     => 'file 6 content',
+                'bootstrap.bundle.js.map' => 'file 7 content',
+                'bootstrap.min.js'        => 'file 8 content'
+            ]
+        ];
+
+        $this->createFileStructure([
+            $source => $structure,
+        ]);
+
+        $basePath = $this->testFilePath;
+        $source = $basePath . '/' . $source;
+        $destination = $basePath . '/assets';
+
+        // without filter options return all directory.
+        $options = [
+            // options default false AssetManager
+            'copyEmptyDirectories' => false,
+            'only' => [
+                'css/*.css',
+            ],
+            'except' => [
+                'css/bootstrap.min.css'
+            ]
+        ];
+
+        FileHelper::copyDirectory($source, $destination, $options);
+
+        $this->assertFileExists($destination, 'Destination directory does not exist!');
+
+        $exist = function ($exist, $dstDirName) use (&$checker) {
+            foreach ($exist as $name => $content) {
+                if (is_array($content)) {
+                    $checker($content, $dstDirName . '/' . $name);
+                } else {
+                    $fileName = $dstDirName . '/' . $name;
+                    $this->assertFileExists($fileName);
+                    $this->assertStringEqualsFile($fileName, $content, 'Incorrect file content!');
+                }
+            }
+        };
+        $exist($exist, $destination);
+
+        $noexist = function ($noexist, $dstDirName) use (&$checker) {
+            foreach ($noexist as $name => $content) {
+                if (is_array($content)) {
+                    $checker($content, $dstDirName . '/' . $name);
+                } else {
+                    $fileName = $dstDirName . '/' . $name;
+                    $this->assertFileNotExists($fileName);
+                    $this->assertStringEqualsFile($fileName, $content, 'Incorrect file content!');
+                }
+            }
+        };
+        $noexist($noexist, $destination);
     }
 
     /**

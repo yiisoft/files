@@ -137,6 +137,8 @@ class FileHelper
      */
     public static function createDirectory(string $path, int $mode = 0775): bool
     {
+        $path = static::normalizePath($path);
+
         if (is_dir($path)) {
             return true;
         }
@@ -239,9 +241,11 @@ class FileHelper
             if ($file === '.' || $file === '..') {
                 continue;
             }
+
             $from = $source . '/' . $file;
             $to = $destination . '/' . $file;
-            if (static::filterPath($from, $options)) {
+
+            if ($status = static::filterPath($from, $options)) {
                 if (isset($options['beforeCopy']) && !\call_user_func($options['beforeCopy'], $from, $to)) {
                     continue;
                 }
@@ -310,24 +314,11 @@ class FileHelper
      */
     public static function filterPath(string $path, array $options): bool
     {
-        if (isset($options['filter'])) {
-            $result = \call_user_func($options['filter'], $path);
-
-            if (\is_bool($result)) {
-                return $result;
-            }
-        }
-
-        if (empty($options['except']) && empty($options['only'])) {
-            return true;
-        }
-
         $path = str_replace('\\', '/', $path);
 
         if (!empty($options['except'])) {
-            $except = self::lastExcludeMatchingFromList($options['basePath'], $path, $options['except']);
-            if ($except !== null) {
-                return $except['flags'] & self::PATTERN_NEGATIVE;
+            if (($except = self::lastExcludeMatchingFromList($options['basePath'], $path, $options['except'])) !== null) {
+                return false;
             }
         }
 
@@ -547,7 +538,7 @@ class FileHelper
         }
 
         $result['pattern'] = $pattern;
-        
+
         return $result;
     }
 }
