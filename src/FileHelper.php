@@ -137,8 +137,6 @@ class FileHelper
      */
     public static function createDirectory(string $path, int $mode = 0775): bool
     {
-        $path = static::normalizePath($path);
-
         if (is_dir($path)) {
             return true;
         }

@@ -23,8 +23,8 @@ final class FileHelperTest extends TestCase
      */
     public function setUp(): void
     {
-        $this->testFilePath = sys_get_temp_dir() . '/' . get_class($this);
-
+        $this->testFilePath = FileHelper::normalizePath(sys_get_temp_dir() . '/' . get_class($this));
+        
         FileHelper::createDirectory($this->testFilePath, 0777);
 
         if (!file_exists($this->testFilePath)) {
