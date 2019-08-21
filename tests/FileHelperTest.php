@@ -512,20 +512,7 @@ final class FileHelperTest extends TestCase
         FileHelper::copyDirectory($source, $destination, $options);
 
         $this->assertFileExists($destination, 'Destination directory does not exist!');
-
-        $checker = function ($structure, $dstDirName) use (&$checker) {
-            foreach ($structure as $name => $content) {
-                if (is_array($content)) {
-                    $checker($content, $dstDirName . '/' . $name);
-                } else {
-                    $fileName = $dstDirName . '/' . $name;
-                    $this->assertFileExists($fileName);
-                    $this->assertStringEqualsFile($fileName, $content, 'Incorrect file content!');
-                }
-            }
-        };
-
-        $checker($structure, $destination);
+        $this->checkExist($structure, $destination);
     }
 
     public function testsCopyDirectoryFilterPathOnly()
@@ -587,32 +574,8 @@ final class FileHelperTest extends TestCase
         FileHelper::copyDirectory($source, $destination, $options);
 
         $this->assertFileExists($destination, 'Destination directory does not exist!');
-
-        $exist = function ($exist, $dstDirName) use (&$checker) {
-            foreach ($exist as $name => $content) {
-                if (is_array($content)) {
-                    $checker($content, $dstDirName . '/' . $name);
-                } else {
-                    $fileName = $dstDirName . '/' . $name;
-                    $this->assertFileExists($fileName);
-                    $this->assertStringEqualsFile($fileName, $content, 'Incorrect file content!');
-                }
-            }
-        };
-        $exist($exist, $destination);
-
-        $noexist = function ($noexist, $dstDirName) use (&$checker) {
-            foreach ($noexist as $name => $content) {
-                if (is_array($content)) {
-                    $checker($content, $dstDirName . '/' . $name);
-                } else {
-                    $fileName = $dstDirName . '/' . $name;
-                    $this->assertFileNotExists($fileName);
-                    $this->assertStringEqualsFile($fileName, $content, 'Incorrect file content!');
-                }
-            }
-        };
-        $noexist($noexist, $destination);
+        $this->checkExist($exist, $destination);
+        $this->checkNoexist($noexist, $destination);
     }
 
     public function testsCopyDirectoryFilterPathExcept()
@@ -677,32 +640,49 @@ final class FileHelperTest extends TestCase
         FileHelper::copyDirectory($source, $destination, $options);
 
         $this->assertFileExists($destination, 'Destination directory does not exist!');
+        $this->checkExist($exist, $destination);
+        $this->checkNoexist($noexist, $destination);
+    }
 
-        $exist = function ($exist, $dstDirName) use (&$checker) {
-            foreach ($exist as $name => $content) {
-                if (is_array($content)) {
-                    $checker($content, $dstDirName . '/' . $name);
-                } else {
-                    $fileName = $dstDirName . '/' . $name;
-                    $this->assertFileExists($fileName);
-                    $this->assertStringEqualsFile($fileName, $content, 'Incorrect file content!');
-                }
+    /**
+     * Check if exist filename.
+     *
+     * @param array $exist
+     * @param string $dstDirName
+     *
+     * @return void
+     */
+    private function checkExist(array $exist, string $dstDirName): void
+    {
+        foreach ($exist as $name => $content) {
+            if (is_array($content)) {
+                $this->checkExist($content, $dstDirName . '/' . $name);
+            } else {
+                $fileName = $dstDirName . '/' . $name;
+                $this->assertFileExists($fileName);
+                $this->assertStringEqualsFile($fileName, $content, 'Incorrect file content!');
             }
-        };
-        $exist($exist, $destination);
+        }
+    }
 
-        $noexist = function ($noexist, $dstDirName) use (&$checker) {
-            foreach ($noexist as $name => $content) {
-                if (is_array($content)) {
-                    $checker($content, $dstDirName . '/' . $name);
-                } else {
-                    $fileName = $dstDirName . '/' . $name;
-                    $this->assertFileNotExists($fileName);
-                    $this->assertStringEqualsFile($fileName, $content, 'Incorrect file content!');
-                }
+    /**
+     * Check if no exist filename.
+     *
+     * @param array $noexist
+     * @param string $dstDirName
+     *
+     * @return void
+     */
+    private function checkNoexist(array $noexist, string $dstDirName): void
+    {
+        foreach ($noexist as $name => $content) {
+            if (is_array($content)) {
+                $this->checkNoexist($content, $dstDirName . '/' . $name);
+            } else {
+                $fileName = $dstDirName . '/' . $name;
+                $this->assertFileNotExists($fileName);
             }
-        };
-        $noexist($noexist, $destination);
+        }
     }
 
     /**
