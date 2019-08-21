@@ -10,11 +10,85 @@ use Yiisoft\Strings\StringHelper;
  */
 class FileHelper
 {
+    /**
+     * @var int PATTERN_NO_DIR
+     */
     private const PATTERN_NO_DIR = 1;
+
+    /**
+     * @var int PATTERN_ENDS_WITH
+     */
     private const PATTERN_ENDS_WITH = 4;
+
+    /**
+     * @var int PATTERN_MUST_BE_DIR
+     */
     private const PATTERN_MUST_BE_DIR = 8;
+
+    /**
+     * @var int PATTERN_NEGATIVE
+     */
     private const PATTERN_NEGATIVE = 16;
+
+    /**
+     * @var int PATTERN_CASE_INSENSITIVE
+     */
     private const PATTERN_CASE_INSENSITIVE = 32;
+
+    /**
+     * Creates a new directory.
+     *
+     * This method is similar to the PHP `mkdir()` function except that it uses `chmod()` to set the permission of the
+     * created directory in order to avoid the impact of the `umask` setting.
+     *
+     * @param string $path path of the directory to be created.
+     * @param int $mode the permission to be set for the created directory.
+     *
+     * @return bool whether the directory is created successfully.
+     */
+    public static function createDirectory(string $path, int $mode = 0775): bool
+    {
+        $path = static::normalizePath($path);
+
+        try {
+            if (!mkdir($path, $mode, true) && !is_dir($path)) {
+                return false;
+            }
+        } catch (\Exception $e) {
+            if (!is_dir($path)) {
+                throw new \RuntimeException(
+                    "Failed to create directory \"$path\": " . $e->getMessage(),
+                    $e->getCode(),
+                    $e
+                );
+            }
+        }
+
+        return static::chmod($path, $mode);
+    }
+
+    /**
+     * Set permissions directory.
+     *
+     * @param string $path
+     * @param integer $mode
+     *
+     * @throws \RuntimeException
+     *
+     * @return boolean|null
+     */
+    private static function chmod(string $path, int $mode): ?bool
+    {
+        try {
+            return chmod($path, $mode);
+        } catch (\Exception $e) {
+            throw new \RuntimeException(
+                "Failed to change permissions for directory \"$path\": " . $e->getMessage(),
+                $e->getCode(),
+                $e
+            );
+        }
+    }
 
     /**
      * Normalizes a file/directory path.
@@ -44,6 +118,7 @@ class FileHelper
             if ($isWindowsShare) {
                 $path = $path = '\\\\' . $path;
             }
+
             return $path;
         }
 
@@ -56,10 +131,13 @@ class FileHelper
                 $parts[] = $part;
             }
         }
+
         $path = implode('/', $parts);
+
         if ($isWindowsShare) {
             $path = '\\\\' . $path;
         }
+
         return $path === '' ? '.' : $path;
     }
 
@@ -81,6 +159,7 @@ class FileHelper
             if (!($handle = @opendir($directory))) {
                 return;
             }
+
             while (($file = readdir($handle)) !== false) {
                 if ($file === '.' || $file === '..') {
                     continue;
@@ -92,6 +171,7 @@ class FileHelper
                     self::unlink($path);
                 }
             }
+
             closedir($handle);
         }
 
@@ -122,40 +202,6 @@ class FileHelper
         }
 
         return unlink($path);
-    }
-
-    /**
-     * Creates a new directory.
-     *
-     * This method is similar to the PHP `mkdir()` function except that it uses `chmod()` to set the permission of the
-     * created directory in order to avoid the impact of the `umask` setting.
-     *
-     * @param string $path path of the directory to be created.
-     * @param int $mode the permission to be set for the created directory.
-     *
-     * @return bool whether the directory is created successfully.
-     */
-    public static function createDirectory(string $path, int $mode = 0775): bool
-    {
-        if (is_dir($path)) {
-            return true;
-        }
-        
-        try {
-            if (!mkdir($path, $mode, true) && !is_dir($path)) {
-                return false;
-            }
-        } catch (\Exception $e) {
-            if (!is_dir($path)) { // https://github.com/yiisoft/yii2/issues/9288
-                throw new \RuntimeException("Failed to create directory \"$path\": " . $e->getMessage(), $e->getCode(), $e);
-            }
-        }
-
-        try {
-            return chmod($path, $mode);
-        } catch (\Exception $e) {
-            throw new \RuntimeException("Failed to change permissions for directory \"$path\": " . $e->getMessage(), $e->getCode(), $e);
-        }
     }
 
     /**
@@ -213,28 +259,13 @@ class FileHelper
         $source = static::normalizePath($source);
         $destination = static::normalizePath($destination);
 
-        if ($source === $destination || strpos($destination, $source . '/') === 0) {
-            throw new \InvalidArgumentException('Trying to copy a directory to itself or a subdirectory.');
-        }
+        static::isSelfDirectory($source, $destination);
 
-        $destinationExists = is_dir($destination);
+        $destinationExists = static::setDestination($destination, $options);
 
-        if (!$destinationExists && (!isset($options['copyEmptyDirectories']) || $options['copyEmptyDirectories'])) {
-            static::createDirectory($destination, $options['dirMode'] ?? 0775);
-            $destinationExists = true;
-        }
+        $handle = static::isSourceDirectory($source);
 
-        $handle = opendir($source);
-
-        if ($handle === false) {
-            throw new \InvalidArgumentException("Unable to open directory: $source");
-        }
-
-        if (!isset($options['basePath'])) {
-            // this should be done only once
-            $options['basePath'] = realpath($source);
-            $options = static::normalizeOptions($options);
-        }
+        $options = static::setBasePath($source, $options);
 
         while (($file = readdir($handle)) !== false) {
             if ($file === '.' || $file === '..') {
@@ -245,12 +276,8 @@ class FileHelper
             $to = $destination . '/' . $file;
 
             if (static::filterPath($from, $options)) {
-                if (isset($options['beforeCopy']) && !\call_user_func($options['beforeCopy'], $from, $to)) {
-                    continue;
-                }
                 if (is_file($from)) {
                     if (!$destinationExists) {
-                        // delay creation of destination directory until the first file is copied to avoid creating empty directories
                         static::createDirectory($destination, $options['dirMode'] ?? 0775);
                         $destinationExists = true;
                     }
@@ -259,16 +286,88 @@ class FileHelper
                         @chmod($to, $options['fileMode']);
                     }
                 } elseif (!isset($options['recursive']) || $options['recursive']) {
-                    // recursive copy, defaults to true
                     static::copyDirectory($from, $to, $options);
-                }
-                if (isset($options['afterCopy'])) {
-                    \call_user_func($options['afterCopy'], $from, $to);
                 }
             }
         }
 
         closedir($handle);
+    }
+
+    /**
+     * Check copy it self directory.
+     *
+     * @param string $source
+     * @param string $destination
+     *
+     * @throws \InvalidArgumentException
+     *
+     * @return boolean
+     */
+    private static function isSelfDirectory(string $source, string $destination)
+    {
+        if ($source === $destination || strpos($destination, $source . '/') === 0) {
+            throw new \InvalidArgumentException('Trying to copy a directory to itself or a subdirectory.');
+        }
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @param string $source
+     *
+     * @throws \InvalidArgumentException
+     *
+     * @return resource
+     */
+    private static function isSourceDirectory(string $source)
+    {
+        $handle = @opendir($source);
+
+        if ($handle === false) {
+            throw new \InvalidArgumentException("Unable to open directory: $source");
+        }
+
+        return $handle;
+    }
+
+    /**
+     * Set base path directory.
+     *
+     * @param string $source
+     * @param array $options
+     *
+     * @return array
+     */
+    private static function setBasePath(string $source, array $options): array
+    {
+        if (!isset($options['basePath'])) {
+            // this should be done only once
+            $options['basePath'] = realpath($source);
+            $options = static::normalizeOptions($options);
+        }
+
+        return $options;
+    }
+
+    /**
+     * Set destination directory.
+     *
+     * @param string $destination
+     * @param array $options
+     *
+     * @return bool
+     */
+    private static function setDestination(string $destination, array $options): bool
+    {
+        $destinationExists = is_dir($destination);
+
+        if (!$destinationExists && (!isset($options['copyEmptyDirectories']) || $options['copyEmptyDirectories'])) {
+            static::createDirectory($destination, $options['dirMode'] ?? 0775);
+            $destinationExists = true;
+        }
+
+        return $destinationExists;
     }
 
     /**
@@ -375,7 +474,9 @@ class FileHelper
             }
 
             if (!isset($exclude['pattern'], $exclude['flags'], $exclude['firstWildcard'])) {
-                throw new \InvalidArgumentException('If exclude/include pattern is an array it must contain the pattern, flags and firstWildcard keys.');
+                throw new \InvalidArgumentException(
+                    'If exclude/include pattern is an array it must contain the pattern, flags and firstWildcard keys.'
+                );
             }
 
             if (($exclude['flags'] & self::PATTERN_MUST_BE_DIR) && !is_dir($path)) {
@@ -508,9 +609,7 @@ class FileHelper
             'firstWildcard' => false,
         ];
 
-        if (!$caseSensitive) {
-            $result['flags'] |= self::PATTERN_CASE_INSENSITIVE;
-        }
+        $result = static::isCaseInsensitive($caseSensitive, $result);
 
         if (!isset($pattern[0])) {
             return $result;
@@ -526,17 +625,64 @@ class FileHelper
             $result['flags'] |= self::PATTERN_MUST_BE_DIR;
         }
 
+        $result = static::isPatternNoDir($pattern, $result);
+
+        $result['firstWildcard'] = self::firstWildcardInPattern($pattern);
+
+        $result = static::isPatternEndsWith($pattern, $result);
+
+        $result['pattern'] = $pattern;
+
+        return $result;
+    }
+
+    /**
+     * Check isCaseInsensitive.
+     *
+     * @param boolean $caseSensitive
+     * @param array $result
+     *
+     * @return array
+     */
+    private static function isCaseInsensitive(bool $caseSensitive, array $result): array
+    {
+        if (!$caseSensitive) {
+            $result['flags'] |= self::PATTERN_CASE_INSENSITIVE;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Check pattern no directory.
+     *
+     * @param string $pattern
+     * @param array $result
+     *
+     * @return array
+     */
+    private static function isPatternNoDir(string $pattern, array $result): array
+    {
         if (strpos($pattern, '/') === false) {
             $result['flags'] |= self::PATTERN_NO_DIR;
         }
 
-        $result['firstWildcard'] = self::firstWildcardInPattern($pattern);
+        return $result;
+    }
 
+    /**
+     * Check pattern ends with
+     *
+     * @param string $pattern
+     * @param array $result
+     *
+     * @return array
+     */
+    private static function isPatternEndsWith(string $pattern, array $result): array
+    {
         if (strpos($pattern, '*') === 0 && self::firstWildcardInPattern(StringHelper::byteSubstr($pattern, 1, StringHelper::byteLength($pattern))) === false) {
             $result['flags'] |= self::PATTERN_ENDS_WITH;
         }
-
-        $result['pattern'] = $pattern;
 
         return $result;
     }
