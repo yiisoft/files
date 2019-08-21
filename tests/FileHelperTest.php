@@ -16,11 +16,6 @@ final class FileHelperTest extends TestCase
      */
     private $testFilePath = '';
 
-    /**
-     * Setup.
-     *
-     * @return void
-     */
     public function setUp(): void
     {
         $this->testFilePath = FileHelper::normalizePath(sys_get_temp_dir() . '/' . get_class($this));
@@ -32,57 +27,9 @@ final class FileHelperTest extends TestCase
         }
     }
 
-    /**
-     * Check if chmod works as expected.
-     *
-     * On remote file systems and vagrant mounts chmod returns true but file permissions are not set properly.
-     */
-    private function isChmodReliable(): bool
-    {
-        $directory = $this->testFilePath . '/test_chmod';
-        mkdir($directory);
-        chmod($directory, 0700);
-        $mode = $this->getMode($directory);
-        rmdir($directory);
-
-        return $mode === '0700';
-    }
-
-    /**
-     * TearDown.
-     *
-     * @return void
-     */
     public function tearDown(): void
     {
         FileHelper::removeDirectory($this->testFilePath);
-    }
-
-    /**
-     * Get file permission mode.
-     *
-     * @param string $file file name.
-     *
-     * @return string permission mode.
-     */
-    private function getMode(string $file): string
-    {
-        return substr(sprintf('%04o', fileperms($file)), -4);
-    }
-
-    /**
-     * Asserts that file has specific permission mode.
-     *
-     * @param int $expectedMode expected file permission mode.
-     * @param string $fileName file name.
-     * @param string $message error message
-     *
-     * @return void
-     */
-    private function assertFileMode(int $expectedMode, string $fileName, string $message = ''): void
-    {
-        $expectedMode = sprintf('%04o', $expectedMode);
-        $this->assertEquals($expectedMode, $this->getMode($fileName), $message);
     }
 
     /**
@@ -273,6 +220,7 @@ final class FileHelperTest extends TestCase
         // https://msdn.microsoft.com/en-us/library/windows/desktop/aa365247%28v=vs.85%29.aspx
         // https://github.com/yiisoft/yii2/issues/13034
         $this->assertEquals('\\\\server/share/path/file', FileHelper::normalizePath('\\\\server\share\path\file'));
+        $this->assertEquals('\\\\server/share/path/file', FileHelper::normalizePath('\\\\server\share\path//file'));
     }
 
     /**
@@ -758,6 +706,21 @@ final class FileHelperTest extends TestCase
     }
 
     /**
+     * Asserts that file has specific permission mode.
+     *
+     * @param int $expectedMode expected file permission mode.
+     * @param string $fileName file name.
+     * @param string $message error message
+     *
+     * @return void
+     */
+    private function assertFileMode(int $expectedMode, string $fileName, string $message = ''): void
+    {
+        $expectedMode = sprintf('%04o', $expectedMode);
+        $this->assertEquals($expectedMode, $this->getMode($fileName), $message);
+    }
+
+    /**
      * Creates test files structure.
      *
      * @param array $items file system objects to be created in format: objectName => objectContent
@@ -786,5 +749,33 @@ final class FileHelperTest extends TestCase
                 file_put_contents($itemName, $content);
             }
         }
+    }
+
+    /**
+     * Get file permission mode.
+     *
+     * @param string $file file name.
+     *
+     * @return string permission mode.
+     */
+    private function getMode(string $file): string
+    {
+        return substr(sprintf('%04o', fileperms($file)), -4);
+    }
+
+    /**
+     * Check if chmod works as expected.
+     *
+     * On remote file systems and vagrant mounts chmod returns true but file permissions are not set properly.
+     */
+    private function isChmodReliable(): bool
+    {
+        $directory = $this->testFilePath . '/test_chmod';
+        mkdir($directory);
+        chmod($directory, 0700);
+        $mode = $this->getMode($directory);
+        rmdir($directory);
+
+        return $mode === '0700';
     }
 }

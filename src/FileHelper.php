@@ -33,11 +33,13 @@ class FileHelper
     public static function normalizePath(string $path): string
     {
         $isWindowsShare = strpos($path, '\\\\') === 0;
+
         if ($isWindowsShare) {
             $path = substr($path, 2);
         }
 
         $path = rtrim(strtr($path, '/\\', '//'), '/');
+
         if (strpos('/' . $path, '/.') === false && strpos($path, '//') === false) {
             if ($isWindowsShare) {
                 $path = $path = '\\\\' . $path;
@@ -75,11 +77,8 @@ class FileHelper
      */
     public static function removeDirectory(string $directory, array $options = []): void
     {
-        if (!is_dir($directory)) {
-            return;
-        }
         if (!empty($options['traverseSymlinks']) || !is_link($directory)) {
-            if (!($handle = opendir($directory))) {
+            if (!($handle = @opendir($directory))) {
                 return;
             }
             while (($file = readdir($handle)) !== false) {
@@ -95,6 +94,7 @@ class FileHelper
             }
             closedir($handle);
         }
+
         if (is_link($directory)) {
             self::unlink($directory);
         } else {
@@ -140,6 +140,7 @@ class FileHelper
         if (is_dir($path)) {
             return true;
         }
+        
         try {
             if (!mkdir($path, $mode, true) && !is_dir($path)) {
                 return false;
@@ -243,7 +244,7 @@ class FileHelper
             $from = $source . '/' . $file;
             $to = $destination . '/' . $file;
 
-            if ($status = static::filterPath($from, $options)) {
+            if (static::filterPath($from, $options)) {
                 if (isset($options['beforeCopy']) && !\call_user_func($options['beforeCopy'], $from, $to)) {
                     continue;
                 }
@@ -315,7 +316,7 @@ class FileHelper
         $path = str_replace('\\', '/', $path);
 
         if (!empty($options['except'])) {
-            if (($except = self::lastExcludeMatchingFromList($options['basePath'], $path, $options['except'])) !== null) {
+            if ((self::lastExcludeMatchingFromList($options['basePath'], $path, $options['except'])) !== null) {
                 return false;
             }
         }
