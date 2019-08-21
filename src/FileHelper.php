@@ -283,7 +283,7 @@ class FileHelper
                     }
                     copy($from, $to);
                     if (isset($options['fileMode'])) {
-                        @chmod($to, $options['fileMode']);
+                        static::chmod($to, $options['fileMode']);
                     }
                 } elseif (!isset($options['recursive']) || $options['recursive']) {
                     static::copyDirectory($from, $to, $options);
