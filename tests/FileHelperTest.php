@@ -32,11 +32,6 @@ final class FileHelperTest extends TestCase
         FileHelper::removeDirectory($this->testFilePath);
     }
 
-    /**
-     * Create directory.
-     *
-     * @return void
-     */
     public function testCreateDirectory(): void
     {
         $basePath = $this->testFilePath;
@@ -46,11 +41,6 @@ final class FileHelperTest extends TestCase
         $this->assertTrue(FileHelper::createDirectory($directory), 'FileHelper::createDirectory should return true for already existing directories!');
     }
 
-    /**
-     * Create directory permissions.
-     *
-     * @return void
-     */
     public function testCreateDirectoryPermissions(): void
     {
         if (!$this->isChmodReliable()) {
@@ -64,11 +54,6 @@ final class FileHelperTest extends TestCase
         $this->assertFileMode(0700, $dirName);
     }
 
-    /**
-     * Remove directory.
-     *
-     * @return void
-     */
     public function testRemoveDirectory(): void
     {
         $dirName = 'test_dir_for_remove';
@@ -95,11 +80,6 @@ final class FileHelperTest extends TestCase
         FileHelper::removeDirectory($basePath . '/nonExisting');
     }
 
-    /**
-     * Remove directory symlinks1.
-     *
-     * @return void
-     */
     public function testRemoveDirectorySymlinks1(): void
     {
         $dirName = 'remove-directory-symlinks-1';
@@ -141,11 +121,6 @@ final class FileHelperTest extends TestCase
         $this->assertFileNotExists($basePath . 'symlinks/symlinked-directory/standard-file-1');
     }
 
-    /**
-     * Remove directory symlinks2.
-     *
-     * @return void
-     */
     public function testRemoveDirectorySymlinks2(): void
     {
         $dirName = 'remove-directory-symlinks-2';
@@ -187,11 +162,6 @@ final class FileHelperTest extends TestCase
         $this->assertFileNotExists($basePath . 'symlinks/symlinked-directory/standard-file-1');
     }
 
-    /**
-     * Normalize path.
-     *
-     * @return void
-     */
     public function testNormalizePath(): void
     {
         $this->assertEquals('/a/b', FileHelper::normalizePath('//a\\b/'));
@@ -257,11 +227,6 @@ final class FileHelperTest extends TestCase
         }
     }
 
-    /**
-     * Copy directory recursive.
-     *
-     * @return void
-     */
     public function testCopyDirectoryRecursive(): void
     {
         $source = 'test_src_dir_rec';
@@ -303,11 +268,6 @@ final class FileHelperTest extends TestCase
         $checker($structure, $destination);
     }
 
-    /**
-     * Copy directory not recursive.
-     *
-     * @return void
-     */
     public function testCopyDirectoryNotRecursive(): void
     {
         $source = 'test_src_dir_not_rec';
@@ -346,13 +306,6 @@ final class FileHelperTest extends TestCase
         }
     }
 
-    /**
-     * Copy directory permissions.
-     *
-     * @depends testCopyDirectory
-     *
-     * @return void
-     */
     public function testCopyDirectoryPermissions(): void
     {
         if (!$this->isChmodReliable()) {
@@ -479,7 +432,7 @@ final class FileHelperTest extends TestCase
         $this->assertTrue(true, 'no error');
     }
 
-    public function testsCopyDirectoryFilterPath()
+    public function testsCopyDirectoryFilterPath(): void
     {
         $source = 'boostrap4';
 
@@ -515,7 +468,7 @@ final class FileHelperTest extends TestCase
         $this->checkExist($structure, $destination);
     }
 
-    public function testsCopyDirectoryFilterPathOnly()
+    public function testsCopyDirectoryFilterPathOnly(): void
     {
         $source = 'boostrap4';
 
@@ -578,7 +531,7 @@ final class FileHelperTest extends TestCase
         $this->checkNoexist($noexist, $destination);
     }
 
-    public function testsCopyDirectoryFilterPathExcept()
+    public function testsCopyDirectoryFilterPathExcept(): void
     {
         $source = 'boostrap4';
 

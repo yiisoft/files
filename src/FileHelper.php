@@ -312,7 +312,7 @@ class FileHelper
     }
 
     /**
-     * Undocumented function
+     * Check if exist source directory.
      *
      * @param string $source
      *
@@ -379,10 +379,38 @@ class FileHelper
      */
     protected static function normalizeOptions(array $options): array
     {
+        $options = static::setCaseSensitive($options);
+        $options = static::setExcept($options);
+        $options = static::setOnly($options);
+
+        return $options;
+    }
+
+    /**
+     * Set options case sensitive.
+     *
+     * @param array $options
+     *
+     * @return array
+     */
+    private static function setCaseSensitive(array $options): array
+    {
         if (!array_key_exists('caseSensitive', $options)) {
             $options['caseSensitive'] = true;
         }
 
+        return $options;
+    }
+
+    /**
+     * Set options except.
+     *
+     * @param array $options
+     *
+     * @return array
+     */
+    private static function setExcept(array $options): array
+    {
         if (isset($options['except'])) {
             foreach ($options['except'] as $key => $value) {
                 if (\is_string($value)) {
@@ -391,6 +419,18 @@ class FileHelper
             }
         }
 
+        return $options;
+    }
+
+    /**
+     * Set options only.
+     *
+     * @param array $options
+     *
+     * @return array
+     */
+    private static function setOnly(array $options): array
+    {
         if (isset($options['only'])) {
             foreach ($options['only'] as $key => $value) {
                 if (\is_string($value)) {
