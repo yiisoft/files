@@ -28,10 +28,7 @@ class FileHelper
 
         $path = rtrim(strtr($path, '/\\', '//'), '/');
         if (strpos('/' . $path, '/.') === false && strpos($path, '//') === false) {
-            if ($isWindowsShare) {
-                $path = $path = '\\\\' . $path;
-            }
-            return $path;
+            return $isWindowsShare ? "\\\\$path" : $path;
         }
 
         $parts = [];
