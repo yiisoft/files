@@ -605,12 +605,12 @@ class FileHelper
                 return false;
             }
 
-            if (strncmp($pattern, $name, $firstWildcard)) {
+            if (strncmp($pattern, $name, (int) $firstWildcard)) {
                 return false;
             }
 
-            $pattern = StringHelper::byteSubstr($pattern, $firstWildcard, StringHelper::byteLength($pattern));
-            $name = StringHelper::byteSubstr($name, $firstWildcard, $namelen);
+            $pattern = StringHelper::byteSubstr($pattern, (int) $firstWildcard, StringHelper::byteLength($pattern));
+            $name = StringHelper::byteSubstr($name, (int) $firstWildcard, $namelen);
 
             // If the whole pattern did not have a wildcard, then our prefix match is all we need; we do not need to call fnmatch at all.
             if (empty($pattern) && empty($name)) {

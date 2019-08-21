@@ -253,19 +253,7 @@ final class FileHelperTest extends TestCase
         FileHelper::copyDirectory($source, $destination);
 
         $this->assertFileExists($destination, 'Destination directory does not exist!');
-
-        $checker = function ($structure, $dstDirName) use (&$checker) {
-            foreach ($structure as $name => $content) {
-                if (is_array($content)) {
-                    $checker($content, $dstDirName . '/' . $name);
-                } else {
-                    $fileName = $dstDirName . '/' . $name;
-                    $this->assertFileExists($fileName);
-                    $this->assertStringEqualsFile($fileName, $content, 'Incorrect file content!');
-                }
-            }
-        };
-        $checker($structure, $destination);
+        $this->checkExist($structure, $destination);
     }
 
     public function testCopyDirectoryNotRecursive(): void
