@@ -51,9 +51,7 @@ class FileHelper
         $path = static::normalizePath($path);
 
         try {
-            if (!mkdir($path, $mode, true) && !is_dir($path)) {
-                return false;
-            }
+            return \mkdir($path, $mode, \true) && \is_dir($path);
         } catch (\Exception $e) {
             if (!is_dir($path)) {
                 throw new \RuntimeException(
