@@ -2,7 +2,9 @@
     "name": "yiisoft/files",
     "type": "library",
     "description": "",
-    "keywords": ["files"],
+    "keywords": [
+        "files"
+    ],
     "homepage": "http://www.yiiframework.com/",
     "license": "BSD-3-Clause",
     "support": {
@@ -33,5 +35,8 @@
         "branch-alias": {
             "dev-master": "3.0.x-dev"
         }
+    },
+    "config": {
+        "sort-packages": true
     }
 }
