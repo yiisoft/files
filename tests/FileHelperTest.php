@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+
+declare(strict_types=1);
 
 namespace Yiisoft\Files\Tests;
 
@@ -19,7 +20,7 @@ final class FileHelperTest extends TestCase
     public function setUp(): void
     {
         $this->testFilePath = FileHelper::normalizePath(sys_get_temp_dir() . '/' . get_class($this));
-        
+
         FileHelper::createDirectory($this->testFilePath, 0777);
 
         if (!file_exists($this->testFilePath)) {
