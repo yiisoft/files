@@ -16,6 +16,8 @@
     },
     "require": {
         "php": "^7.4",
+        "league/flysystem": "^2.0@dev",
+        "yiisoft/aliases": "^3.0@dev",
         "yiisoft/strings": "^3.0@dev"
     },
     "require-dev": {
@@ -34,6 +36,10 @@
     "extra": {
         "branch-alias": {
             "dev-master": "3.0.x-dev"
+        },
+        "config-plugin": {
+            "common": "config/common.php",
+            "providers": "config/providers.php"
         }
     },
     "config": {
