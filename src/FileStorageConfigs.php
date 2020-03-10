@@ -2,7 +2,7 @@
 
 namespace Yiisoft\Files;
 
-class FileStorageConfigs
+final class FileStorageConfigs
 {
     private array $storageConfigs = [];
 

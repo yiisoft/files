@@ -7,7 +7,7 @@ use Yiisoft\Di\Container;
 use Yiisoft\Di\Support\ServiceProvider;
 use Yiisoft\Factory\Factory;
 
-class FileStorageServiceProvider extends ServiceProvider
+final class FileStorageServiceProvider extends ServiceProvider
 {
     public function register(Container $container): void
     {
@@ -31,10 +31,10 @@ class FileStorageServiceProvider extends ServiceProvider
     {
         $adapter = $config['adapter']['__class'] ?? false;
         if (!$adapter) {
-            throw new \InvalidArgumentException("Adapter is not defined in the '$alias' storage config.");
+            throw new \RuntimeException("Adapter is not defined in the '$alias' storage config.");
         }
         if (!is_subclass_of($adapter, FilesystemAdapter::class)) {
-            throw new \InvalidArgumentException("Adapter must implements FilesystemAdapterInterface.");
+            throw new \RuntimeException("Adapter must implements FilesystemAdapterInterface.");
         }
     }
 }
