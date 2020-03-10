@@ -18,7 +18,12 @@ class FileStorageServiceProvider extends ServiceProvider
             $configParams = $config['config'] ?? [];
             $aliases = $config['aliases'] ?? [];
             $adapter = $factory->create($config['adapter']);
-            $container->set($alias, new Filesystem($adapter, $aliases, $configParams));
+            $container->set($alias, [
+                '__class' => Filesystem::class,
+                '__construct()' => [
+                    $adapter, $aliases, $configParams
+                    ]
+            ]);
         }
     }
 
