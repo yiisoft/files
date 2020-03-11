@@ -10,7 +10,7 @@ return [
     FilesystemInterface::class => function () use ($params) {
         $aliases = $params['aliases'] ?? [];
         if (!isset($aliases['@root'])) {
-            throw new \InvalidArgumentException('Alias of the root directory is not defined.');
+            throw new \RuntimeException('Alias of the root directory is not defined.');
         }
 
         $adapter = new LocalFilesystemAdapter(
