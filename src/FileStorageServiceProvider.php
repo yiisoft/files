@@ -22,14 +22,14 @@ final class FileStorageServiceProvider extends ServiceProvider
         }
     }
 
-    private function validateAdapter(string $alias, array $config)
+    private function validateAdapter(string $alias, array $config): void
     {
         $adapter = $config['adapter']['__class'] ?? false;
         if (!$adapter) {
             throw new \RuntimeException("Adapter is not defined in the '$alias' storage config.");
         }
         if (!is_subclass_of($adapter, FilesystemAdapter::class)) {
-            throw new \RuntimeException("Adapter must implements FilesystemAdapterInterface.");
+            throw new \RuntimeException('Adapter must implement FilesystemAdapterInterface.');
         }
     }
 }
