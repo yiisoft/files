@@ -4,7 +4,7 @@ namespace Yiisoft\Files;
 
 final class FileStorageConfigs
 {
-    private array $storageConfigs = [];
+    private array $storageConfigs;
 
     public function __construct(array $storageConfigs)
     {
