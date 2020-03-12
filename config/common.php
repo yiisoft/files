@@ -7,7 +7,7 @@ use Yiisoft\Files\Filesystem;
 use Yiisoft\Files\FileStorageConfigs;
 
 return [
-    FilesystemInterface::class => function () use ($params) {
+    FilesystemInterface::class => static function () use ($params) {
         $aliases = $params['aliases'] ?? [];
         if (!isset($aliases['@root'])) {
             throw new \RuntimeException('Alias of the root directory is not defined.');
@@ -30,7 +30,7 @@ return [
         );
         return new Filesystem($adapter, $aliases);
     },
-    FileStorageConfigs::class => function () use ($params) {
+    FileStorageConfigs::class => static function () use ($params) {
         $configs = $params['file.storage'] ?? [];
         return new FileStorageConfigs($configs);
     }
