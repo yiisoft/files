@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Files;
 
 use Yiisoft\Strings\StringHelper;
+use Yiisoft\Strings\WildcardPattern;
 
 /**
  * FileHelper provides useful methods to manage files and directories
@@ -556,18 +557,19 @@ class FileHelper
         } elseif ($flags & self::PATTERN_ENDS_WITH) {
             /* "*literal" matching against "fooliteral" */
             $n = StringHelper::byteLength($pattern);
-            if (StringHelper::byteSubstr($pattern, 1, $n) === StringHelper::byteSubstr($baseName, -$n, $n)) {
+            if (StringHelper::byteSubstring($pattern, 1, $n) === StringHelper::byteSubstring($baseName, -$n, $n)) {
                 return true;
             }
         }
 
-        $matchOptions = [];
+
+        $wildcardPattern = new WildcardPattern($pattern);
 
         if ($flags & self::PATTERN_CASE_INSENSITIVE) {
-            $matchOptions['caseSensitive'] = false;
+            $wildcardPattern = $wildcardPattern->ignoreCase();
         }
 
-        return StringHelper::matchWildcard($pattern, $baseName, $matchOptions);
+        return $wildcardPattern->match($baseName);
     }
 
     /**
@@ -587,14 +589,14 @@ class FileHelper
     {
         // match with FNM_PATHNAME; the pattern has base implicitly in front of it.
         if (strpos($pattern, '/') === 0) {
-            $pattern = StringHelper::byteSubstr($pattern, 1, StringHelper::byteLength($pattern));
+            $pattern = StringHelper::byteSubstring($pattern, 1, StringHelper::byteLength($pattern));
             if ($firstWildcard !== false && $firstWildcard !== 0) {
                 $firstWildcard--;
             }
         }
 
         $namelen = StringHelper::byteLength($path) - (empty($basePath) ? 0 : StringHelper::byteLength($basePath) + 1);
-        $name = StringHelper::byteSubstr($path, -$namelen, $namelen);
+        $name = StringHelper::byteSubstring($path, -$namelen, $namelen);
 
         if ($firstWildcard !== 0) {
             if ($firstWildcard === false) {
@@ -610,8 +612,8 @@ class FileHelper
                 return false;
             }
 
-            $pattern = StringHelper::byteSubstr($pattern, (int) $firstWildcard, StringHelper::byteLength($pattern));
-            $name = StringHelper::byteSubstr($name, (int) $firstWildcard, $namelen);
+            $pattern = StringHelper::byteSubstring($pattern, (int) $firstWildcard, StringHelper::byteLength($pattern));
+            $name = StringHelper::byteSubstring($name, (int) $firstWildcard, $namelen);
 
             // If the whole pattern did not have a wildcard, then our prefix match is all we need; we do not need to call fnmatch at all.
             if (empty($pattern) && empty($name)) {
@@ -619,15 +621,14 @@ class FileHelper
             }
         }
 
-        $matchOptions = [
-            'filePath' => true
-        ];
+        $wildcardPattern = (new WildcardPattern($pattern))
+            ->withExactSlashes();
 
         if ($flags & self::PATTERN_CASE_INSENSITIVE) {
-            $matchOptions['caseSensitive'] = false;
+            $wildcardPattern = $wildcardPattern->ignoreCase();
         }
 
-        return StringHelper::matchWildcard($pattern, $name, $matchOptions);
+        return $wildcardPattern->match($name);
     }
 
     /**
@@ -654,11 +655,11 @@ class FileHelper
 
         if (strpos($pattern, '!') === 0) {
             $result['flags'] |= self::PATTERN_NEGATIVE;
-            $pattern = StringHelper::byteSubstr($pattern, 1, StringHelper::byteLength($pattern));
+            $pattern = StringHelper::byteSubstring($pattern, 1, StringHelper::byteLength($pattern));
         }
 
-        if (StringHelper::byteLength($pattern) && StringHelper::byteSubstr($pattern, -1, 1) === '/') {
-            $pattern = StringHelper::byteSubstr($pattern, 0, -1);
+        if (StringHelper::byteLength($pattern) && StringHelper::byteSubstring($pattern, -1, 1) === '/') {
+            $pattern = StringHelper::byteSubstring($pattern, 0, -1);
             $result['flags'] |= self::PATTERN_MUST_BE_DIR;
         }
 
@@ -717,7 +718,7 @@ class FileHelper
      */
     private static function isPatternEndsWith(string $pattern, array $result): array
     {
-        if (strpos($pattern, '*') === 0 && self::firstWildcardInPattern(StringHelper::byteSubstr($pattern, 1, StringHelper::byteLength($pattern))) === false) {
+        if (strpos($pattern, '*') === 0 && self::firstWildcardInPattern(StringHelper::byteSubstring($pattern, 1, StringHelper::byteLength($pattern))) === false) {
             $result['flags'] |= self::PATTERN_ENDS_WITH;
         }
 
