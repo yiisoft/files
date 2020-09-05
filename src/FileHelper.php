@@ -178,12 +178,14 @@ class FileHelper
             closedir($handle);
         }
 
-        if (!$keepRootDirectory) {
-            if (is_link($directory)) {
-                self::unlink($directory);
-            } else {
-                rmdir($directory);
-            }
+        if ($keepRootDirectory) {
+            return;
+        }
+
+        if (is_link($directory)) {
+            self::unlink($directory);
+        } else {
+            rmdir($directory);
         }
     }
 
