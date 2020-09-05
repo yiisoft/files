@@ -149,10 +149,15 @@ class FileHelper
      *   Defaults to `false`, meaning the content of the symlinked directory would not be deleted.
      *   Only symlink would be removed in that default case.
      *
+     * - keepRootDirectory: boolean, whether only clear directory.
+     *
      * @return void
      */
     public static function removeDirectory(string $directory, array $options = []): void
     {
+        $keepRootDirectory = !empty($options['keepRootDirectory']);
+        unset($options['keepRootDirectory']);
+
         if (!empty($options['traverseSymlinks']) || !is_link($directory)) {
             if (!($handle = @opendir($directory))) {
                 return;
@@ -173,11 +178,28 @@ class FileHelper
             closedir($handle);
         }
 
-        if (is_link($directory)) {
-            self::unlink($directory);
-        } else {
-            rmdir($directory);
+        if (!$keepRootDirectory) {
+            if (is_link($directory)) {
+                self::unlink($directory);
+            } else {
+                rmdir($directory);
+            }
         }
+    }
+
+    /**
+     * Removes a directory (and all its content) recursively.
+     *
+     * @param string $directory the directory to be cleared.
+     * @param array $options options for directory clear ({@see removeDirectory()}).
+     *
+     * @return void
+     */
+    public static function clearDirectory(string $directory, array $options = []): void
+    {
+        self::removeDirectory($directory, array_merge($options, [
+            'keepRootDirectory' => true,
+        ]));
     }
 
     /**

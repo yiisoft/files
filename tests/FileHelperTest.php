@@ -163,6 +163,29 @@ final class FileHelperTest extends TestCase
         $this->assertFileDoesNotExist($basePath . 'symlinks/symlinked-directory/standard-file-1');
     }
 
+    public function testClearDirectory(): void
+    {
+        $dirName = 'test_dir_for_remove';
+
+        $this->createFileStructure([
+            $dirName => [
+                'file1.txt' => 'file 1 content',
+                'test_sub_dir' => [
+                    'sub_dir_file_1.txt' => 'sub dir file 1 content',
+                ],
+            ],
+        ]);
+
+        $basePath = $this->testFilePath;
+        $dirName = $basePath . '/' . $dirName;
+
+        FileHelper::clearDirectory($dirName);
+
+        $this->assertDirectoryExists($dirName);
+        $this->assertFileDoesNotExist($dirName . '/file1.txt');
+        $this->assertDirectoryDoesNotExist($dirName . '/test_sub_dir');
+    }
+
     public function testNormalizePath(): void
     {
         $this->assertEquals('/a/b', FileHelper::normalizePath('//a\\b/'));
