@@ -188,7 +188,7 @@ class FileHelper
     }
 
     /**
-     * Removes a directory (and all its content) recursively.
+     * Clear all directory content.
      *
      * @param string $directory the directory to be cleared.
      * @param array $options options for directory clear ({@see removeDirectory()}).
