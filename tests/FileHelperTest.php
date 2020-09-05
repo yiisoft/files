@@ -75,7 +75,7 @@ final class FileHelperTest extends TestCase
 
         FileHelper::removeDirectory($dirName);
 
-        $this->assertFileNotExists($dirName, 'Unable to remove directory!');
+        $this->assertFileDoesNotExist($dirName, 'Unable to remove directory!');
 
         // should be silent about non-existing directories
         FileHelper::removeDirectory($basePath . '/nonExisting');
@@ -115,11 +115,11 @@ final class FileHelperTest extends TestCase
         $this->assertFileExists($basePath . 'file');
         $this->assertDirectoryExists($basePath . 'directory');
         $this->assertFileExists($basePath . 'directory/standard-file-1'); // symlinked directory still have it's file
-        $this->assertDirectoryNotExists($basePath . 'symlinks');
-        $this->assertFileNotExists($basePath . 'symlinks/standard-file-2');
-        $this->assertFileNotExists($basePath . 'symlinks/symlinked-file');
-        $this->assertDirectoryNotExists($basePath . 'symlinks/symlinked-directory');
-        $this->assertFileNotExists($basePath . 'symlinks/symlinked-directory/standard-file-1');
+        $this->assertDirectoryDoesNotExist($basePath . 'symlinks');
+        $this->assertFileDoesNotExist($basePath . 'symlinks/standard-file-2');
+        $this->assertFileDoesNotExist($basePath . 'symlinks/symlinked-file');
+        $this->assertDirectoryDoesNotExist($basePath . 'symlinks/symlinked-directory');
+        $this->assertFileDoesNotExist($basePath . 'symlinks/symlinked-directory/standard-file-1');
     }
 
     public function testRemoveDirectorySymlinks2(): void
@@ -155,12 +155,12 @@ final class FileHelperTest extends TestCase
 
         $this->assertFileExists($basePath . 'file');
         $this->assertDirectoryExists($basePath . 'directory');
-        $this->assertFileNotExists($basePath . 'directory/standard-file-1'); // symlinked directory doesn't have it's file now
-        $this->assertDirectoryNotExists($basePath . 'symlinks');
-        $this->assertFileNotExists($basePath . 'symlinks/standard-file-2');
-        $this->assertFileNotExists($basePath . 'symlinks/symlinked-file');
-        $this->assertDirectoryNotExists($basePath . 'symlinks/symlinked-directory');
-        $this->assertFileNotExists($basePath . 'symlinks/symlinked-directory/standard-file-1');
+        $this->assertFileDoesNotExist($basePath . 'directory/standard-file-1'); // symlinked directory doesn't have it's file now
+        $this->assertDirectoryDoesNotExist($basePath . 'symlinks');
+        $this->assertFileDoesNotExist($basePath . 'symlinks/standard-file-2');
+        $this->assertFileDoesNotExist($basePath . 'symlinks/symlinked-file');
+        $this->assertDirectoryDoesNotExist($basePath . 'symlinks/symlinked-directory');
+        $this->assertFileDoesNotExist($basePath . 'symlinks/symlinked-directory/standard-file-1');
     }
 
     public function testNormalizePath(): void
@@ -287,7 +287,7 @@ final class FileHelperTest extends TestCase
         foreach ($structure as $name => $content) {
             $fileName = $destination . '/' . $name;
             if (is_array($content)) {
-                $this->assertFileNotExists($fileName);
+                $this->assertFileDoesNotExist($fileName);
             } else {
                 $this->assertFileExists($fileName);
                 $this->assertStringEqualsFile($fileName, $content, 'Incorrect file content!');
@@ -622,7 +622,7 @@ final class FileHelperTest extends TestCase
                 $this->checkNoexist($content, $dstDirName . '/' . $name);
             } else {
                 $fileName = $dstDirName . '/' . $name;
-                $this->assertFileNotExists($fileName);
+                $this->assertFileDoesNotExist($fileName);
             }
         }
     }
