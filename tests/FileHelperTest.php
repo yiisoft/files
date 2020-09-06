@@ -184,6 +184,9 @@ final class FileHelperTest extends TestCase
         $this->assertDirectoryExists($dirName);
         $this->assertFileDoesNotExist($dirName . '/file1.txt');
         $this->assertDirectoryDoesNotExist($dirName . '/test_sub_dir');
+
+        $this->expectException(\InvalidArgumentException::class);
+        FileHelper::clearDirectory($this->testFilePath . '/nonExisting');
     }
 
     public function testNormalizePath(): void

@@ -143,44 +143,19 @@ class FileHelper
      * Removes a directory (and all its content) recursively.
      *
      * @param string $directory the directory to be deleted recursively.
-     * @param array $options options for directory remove. Valid options are:
-     *
-     * - traverseSymlinks: boolean, whether symlinks to the directories should be traversed too.
-     *   Defaults to `false`, meaning the content of the symlinked directory would not be deleted.
-     *   Only symlink would be removed in that default case.
-     *
-     * - keepRootDirectory: boolean, whether only clear directory.
+     * @param array $options options for directory remove ({@see clearDirectory()}).
      *
      * @return void
      */
     public static function removeDirectory(string $directory, array $options = []): void
     {
-        $keepRootDirectory = !empty($options['keepRootDirectory']);
-        unset($options['keepRootDirectory']);
-
-        if (!empty($options['traverseSymlinks']) || !is_link($directory)) {
-            if (!($handle = @opendir($directory))) {
-                return;
-            }
-
-            while (($file = readdir($handle)) !== false) {
-                if ($file === '.' || $file === '..') {
-                    continue;
-                }
-                $path = $directory . '/' . $file;
-                if (is_dir($path)) {
-                    self::removeDirectory($path, $options);
-                } else {
-                    self::unlink($path);
-                }
-            }
-
-            closedir($handle);
-        }
-
-        if ($keepRootDirectory) {
+        try {
+            $handle = static::openDirectory($directory);
+        } catch (\InvalidArgumentException $e) {
             return;
         }
+
+        static::clearDirectoryByHandle($handle, $directory, $options);
 
         if (is_link($directory)) {
             self::unlink($directory);
@@ -193,15 +168,43 @@ class FileHelper
      * Clear all directory content.
      *
      * @param string $directory the directory to be cleared.
-     * @param array $options options for directory clear ({@see removeDirectory()}).
+     * @param array $options options for directory clear . Valid options are:
+     *
+     * - traverseSymlinks: boolean, whether symlinks to the directories should be traversed too.
+     *   Defaults to `false`, meaning the content of the symlinked directory would not be deleted.
+     *   Only symlink would be removed in that default case.
      *
      * @return void
      */
     public static function clearDirectory(string $directory, array $options = []): void
     {
-        self::removeDirectory($directory, array_merge($options, [
-            'keepRootDirectory' => true,
-        ]));
+        $handle = static::openDirectory($directory);
+        static::clearDirectoryByHandle($handle, $directory, $options);
+    }
+
+    /**
+     * @param resource $handle
+     * @param string $directory
+     * @param array $options
+     *
+     * @return void
+     */
+    private static function clearDirectoryByHandle($handle, string $directory, array $options): void
+    {
+        if (!empty($options['traverseSymlinks']) || !is_link($directory)) {
+            while (($file = readdir($handle)) !== false) {
+                if ($file === '.' || $file === '..') {
+                    continue;
+                }
+                $path = $directory . '/' . $file;
+                if (is_dir($path)) {
+                    self::removeDirectory($path, $options);
+                } else {
+                    self::unlink($path);
+                }
+            }
+            closedir($handle);
+        }
     }
 
     /**
@@ -285,7 +288,7 @@ class FileHelper
 
         $destinationExists = static::setDestination($destination, $options);
 
-        $handle = static::isSourceDirectory($source);
+        $handle = static::openDirectory($source);
 
         $options = static::setBasePath($source, $options);
 
@@ -334,20 +337,19 @@ class FileHelper
     }
 
     /**
-     * Check if exist source directory.
+     * Open directory handle.
      *
-     * @param string $source
-     *
-     * @throws \InvalidArgumentException
+     * @param string $directory
      *
      * @return resource
+     * @throws \InvalidArgumentException
      */
-    private static function isSourceDirectory(string $source)
+    private static function openDirectory(string $directory)
     {
-        $handle = @opendir($source);
+        $handle = @opendir($directory);
 
         if ($handle === false) {
-            throw new \InvalidArgumentException("Unable to open directory: $source");
+            throw new \InvalidArgumentException("Unable to open directory: $directory");
         }
 
         return $handle;
