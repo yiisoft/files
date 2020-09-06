@@ -272,7 +272,7 @@ class FileHelper
         $source = static::normalizePath($source);
         $destination = static::normalizePath($destination);
 
-        static::isSelfDirectory($source, $destination);
+        static::assertNotSelfDirectory($source, $destination);
 
         $destinationExists = static::setDestination($destination, $options);
 
@@ -314,10 +314,8 @@ class FileHelper
      * @param string $destination
      *
      * @throws \InvalidArgumentException
-     *
-     * @return boolean
      */
-    private static function isSelfDirectory(string $source, string $destination)
+    private static function assertNotSelfDirectory(string $source, string $destination): void
     {
         if ($source === $destination || strpos($destination, $source . '/') === 0) {
             throw new \InvalidArgumentException('Trying to copy a directory to itself or a subdirectory.');
@@ -490,7 +488,7 @@ class FileHelper
     private static function firstWildcardInPattern(string $pattern)
     {
         $wildcards = ['*', '?', '[', '\\'];
-        $wildcardSearch = function ($carry, $item) use ($pattern) {
+        $wildcardSearch = static function ($carry, $item) use ($pattern) {
             $position = strpos($pattern, $item);
             if ($position === false) {
                 return $carry === false ? $position : $carry;

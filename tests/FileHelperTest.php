@@ -16,7 +16,7 @@ final class FileHelperTest extends TestCase
     /**
      * @var string test files path.
      */
-    private $testFilePath = '';
+    private string $testFilePath = '';
 
     public function setUp(): void
     {
@@ -693,7 +693,7 @@ final class FileHelperTest extends TestCase
      *
      * @param array $items file system objects to be created in format: objectName => objectContent
      *                         Arrays specifies directories, other values - files.
-     * @param string $basePath structure base file path.
+     * @param string|null $basePath structure base file path.
      *
      * @return void
      */
