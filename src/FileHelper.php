@@ -150,12 +150,10 @@ class FileHelper
     public static function removeDirectory(string $directory, array $options = []): void
     {
         try {
-            $handle = static::openDirectory($directory);
+            static::clearDirectory($directory, $options);
         } catch (\InvalidArgumentException $e) {
             return;
         }
-
-        static::clearDirectoryByHandle($handle, $directory, $options);
 
         if (is_link($directory)) {
             self::unlink($directory);
@@ -174,23 +172,13 @@ class FileHelper
      *   Defaults to `false`, meaning the content of the symlinked directory would not be deleted.
      *   Only symlink would be removed in that default case.
      *
+     * @throws \InvalidArgumentException if unable to open directory
+     *
      * @return void
      */
     public static function clearDirectory(string $directory, array $options = []): void
     {
         $handle = static::openDirectory($directory);
-        static::clearDirectoryByHandle($handle, $directory, $options);
-    }
-
-    /**
-     * @param resource $handle
-     * @param string $directory
-     * @param array $options
-     *
-     * @return void
-     */
-    private static function clearDirectoryByHandle($handle, string $directory, array $options): void
-    {
         if (!empty($options['traverseSymlinks']) || !is_link($directory)) {
             while (($file = readdir($handle)) !== false) {
                 if ($file === '.' || $file === '..') {
