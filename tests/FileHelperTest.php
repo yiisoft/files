@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Files\Tests;
 
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Yiisoft\Files\FileHelper;
 
 /**
@@ -53,6 +54,18 @@ final class FileHelperTest extends TestCase
 
         $this->assertTrue(FileHelper::createDirectory($dirName, 0700));
         $this->assertFileMode(0700, $dirName);
+    }
+
+    public function testCreateDirectoryException(): void
+    {
+        $this->createFileStructure([
+            'test_dir' => [
+                'file.txt' => 'file content',
+            ],
+        ]);
+
+        $this->expectException(RuntimeException::class);
+        FileHelper::createDirectory($this->testFilePath . '/test_dir/file.txt');
     }
 
     public function testRemoveDirectory(): void
@@ -610,6 +623,13 @@ final class FileHelperTest extends TestCase
         $this->assertFileExists($destination, 'Destination directory does not exist!');
         $this->checkExist($exist, $destination);
         $this->checkNoexist($noexist, $destination);
+    }
+
+    public function testCopyNotExistsDirectory(): void
+    {
+        $dir = $this->testFilePath . '/not_exists_dir';
+        $this->expectExceptionMessage('Unable to open directory: ' . $dir);
+        FileHelper::copyDirectory($dir, $this->testFilePath . '/copy');
     }
 
     /**
