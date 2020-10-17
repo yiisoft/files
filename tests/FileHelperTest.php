@@ -640,6 +640,25 @@ final class FileHelperTest extends TestCase
                 true,
             ],
             [
+                ['filter' => fn ($path) => true],
+                true,
+            ],
+            [
+                ['filter' => fn ($path) => false],
+                false,
+            ],
+            [
+                ['filter' => fn ($path) => null],
+                true,
+            ],
+            [
+                [
+                    'filter' => fn ($path) => null,
+                    'only' => '*.jpg',
+                ],
+                false,
+            ],
+            [
                 ['only' => ['*.png']],
                 true,
             ],
@@ -661,7 +680,6 @@ final class FileHelperTest extends TestCase
     /**
      * @dataProvider dataFilterPath
      *
-     * @param string $path
      * @param array $options
      * @param bool $expected
      */

@@ -464,6 +464,13 @@ class FileHelper
     {
         $path = str_replace('\\', '/', $path);
 
+        if (isset($options['filter'])) {
+            $result = call_user_func($options['filter'], $path);
+            if (is_bool($result)) {
+                return $result;
+            }
+        }
+
         if (!empty($options['except'])) {
             if (
                 self::lastExcludeMatchingFromList(
