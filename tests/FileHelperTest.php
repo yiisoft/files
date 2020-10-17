@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Files\Tests;
 
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Yiisoft\Files\FileHelper;
@@ -686,6 +687,16 @@ final class FileHelperTest extends TestCase
     public function testFilterPath(array $options, bool $expected): void
     {
         $this->assertSame($expected, FileHelper::filterPath('/hello/world/i/here/face.png', $options));
+    }
+
+    public function testFilterPathInvalidOptions(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        FileHelper::filterPath('/42.png', [
+            'only' => [
+                []
+            ],
+        ]);
     }
 
     /**
