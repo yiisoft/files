@@ -632,6 +632,36 @@ final class FileHelperTest extends TestCase
         FileHelper::copyDirectory($dir, $this->testFilePath . '/copy');
     }
 
+    public function dataFilterPath(): array
+    {
+        return [
+            [
+                [],
+                true,
+            ],
+            [
+                ['only' => ['*.png']],
+                true,
+            ],
+            [
+                ['except' => ['*.png']],
+                false,
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataFilterPath
+     *
+     * @param string $path
+     * @param array $options
+     * @param bool $expected
+     */
+    public function testFilterPath(array $options, bool $expected): void
+    {
+        $this->assertSame($expected, FileHelper::filterPath('/hello/world/i/here/face.png', $options));
+    }
+
     /**
      * Check if exist filename.
      *
