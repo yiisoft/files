@@ -62,3 +62,36 @@ echo FileHelper::normalizePath($path);
 // outputs:
 // /home/samdark/dev/yii
 ```
+
+## Testing
+
+### Unit testing
+
+The package is tested with [PHPUnit](https://phpunit.de/). To run tests:
+
+```
+./vendor/bin/phpunit
+```
+
+### Mutation testing
+
+The package tests are checked with [Infection](https://infection.github.io/) mutation framework. To run it:
+
+```
+./vendor/bin/infection
+```
+
+### Static analysis
+
+The code is statically analyzed with [Psalm](https://psalm.dev/). To run static analysis:
+
+```
+./vendor/bin/psalm
+```
+
+## License
+
+The Yii Files is free software. It is released under the terms of the BSD License.
+Please see [`LICENSE`](./LICENSE.md) for more information.
+
+Maintained by [Yii Software](https://www.yiiframework.com/).
