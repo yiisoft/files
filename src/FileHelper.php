@@ -7,6 +7,9 @@ namespace Yiisoft\Files;
 use Yiisoft\Strings\StringHelper;
 use Yiisoft\Strings\WildcardPattern;
 
+use function is_array;
+use function is_string;
+
 /**
  * FileHelper provides useful methods to manage files and directories
  */
@@ -423,7 +426,7 @@ class FileHelper
     {
         if (isset($options['except'])) {
             foreach ($options['except'] as $key => $value) {
-                if (\is_string($value)) {
+                if (is_string($value)) {
                     $options['except'][$key] = self::parseExcludePattern($value, $options['caseSensitive']);
                 }
             }
@@ -443,7 +446,7 @@ class FileHelper
     {
         if (isset($options['only'])) {
             foreach ($options['only'] as $key => $value) {
-                if (\is_string($value)) {
+                if (is_string($value)) {
                     $options['only'][$key] = self::parseExcludePattern($value, $options['caseSensitive']);
                 }
             }
@@ -537,7 +540,7 @@ class FileHelper
     private static function lastExcludeMatchingFromList(string $basePath, string $path, array $excludes): ?array
     {
         foreach (array_reverse($excludes) as $exclude) {
-            if (\is_string($exclude)) {
+            if (is_string($exclude)) {
                 $exclude = self::parseExcludePattern($exclude, false);
             }
 
