@@ -465,14 +465,25 @@ class FileHelper
         $path = str_replace('\\', '/', $path);
 
         if (!empty($options['except'])) {
-            if ((self::lastExcludeMatchingFromList($options['basePath'] ?? '', $path, $options['except'])) !== null) {
+            if (
+                self::lastExcludeMatchingFromList(
+                    $options['basePath'] ?? '',
+                    $path,
+                    is_array($options['except']) ? $options['except'] : [$options['except']]
+                ) !== null
+            ) {
                 return false;
             }
         }
 
         if (!empty($options['only']) && !is_dir($path)) {
             // don't check PATTERN_NEGATIVE since those entries are not prefixed with !
-            return self::lastExcludeMatchingFromList($options['basePath'] ?? '', $path, $options['only']) !== null;
+            return
+                self::lastExcludeMatchingFromList(
+                    $options['basePath'] ?? '',
+                    $path,
+                    is_array($options['only']) ? $options['only'] : [$options['only']]
+                ) !== null;
         }
 
         return true;

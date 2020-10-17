@@ -647,6 +647,14 @@ final class FileHelperTest extends TestCase
                 ['except' => ['*.png']],
                 false,
             ],
+            [
+                ['only' => '*.jpg'],
+                false,
+            ],
+            [
+                ['except' => '*.jpg'],
+                true,
+            ],
         ];
     }
 
