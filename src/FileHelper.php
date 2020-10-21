@@ -468,6 +468,10 @@ class FileHelper
         $path = str_replace('\\', '/', $path);
 
         if (isset($options['filter'])) {
+            if (!is_callable($options['filter'])) {
+                $type = gettype($options['filter']);
+                throw new \InvalidArgumentException("Option \"filter\" must be callable, $type given.");
+            }
             $result = call_user_func($options['filter'], $path);
             if (is_bool($result)) {
                 return $result;

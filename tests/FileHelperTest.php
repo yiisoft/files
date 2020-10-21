@@ -689,14 +689,32 @@ final class FileHelperTest extends TestCase
         $this->assertSame($expected, FileHelper::filterPath('/hello/world/i/here/face.png', $options));
     }
 
-    public function testFilterPathInvalidOptions(): void
+    public function dataFilterPathInvalidOptions(): array
+    {
+        return [
+            [
+                [
+                    'only' => [[]],
+                ]
+            ],
+            [
+                [
+                    'filter' => 42,
+                ]
+            ],
+
+        ];
+    }
+
+    /**
+     * @dataProvider dataFilterPathInvalidOptions
+     *
+     * @param array $options
+     */
+    public function testFilterPathInvalidOptions(array $options): void
     {
         $this->expectException(InvalidArgumentException::class);
-        FileHelper::filterPath('/42.png', [
-            'only' => [
-                []
-            ],
-        ]);
+        FileHelper::filterPath('/42.png', $options);
     }
 
     /**
