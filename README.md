@@ -2,7 +2,7 @@
     <a href="https://github.com/yiisoft" target="_blank">
         <img src="https://avatars0.githubusercontent.com/u/993323" height="100px">
     </a>
-    <h1 align="center">Yii files</h1>
+    <h1 align="center">Yii Files</h1>
     <br>
 </p>
 
@@ -10,9 +10,23 @@ The package provides useful methods to manage files and directories.
 
 [![Latest Stable Version](https://poser.pugx.org/yiisoft/files/v/stable.png)](https://packagist.org/packages/yiisoft/files)
 [![Total Downloads](https://poser.pugx.org/yiisoft/files/downloads.png)](https://packagist.org/packages/yiisoft/files)
-[![Build Status](https://travis-ci.com/yiisoft/files.svg?branch=master)](https://travis-ci.com/yiisoft/files)
+[![Build status](https://github.com/yiisoft/files/workflows/build/badge.svg)](https://github.com/yiisoft/files/actions?query=workflow%3Abuild)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/yiisoft/files/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/yiisoft/files/?branch=master)
 [![Code Coverage](https://scrutinizer-ci.com/g/yiisoft/files/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/yiisoft/files/?branch=master)
+[![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fyiisoft%2Ffiles%2Fmaster)](https://dashboard.stryker-mutator.io/reports/github.com/yiisoft/files/master)
+[![static analysis](https://github.com/yiisoft/files/workflows/static%20analysis/badge.svg)](https://github.com/yiisoft/files/actions?query=workflow%3A%22static+analysis%22)
+
+## Requirements
+
+- PHP 7.4 or higher.
+
+## Installation
+
+The package could be installed with composer:
+
+```
+composer require yiisoft/files
+```
 
 ## General usage
 
@@ -69,7 +83,7 @@ echo FileHelper::normalizePath($path);
 
 The package is tested with [PHPUnit](https://phpunit.de/). To run tests:
 
-```
+```shell
 ./vendor/bin/phpunit
 ```
 
@@ -77,7 +91,7 @@ The package is tested with [PHPUnit](https://phpunit.de/). To run tests:
 
 The package tests are checked with [Infection](https://infection.github.io/) mutation framework. To run it:
 
-```
+```shell
 ./vendor/bin/infection
 ```
 
@@ -85,7 +99,7 @@ The package tests are checked with [Infection](https://infection.github.io/) mut
 
 The code is statically analyzed with [Psalm](https://psalm.dev/). To run static analysis:
 
-```
+```shell
 ./vendor/bin/psalm
 ```
 
