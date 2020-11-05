@@ -8,9 +8,6 @@ jobs:
   mutation:
     name: PHP ${{ matrix.php }}-${{ matrix.os }}
 
-    env:
-      update: true
-
     runs-on: ${{ matrix.os }}
 
     strategy:
