@@ -21,7 +21,7 @@ final class FileHelperTest extends TestCase
 
     public function setUp(): void
     {
-        $this->testFilePath = FileHelper::normalizePath(sys_get_temp_dir() . '/' . get_class($this));
+        $this->testFilePath = FileHelper::normalizePath(realpath(sys_get_temp_dir()) . '/' . get_class($this));
 
         FileHelper::createDirectory($this->testFilePath, 0777);
 
@@ -467,16 +467,16 @@ final class FileHelperTest extends TestCase
 
         $structure = [
             'css' => [
-                'bootstrap.css'           => 'file 1 content',
-                'bootstrap.css.map'       => 'file 2 content',
-                'bootstrap.min.css'       => 'file 3 content',
-                'bootstrap.min.css.map'   => 'file 4 content'
+                'bootstrap.css' => 'file 1 content',
+                'bootstrap.css.map' => 'file 2 content',
+                'bootstrap.min.css' => 'file 3 content',
+                'bootstrap.min.css.map' => 'file 4 content'
             ],
             'js' => [
-                'bootstrap.js'            => 'file 5 content',
-                'bootstrap.bundle.js'     => 'file 6 content',
+                'bootstrap.js' => 'file 5 content',
+                'bootstrap.bundle.js' => 'file 6 content',
                 'bootstrap.bundle.js.map' => 'file 7 content',
-                'bootstrap.min.js'        => 'file 8 content'
+                'bootstrap.min.js' => 'file 8 content'
             ]
         ];
 
@@ -503,36 +503,36 @@ final class FileHelperTest extends TestCase
 
         $structure = [
             'css' => [
-                'bootstrap.css'           => 'file 1 content',
-                'bootstrap.css.map'       => 'file 2 content',
-                'bootstrap.min.css'       => 'file 3 content',
-                'bootstrap.min.css.map'   => 'file 4 content'
+                'bootstrap.css' => 'file 1 content',
+                'bootstrap.css.map' => 'file 2 content',
+                'bootstrap.min.css' => 'file 3 content',
+                'bootstrap.min.css.map' => 'file 4 content'
             ],
             'js' => [
-                'bootstrap.js'            => 'file 5 content',
-                'bootstrap.bundle.js'     => 'file 6 content',
+                'bootstrap.js' => 'file 5 content',
+                'bootstrap.bundle.js' => 'file 6 content',
                 'bootstrap.bundle.js.map' => 'file 7 content',
-                'bootstrap.min.js'        => 'file 8 content'
+                'bootstrap.min.js' => 'file 8 content'
             ]
         ];
 
         $exist = [
             'css' => [
-                'bootstrap.css'           => 'file 1 content',
-                'bootstrap.min.css'       => 'file 3 content',
+                'bootstrap.css' => 'file 1 content',
+                'bootstrap.min.css' => 'file 3 content',
             ]
         ];
 
         $noexist = [
             'css' => [
-                'bootstrap.css.map'       => 'file 2 content',
-                'bootstrap.min.css.map'   => 'file 4 content'
+                'bootstrap.css.map' => 'file 2 content',
+                'bootstrap.min.css.map' => 'file 4 content'
             ],
             'js' => [
-                'bootstrap.js'            => 'file 5 content',
-                'bootstrap.bundle.js'     => 'file 6 content',
+                'bootstrap.js' => 'file 5 content',
+                'bootstrap.bundle.js' => 'file 6 content',
                 'bootstrap.bundle.js.map' => 'file 7 content',
-                'bootstrap.min.js'        => 'file 8 content'
+                'bootstrap.min.js' => 'file 8 content'
             ]
         ];
 
@@ -566,36 +566,36 @@ final class FileHelperTest extends TestCase
 
         $structure = [
             'css' => [
-                'bootstrap.css'           => 'file 1 content',
-                'bootstrap.css.map'       => 'file 2 content',
-                'bootstrap.min.css'       => 'file 3 content',
-                'bootstrap.min.css.map'   => 'file 4 content'
+                'bootstrap.css' => 'file 1 content',
+                'bootstrap.css.map' => 'file 2 content',
+                'bootstrap.min.css' => 'file 3 content',
+                'bootstrap.min.css.map' => 'file 4 content'
             ],
             'js' => [
-                'bootstrap.js'            => 'file 5 content',
-                'bootstrap.bundle.js'     => 'file 6 content',
+                'bootstrap.js' => 'file 5 content',
+                'bootstrap.bundle.js' => 'file 6 content',
                 'bootstrap.bundle.js.map' => 'file 7 content',
-                'bootstrap.min.js'        => 'file 8 content'
+                'bootstrap.min.js' => 'file 8 content'
             ]
         ];
 
         $exist = [
             'css' => [
-                'bootstrap.css'           => 'file 1 content',
+                'bootstrap.css' => 'file 1 content',
             ]
         ];
 
         $noexist = [
             'css' => [
-                'bootstrap.css.map'       => 'file 2 content',
-                'bootstrap.min.css'       => 'file 3 content',
-                'bootstrap.min.css.map'   => 'file 4 content'
+                'bootstrap.css.map' => 'file 2 content',
+                'bootstrap.min.css' => 'file 3 content',
+                'bootstrap.min.css.map' => 'file 4 content'
             ],
             'js' => [
-                'bootstrap.js'            => 'file 5 content',
-                'bootstrap.bundle.js'     => 'file 6 content',
+                'bootstrap.js' => 'file 5 content',
+                'bootstrap.bundle.js' => 'file 6 content',
                 'bootstrap.bundle.js.map' => 'file 7 content',
-                'bootstrap.min.js'        => 'file 8 content'
+                'bootstrap.min.js' => 'file 8 content'
             ]
         ];
 
