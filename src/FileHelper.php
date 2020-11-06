@@ -478,17 +478,13 @@ class FileHelper
             }
         }
 
-        if (!empty($options['except'])) {
-            if (
-                self::lastExcludeMatchingFromList(
-                    $options['basePath'] ?? '',
-                    $path,
-                    is_array($options['except']) ? $options['except'] : [$options['except']]
-                ) !== null
-            ) {
+        if (!empty($options['except']) && self::lastExcludeMatchingFromList(
+                $options['basePath'] ?? '',
+                $path,
+                (array)$options['except']
+            ) !== null) {
                 return false;
             }
-        }
 
         if (!empty($options['only']) && !is_dir($path)) {
             // don't check PATTERN_NEGATIVE since those entries are not prefixed with !
@@ -496,7 +492,7 @@ class FileHelper
                 self::lastExcludeMatchingFromList(
                     $options['basePath'] ?? '',
                     $path,
-                    is_array($options['only']) ? $options['only'] : [$options['only']]
+                    (array) $options['only']
                 ) !== null;
         }
 
