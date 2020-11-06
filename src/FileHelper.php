@@ -479,12 +479,12 @@ class FileHelper
         }
 
         if (!empty($options['except']) && self::lastExcludeMatchingFromList(
-                $options['basePath'] ?? '',
-                $path,
-                (array)$options['except']
-            ) !== null) {
-                return false;
-            }
+            $options['basePath'] ?? '',
+            $path,
+            (array)$options['except']
+        ) !== null) {
+            return false;
+        }
 
         if (!empty($options['only']) && !is_dir($path)) {
             // don't check PATTERN_NEGATIVE since those entries are not prefixed with !
