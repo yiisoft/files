@@ -7,6 +7,9 @@ namespace Yiisoft\Files;
 use Yiisoft\Strings\StringHelper;
 use Yiisoft\Strings\WildcardPattern;
 
+use function is_array;
+use function is_string;
+
 /**
  * FileHelper provides useful methods to manage files and directories
  */
@@ -423,7 +426,7 @@ class FileHelper
     {
         if (isset($options['except'])) {
             foreach ($options['except'] as $key => $value) {
-                if (\is_string($value)) {
+                if (is_string($value)) {
                     $options['except'][$key] = self::parseExcludePattern($value, $options['caseSensitive']);
                 }
             }
@@ -443,7 +446,7 @@ class FileHelper
     {
         if (isset($options['only'])) {
             foreach ($options['only'] as $key => $value) {
-                if (\is_string($value)) {
+                if (is_string($value)) {
                     $options['only'][$key] = self::parseExcludePattern($value, $options['caseSensitive']);
                 }
             }
@@ -464,15 +467,33 @@ class FileHelper
     {
         $path = str_replace('\\', '/', $path);
 
-        if (!empty($options['except'])) {
-            if ((self::lastExcludeMatchingFromList($options['basePath'], $path, $options['except'])) !== null) {
-                return false;
+        if (isset($options['filter'])) {
+            if (!is_callable($options['filter'])) {
+                $type = gettype($options['filter']);
+                throw new \InvalidArgumentException("Option \"filter\" must be callable, $type given.");
+            }
+            $result = call_user_func($options['filter'], $path);
+            if (is_bool($result)) {
+                return $result;
             }
         }
 
+        if (!empty($options['except']) && self::lastExcludeMatchingFromList(
+                $options['basePath'] ?? '',
+                $path,
+                (array)$options['except']
+            ) !== null) {
+                return false;
+            }
+
         if (!empty($options['only']) && !is_dir($path)) {
             // don't check PATTERN_NEGATIVE since those entries are not prefixed with !
-            return self::lastExcludeMatchingFromList($options['basePath'], $path, $options['only']) !== null;
+            return
+                self::lastExcludeMatchingFromList(
+                    $options['basePath'] ?? '',
+                    $path,
+                    (array) $options['only']
+                ) !== null;
         }
 
         return true;
@@ -519,7 +540,7 @@ class FileHelper
     private static function lastExcludeMatchingFromList(string $basePath, string $path, array $excludes): ?array
     {
         foreach (array_reverse($excludes) as $exclude) {
-            if (\is_string($exclude)) {
+            if (is_string($exclude)) {
                 $exclude = self::parseExcludePattern($exclude, false);
             }
 

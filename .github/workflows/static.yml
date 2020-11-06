@@ -7,14 +7,12 @@ name: static analysis
 jobs:
   mutation:
     name: PHP ${{ matrix.php }}-${{ matrix.os }}
-
     runs-on: ${{ matrix.os }}
 
     strategy:
       matrix:
         os:
           - ubuntu-latest
-
         php:
           - "7.4"
 

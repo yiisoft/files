@@ -10,7 +10,6 @@
     <php>
         <ini name="error_reporting" value="-1"/>
     </php>
-
     <testsuites>
         <testsuite name="Yii Files Tests">
             <directory>./tests</directory>
