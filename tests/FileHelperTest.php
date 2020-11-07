@@ -66,6 +66,7 @@ final class FileHelperTest extends TestCase
         ]);
 
         $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessageMatches('/^Failed to create directory/');
         FileHelper::createDirectory($this->testFilePath . '/test_dir/file.txt');
     }
 
@@ -234,13 +235,6 @@ final class FileHelperTest extends TestCase
         $this->assertEquals('\\\\server/share/path/file', FileHelper::normalizePath('\\\\server\share\path//file'));
     }
 
-    /**
-     * Copy directory.
-     *
-     * @depends testCreateDirectory
-     *
-     * @return void
-     */
     public function testCopyDirectory(): void
     {
         $source = 'test_src_dir';

@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Yiisoft\Files;
 
+use Exception;
+use InvalidArgumentException;
+use RuntimeException;
 use Yiisoft\Strings\StringHelper;
 use Yiisoft\Strings\WildcardPattern;
 
-use function is_array;
 use function is_string;
 
 /**
@@ -59,9 +61,9 @@ class FileHelper
             if (!mkdir($path, $mode, true) && !is_dir($path)) {
                 return false;
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             if (!is_dir($path)) {
-                throw new \RuntimeException(
+                throw new RuntimeException(
                     "Failed to create directory \"$path\": " . $e->getMessage(),
                     $e->getCode(),
                     $e
@@ -78,16 +80,16 @@ class FileHelper
      * @param string $path
      * @param integer $mode
      *
-     * @throws \RuntimeException
-     *
      * @return boolean|null
+     *
+     * @throws RuntimeException
      */
     private static function chmod(string $path, int $mode): ?bool
     {
         try {
             return chmod($path, $mode);
-        } catch (\Exception $e) {
-            throw new \RuntimeException(
+        } catch (Exception $e) {
+            throw new RuntimeException(
                 "Failed to change permissions for directory \"$path\": " . $e->getMessage(),
                 $e->getCode(),
                 $e
@@ -154,7 +156,7 @@ class FileHelper
     {
         try {
             static::clearDirectory($directory, $options);
-        } catch (\InvalidArgumentException $e) {
+        } catch (InvalidArgumentException $e) {
             return;
         }
 
@@ -175,9 +177,9 @@ class FileHelper
      *   Defaults to `false`, meaning the content of the symlinked directory would not be deleted.
      *   Only symlink would be removed in that default case.
      *
-     * @throws \InvalidArgumentException if unable to open directory
-     *
      * @return void
+     *
+     * @throws InvalidArgumentException if unable to open directory
      */
     public static function clearDirectory(string $directory, array $options = []): void
     {
@@ -265,10 +267,10 @@ class FileHelper
      *   directories that do not contain files at the target destination because files have been filtered via `only` or
      *   `except`. Defaults to true.
      *
-     * @throws \InvalidArgumentException if unable to open directory
-     * @throws \Exception
-     *
      * @return void
+     * @throws Exception
+     *
+     * @throws InvalidArgumentException if unable to open directory
      */
     public static function copyDirectory(string $source, string $destination, array $options = []): void
     {
@@ -316,12 +318,12 @@ class FileHelper
      * @param string $source
      * @param string $destination
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     private static function assertNotSelfDirectory(string $source, string $destination): void
     {
         if ($source === $destination || strpos($destination, $source . '/') === 0) {
-            throw new \InvalidArgumentException('Trying to copy a directory to itself or a subdirectory.');
+            throw new InvalidArgumentException('Trying to copy a directory to itself or a subdirectory.');
         }
     }
 
@@ -331,14 +333,15 @@ class FileHelper
      * @param string $directory
      *
      * @return resource
-     * @throws \InvalidArgumentException
+     *
+     * @throws InvalidArgumentException
      */
     private static function openDirectory(string $directory)
     {
         $handle = @opendir($directory);
 
         if ($handle === false) {
-            throw new \InvalidArgumentException("Unable to open directory: $directory");
+            throw new InvalidArgumentException("Unable to open directory: $directory");
         }
 
         return $handle;
@@ -470,7 +473,7 @@ class FileHelper
         if (isset($options['filter'])) {
             if (!is_callable($options['filter'])) {
                 $type = gettype($options['filter']);
-                throw new \InvalidArgumentException("Option \"filter\" must be callable, $type given.");
+                throw new InvalidArgumentException("Option \"filter\" must be callable, $type given.");
             }
             $result = call_user_func($options['filter'], $path);
             if (is_bool($result)) {
@@ -478,11 +481,13 @@ class FileHelper
             }
         }
 
-        if (!empty($options['except']) && self::lastExcludeMatchingFromList(
-            $options['basePath'] ?? '',
-            $path,
-            (array)$options['except']
-        ) !== null) {
+        if (
+            !empty($options['except']) && self::lastExcludeMatchingFromList(
+                $options['basePath'] ?? '',
+                $path,
+                (array)$options['except']
+            ) !== null
+        ) {
             return false;
         }
 
@@ -492,7 +497,7 @@ class FileHelper
                 self::lastExcludeMatchingFromList(
                     $options['basePath'] ?? '',
                     $path,
-                    (array) $options['only']
+                    (array)$options['only']
                 ) !== null;
         }
 
@@ -528,13 +533,13 @@ class FileHelper
      *
      * Based on last_exclude_matching_from_list() from dir.c of git 1.8.5.3 sources.
      *
-     * @param string $basePath.
-     * @param string $path.
+     * @param string $basePath .
+     * @param string $path .
      * @param array $excludes list of patterns to match $path against.
      *
      * @return null|array null or one of $excludes item as an array with keys: 'pattern', 'flags'.
      *
-     * @throws \InvalidArgumentException if any of the exclude patterns is not a string or an array with keys: pattern,
+     * @throws InvalidArgumentException if any of the exclude patterns is not a string or an array with keys: pattern,
      *                                   flags, firstWildcard.
      */
     private static function lastExcludeMatchingFromList(string $basePath, string $path, array $excludes): ?array
@@ -545,7 +550,7 @@ class FileHelper
             }
 
             if (!isset($exclude['pattern'], $exclude['flags'], $exclude['firstWildcard'])) {
-                throw new \InvalidArgumentException(
+                throw new InvalidArgumentException(
                     'If exclude/include pattern is an array it must contain the pattern, flags and firstWildcard keys.'
                 );
             }
@@ -618,8 +623,13 @@ class FileHelper
      *
      * @return bool whether the path part matches against pattern
      */
-    private static function matchPathname(string $path, string $basePath, string $pattern, $firstWildcard, int $flags): bool
-    {
+    private static function matchPathname(
+        string $path,
+        string $basePath,
+        string $pattern,
+        $firstWildcard,
+        int $flags
+    ): bool {
         // match with FNM_PATHNAME; the pattern has base implicitly in front of it.
         if (strpos($pattern, '/') === 0) {
             $pattern = StringHelper::byteSubstring($pattern, 1, StringHelper::byteLength($pattern));
@@ -641,14 +651,15 @@ class FileHelper
                 return false;
             }
 
-            if (strncmp($pattern, $name, (int) $firstWildcard)) {
+            if (strncmp($pattern, $name, (int)$firstWildcard)) {
                 return false;
             }
 
-            $pattern = StringHelper::byteSubstring($pattern, (int) $firstWildcard, StringHelper::byteLength($pattern));
-            $name = StringHelper::byteSubstring($name, (int) $firstWildcard, $namelen);
+            $pattern = StringHelper::byteSubstring($pattern, (int)$firstWildcard, StringHelper::byteLength($pattern));
+            $name = StringHelper::byteSubstring($name, (int)$firstWildcard, $namelen);
 
-            // If the whole pattern did not have a wildcard, then our prefix match is all we need; we do not need to call fnmatch at all.
+            // If the whole pattern did not have a wildcard, then our prefix match is all we need;
+            // we do not need to call fnmatch at all.
             if (empty($pattern) && empty($name)) {
                 return true;
             }
@@ -751,7 +762,12 @@ class FileHelper
      */
     private static function isPatternEndsWith(string $pattern, array $result): array
     {
-        if (strpos($pattern, '*') === 0 && self::firstWildcardInPattern(StringHelper::byteSubstring($pattern, 1, StringHelper::byteLength($pattern))) === false) {
+        if (
+            strpos($pattern, '*') === 0 &&
+            self::firstWildcardInPattern(
+                StringHelper::byteSubstring($pattern, 1, StringHelper::byteLength($pattern))
+            ) === false
+        ) {
             $result['flags'] |= self::PATTERN_ENDS_WITH;
         }
 
