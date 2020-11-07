@@ -669,6 +669,20 @@ final class FileHelperTest extends TestCase
                 ['except' => '*.jpg'],
                 true,
             ],
+            [
+                [
+                    'only' => [
+                        [
+                            'flags' => FileHelper::PATTERN_MUST_BE_DIR
+                        ],
+                    ],
+                ],
+                false,
+            ],
+            [
+                ['only' => ''],
+                false,
+            ],
         ];
     }
 
@@ -688,15 +702,9 @@ final class FileHelperTest extends TestCase
         return [
             [
                 [
-                    'only' => [[]],
-                ]
-            ],
-            [
-                [
                     'filter' => 42,
                 ]
             ],
-
         ];
     }
 

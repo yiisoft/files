@@ -20,27 +20,27 @@ class FileHelper
     /**
      * @var int PATTERN_NO_DIR
      */
-    private const PATTERN_NO_DIR = 1;
+    public const PATTERN_NO_DIR = 1;
 
     /**
      * @var int PATTERN_ENDS_WITH
      */
-    private const PATTERN_ENDS_WITH = 4;
+    public const PATTERN_ENDS_WITH = 4;
 
     /**
      * @var int PATTERN_MUST_BE_DIR
      */
-    private const PATTERN_MUST_BE_DIR = 8;
+    public const PATTERN_MUST_BE_DIR = 8;
 
     /**
      * @var int PATTERN_NEGATIVE
      */
-    private const PATTERN_NEGATIVE = 16;
+    public const PATTERN_NEGATIVE = 16;
 
     /**
      * @var int PATTERN_CASE_INSENSITIVE
      */
-    private const PATTERN_CASE_INSENSITIVE = 32;
+    public const PATTERN_CASE_INSENSITIVE = 32;
 
     /**
      * Creates a new directory.
@@ -430,7 +430,7 @@ class FileHelper
         if (isset($options['except'])) {
             foreach ($options['except'] as $key => $value) {
                 if (is_string($value)) {
-                    $options['except'][$key] = self::parseExcludePattern($value, $options['caseSensitive']);
+                    $options['except'][$key] = self::normalizeExcludePattern($value, $options['caseSensitive']);
                 }
             }
         }
@@ -450,7 +450,7 @@ class FileHelper
         if (isset($options['only'])) {
             foreach ($options['only'] as $key => $value) {
                 if (is_string($value)) {
-                    $options['only'][$key] = self::parseExcludePattern($value, $options['caseSensitive']);
+                    $options['only'][$key] = self::normalizeExcludePattern($value, $options['caseSensitive']);
                 }
             }
         }
@@ -482,48 +482,31 @@ class FileHelper
         }
 
         if (
-            !empty($options['except']) && self::lastExcludeMatchingFromList(
+            !empty($options['except']) &&
+            self::hasExcludeMatchingFromList(
                 $options['basePath'] ?? '',
                 $path,
                 (array)$options['except']
-            ) !== null
+            )
         ) {
             return false;
         }
 
-        if (!empty($options['only']) && !is_dir($path)) {
+        if (
+            array_key_exists('only', $options) &&
+            (is_string($options['only']) || !empty($options['only'])) &&
+            !is_dir($path)
+        ) {
             // don't check PATTERN_NEGATIVE since those entries are not prefixed with !
-            return
-                self::lastExcludeMatchingFromList(
-                    $options['basePath'] ?? '',
-                    $path,
-                    (array)$options['only']
-                ) !== null;
+            return self::hasExcludeMatchingFromList(
+                $options['basePath'] ?? '',
+                $path,
+                (array)$options['only']
+            );
         }
 
         return true;
     }
-
-    /**
-     * Searches for the first wildcard character in the pattern.
-     *
-     * @param string $pattern the pattern to search in.
-     *
-     * @return int|bool position of first wildcard character or false if not found.
-     */
-    private static function firstWildcardInPattern(string $pattern)
-    {
-        $wildcards = ['*', '?', '[', '\\'];
-        $wildcardSearch = static function ($carry, $item) use ($pattern) {
-            $position = strpos($pattern, $item);
-            if ($position === false) {
-                return $carry === false ? $position : $carry;
-            }
-            return $carry === false ? $position : min($carry, $position);
-        };
-        return array_reduce($wildcards, $wildcardSearch, false);
-    }
-
 
     /**
      * Scan the given exclude list in reverse to see whether pathname should be ignored.
@@ -537,23 +520,15 @@ class FileHelper
      * @param string $path .
      * @param array $excludes list of patterns to match $path against.
      *
-     * @return null|array null or one of $excludes item as an array with keys: 'pattern', 'flags'.
+     * @return bool
      *
      * @throws InvalidArgumentException if any of the exclude patterns is not a string or an array with keys: pattern,
      *                                   flags, firstWildcard.
      */
-    private static function lastExcludeMatchingFromList(string $basePath, string $path, array $excludes): ?array
+    private static function hasExcludeMatchingFromList(string $basePath, string $path, array $excludes): bool
     {
         foreach (array_reverse($excludes) as $exclude) {
-            if (is_string($exclude)) {
-                $exclude = self::parseExcludePattern($exclude, false);
-            }
-
-            if (!isset($exclude['pattern'], $exclude['flags'], $exclude['firstWildcard'])) {
-                throw new InvalidArgumentException(
-                    'If exclude/include pattern is an array it must contain the pattern, flags and firstWildcard keys.'
-                );
-            }
+            $exclude = self::normalizeExcludePattern($exclude, false);
 
             if (($exclude['flags'] & self::PATTERN_MUST_BE_DIR) && !is_dir($path)) {
                 continue;
@@ -561,17 +536,18 @@ class FileHelper
 
             if ($exclude['flags'] & self::PATTERN_NO_DIR) {
                 if (self::matchBasename(basename($path), $exclude['pattern'], $exclude['firstWildcard'], $exclude['flags'])) {
-                    return $exclude;
+                    return true;
                 }
                 continue;
             }
 
             if (self::matchPathname($path, $basePath, $exclude['pattern'], $exclude['firstWildcard'], $exclude['flags'])) {
-                return $exclude;
+                return true;
             }
         }
 
-        return null;
+
+        return false;
     }
 
     /**
@@ -678,99 +654,86 @@ class FileHelper
     /**
      * Processes the pattern, stripping special characters like / and ! from the beginning and settings flags instead.
      *
-     * @param string $pattern
+     * @param string|array $pattern
      * @param bool $caseSensitive
      *
      * @return array with keys: (string) pattern, (int) flags, (int|bool) firstWildcard
      */
-    private static function parseExcludePattern(string $pattern, bool $caseSensitive): array
+    private static function normalizeExcludePattern($pattern, bool $caseSensitive = false): array
     {
-        $result = [
-            'pattern' => $pattern,
+        $default = [
+            'pattern' => '',
             'flags' => 0,
             'firstWildcard' => false,
         ];
 
-        $result = static::isCaseInsensitive($caseSensitive, $result);
-
-        if (!isset($pattern[0])) {
+        if (is_array($pattern)) {
+            $result = [];
+            foreach ($default as $key => $value) {
+                $result[$key] = array_key_exists($key, $pattern) ? $pattern[$key] : $default[$key];
+            }
             return $result;
         }
 
+        if ($pattern === '') {
+            return $default;
+        }
+
+        $flags = $default['flags'];
+
+        if (!$caseSensitive) {
+            $flags |= self::PATTERN_CASE_INSENSITIVE;
+        }
+
         if (strpos($pattern, '!') === 0) {
-            $result['flags'] |= self::PATTERN_NEGATIVE;
+            $flags |= self::PATTERN_NEGATIVE;
             $pattern = StringHelper::byteSubstring($pattern, 1, StringHelper::byteLength($pattern));
         }
 
         if (StringHelper::byteLength($pattern) && StringHelper::byteSubstring($pattern, -1, 1) === '/') {
             $pattern = StringHelper::byteSubstring($pattern, 0, -1);
-            $result['flags'] |= self::PATTERN_MUST_BE_DIR;
+            $flags |= self::PATTERN_MUST_BE_DIR;
         }
 
-        $result = static::isPatternNoDir($pattern, $result);
-
-        $result['firstWildcard'] = self::firstWildcardInPattern($pattern);
-
-        $result = static::isPatternEndsWith($pattern, $result);
-
-        $result['pattern'] = $pattern;
-
-        return $result;
-    }
-
-    /**
-     * Check isCaseInsensitive.
-     *
-     * @param boolean $caseSensitive
-     * @param array $result
-     *
-     * @return array
-     */
-    private static function isCaseInsensitive(bool $caseSensitive, array $result): array
-    {
-        if (!$caseSensitive) {
-            $result['flags'] |= self::PATTERN_CASE_INSENSITIVE;
-        }
-
-        return $result;
-    }
-
-    /**
-     * Check pattern no directory.
-     *
-     * @param string $pattern
-     * @param array $result
-     *
-     * @return array
-     */
-    private static function isPatternNoDir(string $pattern, array $result): array
-    {
         if (strpos($pattern, '/') === false) {
-            $result['flags'] |= self::PATTERN_NO_DIR;
+            $flags |= self::PATTERN_NO_DIR;
         }
 
-        return $result;
-    }
+        $firstWildcard = self::firstWildcardInPattern($pattern);
 
-    /**
-     * Check pattern ends with
-     *
-     * @param string $pattern
-     * @param array $result
-     *
-     * @return array
-     */
-    private static function isPatternEndsWith(string $pattern, array $result): array
-    {
         if (
             strpos($pattern, '*') === 0 &&
             self::firstWildcardInPattern(
                 StringHelper::byteSubstring($pattern, 1, StringHelper::byteLength($pattern))
             ) === false
         ) {
-            $result['flags'] |= self::PATTERN_ENDS_WITH;
+            $flags |= self::PATTERN_ENDS_WITH;
         }
 
-        return $result;
+        return [
+            'pattern' => $pattern,
+            'flags' => $flags,
+            'firstWildcard' => $firstWildcard,
+        ];
+    }
+
+    /**
+     * Searches for the first wildcard character in the pattern.
+     *
+     * @param string $pattern the pattern to search in.
+     *
+     * @return int|bool position of first wildcard character or false if not found.
+     */
+    private static function firstWildcardInPattern(string $pattern)
+    {
+        $wildcards = ['*', '?', '[', '\\'];
+        $wildcardSearch = static function ($carry, $item) use ($pattern) {
+            $position = strpos($pattern, $item);
+            if ($position === false) {
+                return $carry === false ? $position : $carry;
+            }
+            return $carry === false ? $position : min($carry, $position);
+        };
+        return array_reduce($wildcards, $wildcardSearch, false);
     }
 }
