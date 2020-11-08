@@ -717,7 +717,7 @@ final class FileHelperTest extends TestCase
         FileHelper::filterPath('/42.png', $options);
     }
 
-    public function testUnlinkFile(): void
+    public function testUnlinkSymlink(): void
     {
         $dirName = 'unlink';
         $basePath = $this->testFilePath . '/' . $dirName . '/';
@@ -735,6 +735,24 @@ final class FileHelperTest extends TestCase
         FileHelper::unlink($symlinkedFilePath);
 
         $this->assertFileDoesNotExist($symlinkedFilePath);
+    }
+
+    public function testUnlinkFile777(): void
+    {
+        $dirName = 'unlink';
+        $basePath = $this->testFilePath . '/' . $dirName . '/';
+        $filePath = $basePath . 'file.txt';
+
+        $this->createFileStructure([
+            $dirName => [
+                'file.txt' => 'test',
+            ],
+        ]);
+        chmod($filePath, 777);
+
+        FileHelper::unlink($filePath);
+
+        $this->assertFileDoesNotExist($filePath);
     }
 
     public function testUnlinkDirectory(): void

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Files;
 
+use Exception;
 use Yiisoft\Strings\StringHelper;
 use Yiisoft\Strings\WildcardPattern;
 
@@ -217,7 +218,40 @@ class FileHelper
             return rmdir($path);
         }
 
-        return unlink($path);
+        try {
+            return unlink($path);
+        } catch (Exception $e) {
+            // last resort measure for Windows
+            if (!static::isEmptyDirectory($path)) {
+                return false;
+            }
+
+            // @see https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/del
+            if (function_exists('exec') && file_exists($path)) {
+                exec('DEL /F/Q ' . escapeshellarg(str_replace('/', '\\', $path)));
+                return !file_exists($path);
+            }
+
+            return false;
+        }
+    }
+
+    public static function isEmptyDirectory(string $path): bool
+    {
+        if (!is_dir($path)) {
+            return false;
+        }
+
+        $handle = static::openDirectory($path);
+        while (($file = readdir($handle)) !== false) {
+            if ($file != '.' && $file != '..') {
+                closedir(@$handle);
+                return false;
+            }
+        }
+        closedir($handle);
+
+        return true;
     }
 
     /**
