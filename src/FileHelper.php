@@ -214,6 +214,11 @@ class FileHelper
             return unlink($path);
         }
 
+        return static::windowsUnlink($path);
+    }
+
+    private static function windowsUnlink(string $path): bool
+    {
         if (is_link($path) && is_dir($path)) {
             return rmdir($path);
         }
@@ -221,12 +226,14 @@ class FileHelper
         try {
             return unlink($path);
         } catch (Exception $e) {
-            // last resort measure for Windows
-            if (!static::isEmptyDirectory($path)) {
+            // Last resort measure for Windows: remove via command DEL.
+            // We can try remove only file, because when remove directory command DEL removed
+            // only files, directory not removed.
+            // @see https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/del
+            if (is_dir($path) && !static::isEmptyDirectory($path)) {
                 return false;
             }
 
-            // @see https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/del
             if (function_exists('exec') && file_exists($path)) {
                 exec('DEL /F/Q ' . escapeshellarg(str_replace('/', '\\', $path)));
                 return !file_exists($path);

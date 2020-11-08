@@ -778,6 +778,20 @@ final class FileHelperTest extends TestCase
         $this->assertDirectoryDoesNotExist($symlinkedDirectoryPath);
     }
 
+    public function testIsEmptyDirectory(): void
+    {
+        $this->createFileStructure([
+            'not-empty' => [
+                'file.txt' => '42',
+            ],
+            'empty' => [],
+        ]);
+
+        $this->assertTrue(FileHelper::isEmptyDirectory($this->testFilePath . '/empty'));
+        $this->assertFalse(FileHelper::isEmptyDirectory($this->testFilePath . '/not-empty'));
+        $this->assertFalse(FileHelper::isEmptyDirectory($this->testFilePath . '/not-exists'));
+    }
+
     /**
      * Check if exist filename.
      *
