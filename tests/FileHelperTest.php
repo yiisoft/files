@@ -721,7 +721,7 @@ final class FileHelperTest extends TestCase
     {
         $dirName = 'unlink';
         $basePath = $this->testFilePath . '/' . $dirName . '/';
-        $symlinkedFilePath = $basePath . 'symlinks\symlinked-file';
+        $symlinkedFilePath = $basePath . 'symlinks/symlinked-file';
 
         $this->createFileStructure([
             $dirName => [
