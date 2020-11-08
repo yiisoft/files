@@ -7,41 +7,12 @@ namespace Yiisoft\Files;
 use Exception;
 use InvalidArgumentException;
 use RuntimeException;
-use Yiisoft\Strings\StringHelper;
-use Yiisoft\Strings\WildcardPattern;
-
-use function is_string;
 
 /**
  * FileHelper provides useful methods to manage files and directories
  */
 class FileHelper
 {
-    /**
-     * @var int PATTERN_NO_DIR
-     */
-    public const PATTERN_NO_DIR = 1;
-
-    /**
-     * @var int PATTERN_ENDS_WITH
-     */
-    public const PATTERN_ENDS_WITH = 4;
-
-    /**
-     * @var int PATTERN_MUST_BE_DIR
-     */
-    public const PATTERN_MUST_BE_DIR = 8;
-
-    /**
-     * @var int PATTERN_NEGATIVE
-     */
-    public const PATTERN_NEGATIVE = 16;
-
-    /**
-     * @var int PATTERN_CASE_INSENSITIVE
-     */
-    public const PATTERN_CASE_INSENSITIVE = 32;
-
     /**
      * Creates a new directory.
      *
