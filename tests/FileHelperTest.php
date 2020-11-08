@@ -717,6 +717,26 @@ final class FileHelperTest extends TestCase
         FileHelper::filterPath('/42.png', $options);
     }
 
+    public function testUnlink(): void
+    {
+        $dirName = 'unlink';
+        $basePath = $this->testFilePath . '/' . $dirName . '/';
+        $symlinkedFilePath = $basePath . 'symlinks\symlinked-file';
+
+        $this->createFileStructure([
+            $dirName => [
+                'file' => 'Symlinked file.',
+                'symlinks' => [
+                    'symlinked-file' => ['symlink', '../file'],
+                ],
+            ],
+        ]);
+
+        FileHelper::unlink($symlinkedFilePath);
+
+        $this->assertFileDoesNotExist($symlinkedFilePath);
+    }
+
     /**
      * Check if exist filename.
      *
