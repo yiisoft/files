@@ -8,6 +8,7 @@ use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Yiisoft\Files\FileHelper;
+use Yiisoft\Files\PathMatcher;
 
 /**
  * File helper tests class.
@@ -542,9 +543,7 @@ final class FileHelperTest extends TestCase
         $options = [
             // options default false AssetManager
             'copyEmptyDirectories' => false,
-            'only' => [
-                'css/*.css',
-            ]
+            'filter' => (new PathMatcher())->only('css/*.css'),
         ];
 
         FileHelper::copyDirectory($source, $destination, $options);
@@ -605,12 +604,9 @@ final class FileHelperTest extends TestCase
         $options = [
             // options default false AssetManager
             'copyEmptyDirectories' => false,
-            'only' => [
-                'css/*.css',
-            ],
-            'except' => [
-                'css/bootstrap.min.css'
-            ]
+            'filter' => (new PathMatcher())
+                ->only('css/*.css')
+                ->except('css/bootstrap.min.css')
         ];
 
         FileHelper::copyDirectory($source, $destination, $options);
@@ -625,98 +621,6 @@ final class FileHelperTest extends TestCase
         $dir = $this->testFilePath . '/not_exists_dir';
         $this->expectExceptionMessage('Unable to open directory: ' . $dir);
         FileHelper::copyDirectory($dir, $this->testFilePath . '/copy');
-    }
-
-    public function dataFilterPath(): array
-    {
-        return [
-            [
-                [],
-                true,
-            ],
-            [
-                ['filter' => fn ($path) => true],
-                true,
-            ],
-            [
-                ['filter' => fn ($path) => false],
-                false,
-            ],
-            [
-                ['filter' => fn ($path) => null],
-                true,
-            ],
-            [
-                [
-                    'filter' => fn ($path) => null,
-                    'only' => '*.jpg',
-                ],
-                false,
-            ],
-            [
-                ['only' => ['*.png']],
-                true,
-            ],
-            [
-                ['except' => ['*.png']],
-                false,
-            ],
-            [
-                ['only' => '*.jpg'],
-                false,
-            ],
-            [
-                ['except' => '*.jpg'],
-                true,
-            ],
-            [
-                [
-                    'only' => [
-                        [
-                            'flags' => FileHelper::PATTERN_MUST_BE_DIR
-                        ],
-                    ],
-                ],
-                false,
-            ],
-            [
-                ['only' => ''],
-                false,
-            ],
-        ];
-    }
-
-    /**
-     * @dataProvider dataFilterPath
-     *
-     * @param array $options
-     * @param bool $expected
-     */
-    public function testFilterPath(array $options, bool $expected): void
-    {
-        $this->assertSame($expected, FileHelper::filterPath('/hello/world/i/here/face.png', $options));
-    }
-
-    public function dataFilterPathInvalidOptions(): array
-    {
-        return [
-            [
-                [
-                    'filter' => 42,
-                ]
-            ],
-        ];
-    }
-
-    /**
-     * @dataProvider dataFilterPathInvalidOptions
-     *
-     * @param array $options
-     */
-    public function testFilterPathInvalidOptions(array $options): void
-    {
-        $this->expectException(InvalidArgumentException::class);
-        FileHelper::filterPath('/42.png', $options);
     }
 
     /**
