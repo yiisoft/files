@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace Yiisoft\Files;
 
-use Exception;
 use Yiisoft\Strings\StringHelper;
 use Yiisoft\Strings\WildcardPattern;
 
-use function is_array;
 use function is_string;
 
 /**
@@ -208,13 +206,9 @@ class FileHelper
      */
     public static function unlink(string $path): bool
     {
-        $isWindows = DIRECTORY_SEPARATOR === '\\';
-
-        if (!$isWindows) {
-            return unlink($path);
-        }
-
-        return static::windowsUnlink($path);
+        return DIRECTORY_SEPARATOR === '\\' // is windows
+            ? static::windowsUnlink($path)
+            : unlink($path);
     }
 
     private static function windowsUnlink(string $path): bool
@@ -223,24 +217,11 @@ class FileHelper
             return rmdir($path);
         }
 
-        try {
-            return unlink($path);
-        } catch (Exception $e) {
-            // Last resort measure for Windows: remove via command DEL.
-            // We can try remove only file, because when remove directory command DEL removed
-            // only files, directory not removed.
-            // @see https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/del
-            if (is_dir($path) && !static::isEmptyDirectory($path)) {
-                return false;
-            }
-
-            if (function_exists('exec') && file_exists($path)) {
-                exec('DEL /F/Q ' . escapeshellarg(str_replace('/', '\\', $path)));
-                return !file_exists($path);
-            }
-
-            return false;
+        if (!is_writable($path)) {
+            chmod($path, 0777);
         }
+
+        return unlink($path);
     }
 
     public static function isEmptyDirectory(string $path): bool

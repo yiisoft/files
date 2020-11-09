@@ -737,6 +737,10 @@ final class FileHelperTest extends TestCase
         $this->assertFileDoesNotExist($symlinkedFilePath);
     }
 
+    /**
+     * 777 gives "read only" flag under Windows
+     * @see https://github.com/yiisoft/files/issues/21
+     */
     public function testUnlinkFile777(): void
     {
         $dirName = 'unlink';
