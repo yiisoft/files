@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Files;
 
+use FilesystemIterator;
 use Yiisoft\Strings\StringHelper;
 use Yiisoft\Strings\WildcardPattern;
 
@@ -230,16 +231,7 @@ class FileHelper
             return false;
         }
 
-        $handle = static::openDirectory($path);
-        while (($file = readdir($handle)) !== false) {
-            if ($file != '.' && $file != '..') {
-                closedir(@$handle);
-                return false;
-            }
-        }
-        closedir($handle);
-
-        return true;
+        return !(new FilesystemIterator($path))->valid();
     }
 
     /**
