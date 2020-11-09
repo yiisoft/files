@@ -23,6 +23,7 @@ final class FileHelperTest extends TestCase
     {
         $this->testFilePath = FileHelper::normalizePath(realpath(sys_get_temp_dir()) . '/' . get_class($this));
 
+        FileHelper::removeDirectory($this->testFilePath);
         FileHelper::createDirectory($this->testFilePath, 0777);
 
         if (!file_exists($this->testFilePath)) {
@@ -758,6 +759,29 @@ final class FileHelperTest extends TestCase
         FileHelper::unlink($symlinkedDirectoryPath);
 
         $this->assertDirectoryDoesNotExist($symlinkedDirectoryPath);
+    }
+
+    /**
+     * 777 gives "read only" flag under Windows
+     * @see https://github.com/yiisoft/files/issues/21
+     */
+    public function testUnlinkFile777(): void
+    {
+        $dirName = 'unlink';
+        $basePath = $this->testFilePath . '/' . $dirName . '/';
+        $filePath = $basePath . 'file.txt';
+
+        $this->createFileStructure([
+            $dirName => [
+                'file.txt' => 'test',
+            ],
+        ]);
+        chmod($filePath, 777);
+
+        FileHelper::unlink($filePath);
+
+
+        $this->assertFileDoesNotExist($filePath);
     }
 
     /**

@@ -217,6 +217,10 @@ class FileHelper
             return rmdir($path);
         }
 
+        if (!is_writable($path)) {
+            chmod($path, 0777);
+        }
+
         return unlink($path);
     }
 
