@@ -52,15 +52,12 @@ final class PathMatcherTest extends TestCase
 
     public function testCaseSensitive(): void
     {
-        $matcher = (new PathMatcher())->only('*.jpg');
-        $caseSensitive = $matcher->caseSensitive();
-        $notCaseSensitive = $caseSensitive->notCaseSensitive();
+        $matcher = (new PathMatcher())
+            ->caseSensitive()
+            ->only('*.jpg');
 
-        // Default PathMatcher not case sensitive
-        $this->assertTrue($matcher->match('hello.JPG'));
-
-        $this->assertFalse($caseSensitive->match('hello.JPG'));
-        $this->assertTrue($notCaseSensitive->match('hello.JPG'));
+        $this->assertTrue($matcher->match('hello.jpg'));
+        $this->assertFalse($matcher->match('hello.JPG'));
     }
 
     public function testWildcard(): void
@@ -79,5 +76,14 @@ final class PathMatcherTest extends TestCase
         $matcher = (new PathMatcher())->only('bootstrap/css/*.css');
 
         $this->assertTrue($matcher->match('d:\project\bootstrap\css\main.css'));
+    }
+
+    public function testImmutability(): void
+    {
+        $original = new PathMatcher();
+        $this->assertNotSame($original, $original->caseSensitive());
+        $this->assertNotSame($original, $original->only('42.txt'));
+        $this->assertNotSame($original, $original->except('42.txt'));
+        $this->assertNotSame($original, $original->callback(fn ($path) => false));
     }
 }

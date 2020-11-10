@@ -21,13 +21,6 @@ final class PathMatcher
         return $new;
     }
 
-    public function notCaseSensitive(): self
-    {
-        $new = clone $this;
-        $new->caseSensitive = false;
-        return $new;
-    }
-
     /**
      * @param string|WildcardPattern ...$patterns
      * @return self
