@@ -200,20 +200,17 @@ class FileHelper
 
     /**
      * Removes a file or symlink in a cross-platform way.
-     *
      * @param string $path
-     *
      * @return bool
      */
     public static function unlink(string $path): bool
     {
-        return DIRECTORY_SEPARATOR === '\\' // is windows
-            ? static::windowsUnlink($path)
-            : unlink($path);
-    }
+        $isWindows = DIRECTORY_SEPARATOR === '\\';
 
-    private static function windowsUnlink(string $path): bool
-    {
+        if (!$isWindows) {
+            return unlink($path);
+        }
+
         if (is_link($path) && is_dir($path)) {
             return rmdir($path);
         }
@@ -225,6 +222,11 @@ class FileHelper
         return unlink($path);
     }
 
+    /**
+     * Tells whether the path is a empty directory
+     * @param string $path
+     * @return bool
+     */
     public static function isEmptyDirectory(string $path): bool
     {
         if (!is_dir($path)) {
