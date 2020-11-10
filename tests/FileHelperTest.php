@@ -623,6 +623,85 @@ final class FileHelperTest extends TestCase
         FileHelper::copyDirectory($dir, $this->testFilePath . '/copy');
     }
 
+    public function testUnlinkSymlink(): void
+    {
+        $dirName = 'unlink';
+        $basePath = $this->testFilePath . '/' . $dirName . '/';
+        $symlinkedFilePath = $basePath . 'symlinks/symlinked-file';
+
+        $this->createFileStructure([
+            $dirName => [
+                'file' => 'Symlinked file.',
+                'symlinks' => [
+                    'symlinked-file' => ['symlink', '../file'],
+                ],
+            ],
+        ]);
+
+        FileHelper::unlink($symlinkedFilePath);
+
+        $this->assertFileDoesNotExist($symlinkedFilePath);
+    }
+
+    /**
+     * 777 gives "read only" flag under Windows
+     * @see https://github.com/yiisoft/files/issues/21
+     */
+    public function testUnlinkFile777(): void
+    {
+        $dirName = 'unlink';
+        $basePath = $this->testFilePath . '/' . $dirName . '/';
+        $filePath = $basePath . 'file.txt';
+
+        $this->createFileStructure([
+            $dirName => [
+                'file.txt' => 'test',
+            ],
+        ]);
+        chmod($filePath, 777);
+
+        FileHelper::unlink($filePath);
+
+        $this->assertFileDoesNotExist($filePath);
+    }
+
+    public function testUnlinkDirectory(): void
+    {
+        $dirName = 'unlink';
+        $basePath = $this->testFilePath . '/' . $dirName . '/';
+
+        $symlinkedDirectoryPath = $basePath . 'symlinks/symlinked-directory';
+
+        $this->createFileStructure([
+            $dirName => [
+                'directory' => [
+                    'file_in_directory' => 'File in directory.',
+                ],
+                'symlinks' => [
+                    'symlinked-directory' => ['symlink', '../directory'],
+                ],
+            ],
+        ]);
+
+        FileHelper::unlink($symlinkedDirectoryPath);
+
+        $this->assertDirectoryDoesNotExist($symlinkedDirectoryPath);
+    }
+
+    public function testIsEmptyDirectory(): void
+    {
+        $this->createFileStructure([
+            'not-empty' => [
+                'file.txt' => '42',
+            ],
+            'empty' => [],
+        ]);
+
+        $this->assertTrue(FileHelper::isEmptyDirectory($this->testFilePath . '/empty'));
+        $this->assertFalse(FileHelper::isEmptyDirectory($this->testFilePath . '/not-empty'));
+        $this->assertFalse(FileHelper::isEmptyDirectory($this->testFilePath . '/not-exists'));
+    }
+
     /**
      * Check if exist filename.
      *
