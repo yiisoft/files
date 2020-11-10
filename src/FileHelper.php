@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Yiisoft\Files;
 
+use FilesystemIterator;
 use Yiisoft\Strings\StringHelper;
 use Yiisoft\Strings\WildcardPattern;
 
-use function is_array;
 use function is_string;
 
 /**
@@ -200,9 +200,7 @@ class FileHelper
 
     /**
      * Removes a file or symlink in a cross-platform way.
-     *
      * @param string $path
-     *
      * @return bool
      */
     public static function unlink(string $path): bool
@@ -217,7 +215,25 @@ class FileHelper
             return rmdir($path);
         }
 
+        if (!is_writable($path)) {
+            chmod($path, 0777);
+        }
+
         return unlink($path);
+    }
+
+    /**
+     * Tells whether the path is a empty directory
+     * @param string $path
+     * @return bool
+     */
+    public static function isEmptyDirectory(string $path): bool
+    {
+        if (!is_dir($path)) {
+            return false;
+        }
+
+        return !(new FilesystemIterator($path))->valid();
     }
 
     /**

@@ -717,7 +717,7 @@ final class FileHelperTest extends TestCase
         FileHelper::filterPath('/42.png', $options);
     }
 
-    public function testUnlinkFile(): void
+    public function testUnlinkSymlink(): void
     {
         $dirName = 'unlink';
         $basePath = $this->testFilePath . '/' . $dirName . '/';
@@ -735,6 +735,28 @@ final class FileHelperTest extends TestCase
         FileHelper::unlink($symlinkedFilePath);
 
         $this->assertFileDoesNotExist($symlinkedFilePath);
+    }
+
+    /**
+     * 777 gives "read only" flag under Windows
+     * @see https://github.com/yiisoft/files/issues/21
+     */
+    public function testUnlinkFile777(): void
+    {
+        $dirName = 'unlink';
+        $basePath = $this->testFilePath . '/' . $dirName . '/';
+        $filePath = $basePath . 'file.txt';
+
+        $this->createFileStructure([
+            $dirName => [
+                'file.txt' => 'test',
+            ],
+        ]);
+        chmod($filePath, 777);
+
+        FileHelper::unlink($filePath);
+
+        $this->assertFileDoesNotExist($filePath);
     }
 
     public function testUnlinkDirectory(): void
@@ -758,6 +780,20 @@ final class FileHelperTest extends TestCase
         FileHelper::unlink($symlinkedDirectoryPath);
 
         $this->assertDirectoryDoesNotExist($symlinkedDirectoryPath);
+    }
+
+    public function testIsEmptyDirectory(): void
+    {
+        $this->createFileStructure([
+            'not-empty' => [
+                'file.txt' => '42',
+            ],
+            'empty' => [],
+        ]);
+
+        $this->assertTrue(FileHelper::isEmptyDirectory($this->testFilePath . '/empty'));
+        $this->assertFalse(FileHelper::isEmptyDirectory($this->testFilePath . '/not-empty'));
+        $this->assertFalse(FileHelper::isEmptyDirectory($this->testFilePath . '/not-exists'));
     }
 
     /**
