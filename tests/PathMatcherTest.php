@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Files\Tests;
 
 use PHPUnit\Framework\TestCase;
-use Yiisoft\Files\PathMatcher;
+use Yiisoft\Files\PathMatch\PathMatcher;
 use Yiisoft\Strings\WildcardPattern;
 
 final class PathMatcherTest extends TestCase

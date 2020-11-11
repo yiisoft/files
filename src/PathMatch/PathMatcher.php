@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Files;
+namespace Yiisoft\Files\PathMatch;
 
 use Yiisoft\Strings\WildcardPattern;
 
-final class PathMatcher
+final class PathMatcher implements PathMatcherInterface
 {
     private ?array $only = null;
     private ?array $except = null;

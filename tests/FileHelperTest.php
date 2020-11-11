@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace Yiisoft\Files\Tests;
 
-use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Yiisoft\Files\FileHelper;
-use Yiisoft\Files\PathMatcher;
+use Yiisoft\Files\PathMatch\PathMatcher;
 
 /**
  * File helper tests class.
