@@ -796,6 +796,27 @@ final class FileHelperTest extends TestCase
         $this->assertFalse(FileHelper::isEmptyDirectory($this->testFilePath . '/not-exists'));
     }
 
+    public function testLastModifiedTime(): void
+    {
+        $dirName = 'assets';
+        $basePath = $this->testFilePath . '/' . $dirName;
+
+        $this->createFileStructure(
+            [
+                $dirName => [
+                    'css' => [
+                        'stub.css' => 'testMe'
+                    ],
+                    'js' => [
+                        'stub.js' => 'testMe'
+                    ]
+                ]
+            ]
+        );
+
+        $this->assertIsInt(FileHelper::lastModifiedTime($basePath));
+    }
+
     /**
      * Check if exist filename.
      *

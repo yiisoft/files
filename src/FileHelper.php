@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Yiisoft\Files;
 
 use FilesystemIterator;
+use RecursiveIteratorIterator;
+use RecursiveDirectoryIterator;
 use Yiisoft\Strings\StringHelper;
 use Yiisoft\Strings\WildcardPattern;
 
@@ -772,5 +774,34 @@ class FileHelper
         }
 
         return $result;
+    }
+
+    /**
+     * Returns the last modification time for the given path.
+     *
+     * If the path is a directory, any nested files/directories will be checked as well.
+     *
+     * @param string $path the directory to be checked
+     *
+     * @return int Unix timestamp representing the last modification time
+     */
+    public static function lastModifiedTime(string $path): int
+    {
+        if (is_file($path)) {
+            return filemtime($path);
+        }
+
+        $times = [filemtime($path)];
+
+        $iterator = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS),
+            RecursiveIteratorIterator::SELF_FIRST
+        );
+
+        foreach ($iterator as $p => $info) {
+            $times[] = filemtime($p);
+        }
+
+        return max($times);
     }
 }
