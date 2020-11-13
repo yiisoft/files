@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Files\Tests;
+namespace Yiisoft\Files\Tests\PathMatch;
 
 use PHPUnit\Framework\TestCase;
 use Yiisoft\Files\PathMatch\PathMatcher;
-use Yiisoft\Strings\WildcardPattern;
+use Yiisoft\Files\PathMatch\PathPattern;
 
 final class PathMatcherTest extends TestCase
 {
@@ -60,10 +60,20 @@ final class PathMatcherTest extends TestCase
         $this->assertFalse($matcher->match('hello.JPG'));
     }
 
-    public function testWildcard(): void
+    public function testFullPath(): void
+    {
+        $matcher = (new PathMatcher())
+            ->withFullPath()
+            ->only('dir/*.jpg');
+
+        $this->assertTrue($matcher->match('dir/42.jpg'));
+        $this->assertFalse($matcher->match('var/dir/42.jpg'));
+    }
+
+    public function testPathPattern(): void
     {
         $matcher = (new PathMatcher())->only(
-            new WildcardPattern('.png'),
+            (new PathPattern('.png'))->withFullPath(),
             '.jpg'
         );
 
@@ -82,6 +92,7 @@ final class PathMatcherTest extends TestCase
     {
         $original = new PathMatcher();
         $this->assertNotSame($original, $original->caseSensitive());
+        $this->assertNotSame($original, $original->withFullPath());
         $this->assertNotSame($original, $original->only('42.txt'));
         $this->assertNotSame($original, $original->except('42.txt'));
         $this->assertNotSame($original, $original->callback(fn ($path) => false));

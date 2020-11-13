@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\Files\PathMatch;
 
-use Yiisoft\Strings\WildcardPattern;
-
 final class PathMatcher implements PathMatcherInterface
 {
     private ?array $only = null;
@@ -13,6 +11,7 @@ final class PathMatcher implements PathMatcherInterface
     private ?array $callbacks = null;
 
     private bool $caseSensitive = false;
+    private bool $matchFullPath = false;
 
     public function caseSensitive(): self
     {
@@ -21,8 +20,15 @@ final class PathMatcher implements PathMatcherInterface
         return $new;
     }
 
+    public function withFullPath(): self
+    {
+        $new = clone $this;
+        $new->matchFullPath = true;
+        return $new;
+    }
+
     /**
-     * @param string|WildcardPattern ...$patterns
+     * @param string|PathPattern ...$patterns
      * @return self
      */
     public function only(...$patterns): self
@@ -33,7 +39,7 @@ final class PathMatcher implements PathMatcherInterface
     }
 
     /**
-     * @param string|WildcardPattern ...$patterns
+     * @param string|PathPattern ...$patterns
      * @return self
      */
     public function except(string ...$patterns): self
@@ -55,13 +61,13 @@ final class PathMatcher implements PathMatcherInterface
         $path = str_replace('\\', '/', $path);
 
         if ($this->only !== null) {
-            if (!$this->matchWildcardPatterns($path, $this->only)) {
+            if (!$this->matchPathPatterns($path, $this->only)) {
                 return false;
             }
         }
 
         if ($this->except !== null) {
-            if ($this->matchWildcardPatterns($path, $this->except)) {
+            if ($this->matchPathPatterns($path, $this->except)) {
                 return false;
             }
         }
@@ -79,12 +85,12 @@ final class PathMatcher implements PathMatcherInterface
 
     /**
      * @param string $path
-     * @param string|WildcardPattern[] $patterns
+     * @param string|PathPattern[] $patterns
      * @return bool
      */
-    private function matchWildcardPatterns(string $path, array $patterns): bool
+    private function matchPathPatterns(string $path, array $patterns): bool
     {
-        $patterns = $this->makeWildcardPatterns($patterns);
+        $patterns = $this->makePathPatterns($patterns);
 
         foreach ($patterns as $pattern) {
             if ($pattern->match($path)) {
@@ -96,26 +102,30 @@ final class PathMatcher implements PathMatcherInterface
     }
 
     /**
-     * @param string[]|WildcardPattern[] $patterns
-     * @return WildcardPattern[]
+     * @param string[]|PathPattern[] $patterns
+     * @return PathPattern[]
      */
-    private function makeWildcardPatterns(array $patterns): array
+    private function makePathPatterns(array $patterns): array
     {
-        $wildcardPatterns = [];
+        $pathPatterns = [];
         foreach ($patterns as $pattern) {
-            if ($pattern instanceof WildcardPattern) {
-                $wildcardPatterns[] = $pattern;
+            if ($pattern instanceof PathPattern) {
+                $pathPatterns[] = $pattern;
                 continue;
             }
 
-            $wildcardPattern = new WildcardPattern('*' . $pattern);
+            $pathPattern = new PathPattern($pattern);
 
-            if (!$this->caseSensitive) {
-                $wildcardPattern = $wildcardPattern->ignoreCase();
+            if ($this->caseSensitive) {
+                $pathPattern = $pathPattern->caseSensitive();
             }
 
-            $wildcardPatterns[] = $wildcardPattern;
+            if ($this->matchFullPath) {
+                $pathPattern = $pathPattern->withFullPath();
+            }
+
+            $pathPatterns[] = $pathPattern;
         }
-        return $wildcardPatterns;
+        return $pathPatterns;
     }
 }
