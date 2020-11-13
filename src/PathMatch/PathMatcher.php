@@ -14,6 +14,10 @@ final class PathMatcher implements PathMatcherInterface
     private bool $matchFullPath = false;
     private bool $matchSlashesExactly = true;
 
+    /**
+     * Make string patterns case sensitive.
+     * @return self
+     */
     public function caseSensitive(): self
     {
         $new = clone $this;
@@ -21,6 +25,10 @@ final class PathMatcher implements PathMatcherInterface
         return $new;
     }
 
+    /**
+     * Match string patterns as full path, not just ending of path.
+     * @return self
+     */
     public function withFullPath(): self
     {
         $new = clone $this;
@@ -28,6 +36,10 @@ final class PathMatcher implements PathMatcherInterface
         return $new;
     }
 
+    /**
+     * Match `/` character with wildcards in string patterns.
+     * @return self
+     */
     public function withNotExactSlashes(): self
     {
         $new = clone $this;
@@ -36,6 +48,7 @@ final class PathMatcher implements PathMatcherInterface
     }
 
     /**
+     * Set list of patterns that the files or directories should match.
      * @param string|PathPattern ...$patterns
      * @return self
      */
@@ -47,6 +60,7 @@ final class PathMatcher implements PathMatcherInterface
     }
 
     /**
+     * Set list of patterns that the files or directories should not match.
      * @param string|PathPattern ...$patterns
      * @return self
      */
@@ -57,6 +71,15 @@ final class PathMatcher implements PathMatcherInterface
         return $new;
     }
 
+    /**
+     * Set list of PHP callback that is called for each path.
+     *
+     * The signature of the callback should be: `function ($path)`, where `$path` refers the full path to be filtered.
+     * The callback should return `true` if the passed path would match and `false` if it doesn't.
+     *
+     * @param callable ...$callbacks
+     * @return self
+     */
     public function callback(callable ...$callbacks): self
     {
         $new = clone $this;
@@ -64,6 +87,12 @@ final class PathMatcher implements PathMatcherInterface
         return $new;
     }
 
+    /**
+     * Checks if the passed path would match specified conditions.
+     *
+     * @param string $path The tested path.
+     * @return bool Whether the path matches conditions or not.
+     */
     public function match(string $path): bool
     {
         $path = str_replace('\\', '/', $path);
