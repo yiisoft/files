@@ -13,6 +13,7 @@ final class PathPattern implements PathMatcherInterface
     public function __construct(string $pattern)
     {
         $this->pattern = (new WildcardPattern($pattern))
+            ->withExactSlashes()
             ->ignoreCase()
             ->withEnding();
     }
@@ -28,6 +29,13 @@ final class PathPattern implements PathMatcherInterface
     {
         $new = clone $this;
         $new->pattern = $this->pattern->withEnding(false);
+        return $new;
+    }
+
+    public function withNotExactSlashes(): self
+    {
+        $new = clone $this;
+        $new->pattern = $this->pattern->withExactSlashes(false);
         return $new;
     }
 

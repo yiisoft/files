@@ -22,13 +22,18 @@ final class PathPatternTest extends TestCase
             // case-sensitive
             ['dir/*.jpg', 'dir/42.jpg', true],
             ['dir/*.jpg', 'DIR/42.JPG', true],
-            ['dir/*.jpg', 'dir/42.jpg', true, ['caseSensitive' => true]],
-            ['dir/*.jpg', 'DIR/42.JPG', false, ['caseSensitive' => true]],
-            // full-path
+            ['dir/*.jpg', 'dir/42.jpg', true, ['caseSensitive']],
+            ['dir/*.jpg', 'DIR/42.JPG', false, ['caseSensitive']],
+            // full path
             ['i/*.jpg', 'i/hello.jpg', true],
             ['i/*.jpg', 'dir/i/hello.jpg', true],
-            ['i/*.jpg', 'i/hello.jpg', true, ['fullPath' => true]],
-            ['i/*.jpg', 'dir/i/hello.jpg', false, ['fullPath' => true]],
+            ['i/*.jpg', 'i/hello.jpg', true, ['fullPath']],
+            ['i/*.jpg', 'dir/i/hello.jpg', false, ['fullPath']],
+            // not exact slashes
+            ['i/*.jpg', 'i/hello.jpg', true],
+            ['i/*.jpg', 'i/abc/hello.jpg', false],
+            ['i/*.jpg', 'i/hello.jpg', true, ['notExactSlashes']],
+            ['i/*.jpg', 'i/abc/hello.jpg', true, ['notExactSlashes']],
         ];
     }
 
@@ -49,11 +54,14 @@ final class PathPatternTest extends TestCase
     private function getPathPattern(string $pattern, array $options): PathPattern
     {
         $pathPattern = new PathPattern($pattern);
-        if (isset($options['caseSensitive']) && $options['caseSensitive'] === true) {
+        if (in_array('caseSensitive', $options)) {
             $pathPattern = $pathPattern->caseSensitive();
         }
-        if (isset($options['fullPath']) && $options['fullPath'] === true) {
+        if (in_array('fullPath', $options)) {
             $pathPattern = $pathPattern->withFullPath();
+        }
+        if (in_array('notExactSlashes', $options)) {
+            $pathPattern = $pathPattern->withNotExactSlashes();
         }
 
         return $pathPattern;
@@ -64,5 +72,6 @@ final class PathPatternTest extends TestCase
         $original = new PathPattern('*');
         $this->assertNotSame($original, $original->caseSensitive());
         $this->assertNotSame($original, $original->withFullPath());
+        $this->assertNotSame($original, $original->withNotExactSlashes());
     }
 }

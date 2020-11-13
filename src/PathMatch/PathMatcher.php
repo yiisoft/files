@@ -12,6 +12,7 @@ final class PathMatcher implements PathMatcherInterface
 
     private bool $caseSensitive = false;
     private bool $matchFullPath = false;
+    private bool $matchSlashesExactly = true;
 
     public function caseSensitive(): self
     {
@@ -24,6 +25,13 @@ final class PathMatcher implements PathMatcherInterface
     {
         $new = clone $this;
         $new->matchFullPath = true;
+        return $new;
+    }
+
+    public function withNotExactSlashes(): self
+    {
+        $new = clone $this;
+        $new->matchSlashesExactly = false;
         return $new;
     }
 
@@ -122,6 +130,10 @@ final class PathMatcher implements PathMatcherInterface
 
             if ($this->matchFullPath) {
                 $pathPattern = $pathPattern->withFullPath();
+            }
+
+            if (!$this->matchSlashesExactly) {
+                $pathPattern = $pathPattern->withNotExactSlashes();
             }
 
             $pathPatterns[] = $pathPattern;

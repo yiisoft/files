@@ -70,6 +70,15 @@ final class PathMatcherTest extends TestCase
         $this->assertFalse($matcher->match('var/dir/42.jpg'));
     }
 
+    public function testNotExactSlashes(): void
+    {
+        $matcher = (new PathMatcher())
+            ->withNotExactSlashes()
+            ->only('dir/*.jpg');
+
+        $this->assertTrue($matcher->match('dir/inner/42.jpg'));
+    }
+
     public function testPathPattern(): void
     {
         $matcher = (new PathMatcher())->only(
@@ -93,6 +102,7 @@ final class PathMatcherTest extends TestCase
         $original = new PathMatcher();
         $this->assertNotSame($original, $original->caseSensitive());
         $this->assertNotSame($original, $original->withFullPath());
+        $this->assertNotSame($original, $original->withNotExactSlashes());
         $this->assertNotSame($original, $original->only('42.txt'));
         $this->assertNotSame($original, $original->except('42.txt'));
         $this->assertNotSame($original, $original->callback(fn ($path) => false));
