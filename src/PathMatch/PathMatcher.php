@@ -6,8 +6,19 @@ namespace Yiisoft\Files\PathMatch;
 
 final class PathMatcher implements PathMatcherInterface
 {
+    /**
+     * @var PathPattern[]|null
+     */
     private ?array $only = null;
+
+    /**
+     * @var PathPattern[]|null
+     */
     private ?array $except = null;
+
+    /**
+     * @var PathPattern[]|null
+     */
     private ?array $callbacks = null;
 
     private bool $caseSensitive = false;
@@ -55,7 +66,7 @@ final class PathMatcher implements PathMatcherInterface
     public function only(...$patterns): self
     {
         $new = clone $this;
-        $new->only = $patterns;
+        $new->only = $this->makePathPatterns($patterns);
         return $new;
     }
 
@@ -67,7 +78,7 @@ final class PathMatcher implements PathMatcherInterface
     public function except(string ...$patterns): self
     {
         $new = clone $this;
-        $new->except = $patterns;
+        $new->except = $this->makePathPatterns($patterns);
         return $new;
     }
 
@@ -122,13 +133,11 @@ final class PathMatcher implements PathMatcherInterface
 
     /**
      * @param string $path
-     * @param string|PathPattern[] $patterns
+     * @param PathPattern[] $patterns
      * @return bool
      */
     private function matchPathPatterns(string $path, array $patterns): bool
     {
-        $patterns = $this->makePathPatterns($patterns);
-
         foreach ($patterns as $pattern) {
             if ($pattern->match($path)) {
                 return true;
