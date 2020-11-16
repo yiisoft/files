@@ -7,7 +7,7 @@ namespace Yiisoft\Files\PathMatch;
 interface PathMatcherInterface
 {
     /**
-     * Checks if the passed path would matched.
+     * Checks if the path matches.
      *
      * @param string $path The tested path.
      * @return bool Whether the path matches or not.
