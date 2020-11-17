@@ -7,8 +7,7 @@ namespace Yiisoft\Files\PathMatch;
 use Yiisoft\Strings\WildcardPattern;
 
 /**
- * A shell path pattern to match against.
- * Based on {@see WildcardPattern}.
+ * A shell path pattern to match against. Based on {@see WildcardPattern}.
  */
 final class PathPattern implements PathMatcherInterface
 {
@@ -31,6 +30,7 @@ final class PathPattern implements PathMatcherInterface
 
     /**
      * Make pattern case sensitive.
+     *
      * @return self
      */
     public function caseSensitive(): self
@@ -42,6 +42,7 @@ final class PathPattern implements PathMatcherInterface
 
     /**
      * Match full path, not just ending of path.
+     *
      * @return self
      */
     public function withFullPath(): self
@@ -53,6 +54,7 @@ final class PathPattern implements PathMatcherInterface
 
     /**
      * Match `/` character with wildcards.
+     *
      * @return self
      */
     public function withNotExactSlashes(): self
@@ -63,7 +65,8 @@ final class PathPattern implements PathMatcherInterface
     }
 
     /**
-     * If path is not file match return null
+     * If path is not file or file not exists skip matching.
+     *
      * @return self
      */
     public function onlyFiles(): self
@@ -74,7 +77,8 @@ final class PathPattern implements PathMatcherInterface
     }
 
     /**
-     * If path is not directory match return null
+     * If path is not directory or directory not exists skip matching.
+     *
      * @return self
      */
     public function onlyDirectories(): self
@@ -86,12 +90,15 @@ final class PathPattern implements PathMatcherInterface
 
     /**
      * Checks if the passed path would match the given shell path pattern.
+     * If need match only files and path is directory or conversely then matching skipped and returned `null`.
      *
      * @param string $path The tested path.
-     * @return bool|null Whether the path matches pattern or not.
+     * @return bool|null Whether the path matches pattern or not, `null` if matching skipped.
      */
     public function match(string $path): ?bool
     {
+        $path = str_replace('\\', '/', $path);
+
         if (
             ($this->matchOnly === self::FILES && is_dir($path)) ||
             ($this->matchOnly === self::DIRECTORIES && is_file($path))

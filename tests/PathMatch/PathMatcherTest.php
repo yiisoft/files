@@ -4,15 +4,16 @@ declare(strict_types=1);
 
 namespace Yiisoft\Files\Tests\PathMatch;
 
-use PHPUnit\Framework\TestCase;
 use Yiisoft\Files\PathMatch\PathMatcher;
 use Yiisoft\Files\PathMatch\PathPattern;
+use Yiisoft\Files\Tests\FileSystemTestCase;
 
-final class PathMatcherTest extends TestCase
+final class PathMatcherTest extends FileSystemTestCase
 {
     public function testEmpty(): void
     {
-        $matcher = new PathMatcher();
+        $matcher = (new PathMatcher())
+            ->notCheckFilesystem();
 
         $this->assertTrue($matcher->match(''));
         $this->assertTrue($matcher->match('hello.png'));
@@ -20,10 +21,9 @@ final class PathMatcherTest extends TestCase
 
     public function testOnly(): void
     {
-        $matcher = (new PathMatcher())->only('*.jpg', '*.png');
-
-        // Immutable test
-        $matcher->only('*.txt');
+        $matcher = (new PathMatcher())
+            ->notCheckFilesystem()
+            ->only('*.jpg', '*.png');
 
         $this->assertTrue($matcher->match('hello.png'));
         $this->assertFalse($matcher->match('hello.gif'));
@@ -31,10 +31,9 @@ final class PathMatcherTest extends TestCase
 
     public function testExcept(): void
     {
-        $matcher = (new PathMatcher())->except('*.jpg', '*.png');
-
-        // Immutable test
-        $matcher->except('*.gif');
+        $matcher = (new PathMatcher())
+            ->notCheckFilesystem()
+            ->except('*.jpg', '*.png');
 
         $this->assertTrue($matcher->match('hello.gif'));
         $this->assertFalse($matcher->match('hello.png'));
@@ -42,10 +41,9 @@ final class PathMatcherTest extends TestCase
 
     public function testCallback(): void
     {
-        $matcher = (new PathMatcher())->callback(fn ($path) => false);
-
-        // Immutable test
-        $matcher->callback(fn ($path) => true);
+        $matcher = (new PathMatcher())
+            ->notCheckFilesystem()
+            ->callback(fn ($path) => false);
 
         $this->assertFalse($matcher->match('hello.png'));
     }
@@ -53,6 +51,7 @@ final class PathMatcherTest extends TestCase
     public function testCaseSensitive(): void
     {
         $matcher = (new PathMatcher())
+            ->notCheckFilesystem()
             ->caseSensitive()
             ->only('*.jpg');
 
@@ -63,6 +62,7 @@ final class PathMatcherTest extends TestCase
     public function testFullPath(): void
     {
         $matcher = (new PathMatcher())
+            ->notCheckFilesystem()
             ->withFullPath()
             ->only('dir/*.jpg');
 
@@ -73,28 +73,64 @@ final class PathMatcherTest extends TestCase
     public function testNotExactSlashes(): void
     {
         $matcher = (new PathMatcher())
+            ->notCheckFilesystem()
             ->withNotExactSlashes()
             ->only('dir/*.jpg');
 
         $this->assertTrue($matcher->match('dir/inner/42.jpg'));
     }
 
+    public function testMatchDirectories(): void
+    {
+        $matcher = (new PathMatcher())
+            ->notCheckFilesystem()
+            ->only('notes/');
+
+        $this->assertTrue($matcher->match('dir/notes'));
+        $this->assertFalse($matcher->match('dir/otes'));
+    }
+
     public function testPathPattern(): void
     {
-        $matcher = (new PathMatcher())->only(
-            (new PathPattern('.png'))->withFullPath(),
-            '.jpg'
-        );
+        $matcher = (new PathMatcher())
+            ->notCheckFilesystem()
+            ->only(
+                (new PathPattern('.png'))->withFullPath(),
+                '.jpg'
+            );
 
         $this->assertTrue($matcher->match('42.jpg'));
         $this->assertFalse($matcher->match('42.png'));
     }
 
-    public function testWindowsPath(): void
+    public function testCheckFilesystem(): void
     {
-        $matcher = (new PathMatcher())->only('bootstrap/css/*.css');
+        $source = 'check-fs';
 
-        $this->assertTrue($matcher->match('d:\project\bootstrap\css\main.css'));
+        $structure = [
+            'part1' => [
+                'intro.txt' => 'content',
+            ],
+            'part2' => [
+                'intro.txt' => 'content',
+            ],
+            'how-to.txt' => 'content',
+        ];
+
+        $this->createFileStructure([
+            $source => $structure,
+        ]);
+
+        $basePath = $this->testFilePath . '/' . $source;
+
+        $matcher = (new PathMatcher())->only('part2/');
+        $this->assertFalse($matcher->match($basePath . '/part1'));
+
+        $matcher = (new PathMatcher())->only('part2/');
+        $this->assertTrue($matcher->match($basePath . '/part1/intro.txt'));
+
+        $matcher = (new PathMatcher())->notCheckFilesystem()->only('dir/');
+        $this->assertFalse($matcher->match($basePath . '/how-to.txt'));
     }
 
     public function testImmutability(): void

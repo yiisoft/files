@@ -6,6 +6,12 @@ namespace Yiisoft\Files\PathMatch;
 
 use Yiisoft\Strings\StringHelper;
 
+/**
+ * Path matcher based on {@see PathPattern} with the following logic:
+ *  - process `only()`: if there is at least one match, then continue, else return `false`;
+ *  - process `except()`: if there is at least one match, return `false`, else continue;
+ *  - process `callback()`: if there is at least one not match, return `false`, else return `true`.
+ */
 final class PathMatcher implements PathMatcherInterface
 {
     /**
@@ -30,6 +36,8 @@ final class PathMatcher implements PathMatcherInterface
 
     /**
      * Make string patterns case sensitive.
+     * Note: applies only to string patterns.
+     *
      * @return self
      */
     public function caseSensitive(): self
@@ -41,6 +49,8 @@ final class PathMatcher implements PathMatcherInterface
 
     /**
      * Match string patterns as full path, not just ending of path.
+     * Note: applies only to string patterns.
+     *
      * @return self
      */
     public function withFullPath(): self
@@ -52,6 +62,8 @@ final class PathMatcher implements PathMatcherInterface
 
     /**
      * Match `/` character with wildcards in string patterns.
+     * Note: applies only to string patterns.
+     *
      * @return self
      */
     public function withNotExactSlashes(): self
@@ -61,6 +73,12 @@ final class PathMatcher implements PathMatcherInterface
         return $new;
     }
 
+    /**
+     * Match path only as string, do not check file or directory exists.
+     * Note: applies only to string patterns.
+     *
+     * @return self
+     */
     public function notCheckFilesystem(): self
     {
         $new = clone $this;
@@ -70,6 +88,7 @@ final class PathMatcher implements PathMatcherInterface
 
     /**
      * Set list of patterns that the files or directories should match.
+     *
      * @param string|PathPattern ...$patterns
      * @return self
      */
@@ -82,6 +101,7 @@ final class PathMatcher implements PathMatcherInterface
 
     /**
      * Set list of patterns that the files or directories should not match.
+     *
      * @param string|PathPattern ...$patterns
      * @return self
      */
@@ -112,12 +132,10 @@ final class PathMatcher implements PathMatcherInterface
      * Checks if the passed path would match specified conditions.
      *
      * @param string $path The tested path.
-     * @return bool|null Whether the path matches conditions or not.
+     * @return bool Whether the path matches conditions or not.
      */
-    public function match(string $path): ?bool
+    public function match(string $path): bool
     {
-        $path = str_replace('\\', '/', $path);
-
         if (!$this->matchOnly($path)) {
             return false;
         }
@@ -206,8 +224,8 @@ final class PathMatcher implements PathMatcherInterface
                 continue;
             }
 
-            $isDirectory = StringHelper::endsWith($pattern, '/');
-            if ($isDirectory) {
+            $isDirectoryPattern = StringHelper::endsWith($pattern, '/');
+            if ($isDirectoryPattern) {
                 $pattern = StringHelper::substring($pattern, 0, -1);
             }
 
@@ -226,7 +244,9 @@ final class PathMatcher implements PathMatcherInterface
             }
 
             if ($this->checkFilesystem) {
-                $pathPattern = $isDirectory ? $pathPattern->onlyDirectories() : $pathPattern->onlyFiles();
+                $pathPattern = $isDirectoryPattern
+                    ? $pathPattern->onlyDirectories()
+                    : $pathPattern->onlyFiles();
             }
 
             $pathPatterns[] = $pathPattern;

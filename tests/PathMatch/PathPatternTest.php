@@ -34,6 +34,8 @@ final class PathPatternTest extends TestCase
             ['i/*.jpg', 'i/abc/hello.jpg', false],
             ['i/*.jpg', 'i/hello.jpg', true, ['notExactSlashes']],
             ['i/*.jpg', 'i/abc/hello.jpg', true, ['notExactSlashes']],
+            // windows path
+            ['i/*.jpg', 'i\hello.jpg', true],
         ];
     }
 
