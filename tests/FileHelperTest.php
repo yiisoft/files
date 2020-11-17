@@ -507,14 +507,20 @@ final class FileHelperTest extends TestCase
                 'bootstrap.bundle.js' => 'file 6 content',
                 'bootstrap.bundle.js.map' => 'file 7 content',
                 'bootstrap.min.js' => 'file 8 content'
-            ]
+            ],
+            'readme' => [
+                'how-to.txt' => 'file 9 content',
+            ],
         ];
 
         $exist = [
             'css' => [
                 'bootstrap.css' => 'file 1 content',
                 'bootstrap.min.css' => 'file 3 content',
-            ]
+            ],
+            'readme' => [
+                'how-to.txt' => 'file 9 content',
+            ],
         ];
 
         $noexist = [
@@ -542,7 +548,7 @@ final class FileHelperTest extends TestCase
         $options = [
             // options default false AssetManager
             'copyEmptyDirectories' => false,
-            'filter' => (new PathMatcher())->only('css/*.css'),
+            'filter' => (new PathMatcher())->only('css/*.css', 'readme/', '*.txt'),
         ];
 
         FileHelper::copyDirectory($source, $destination, $options);
@@ -568,7 +574,10 @@ final class FileHelperTest extends TestCase
                 'bootstrap.bundle.js' => 'file 6 content',
                 'bootstrap.bundle.js.map' => 'file 7 content',
                 'bootstrap.min.js' => 'file 8 content'
-            ]
+            ],
+            'readme' => [
+                'how-to.txt' => 'file 9 content',
+            ],
         ];
 
         $exist = [
@@ -588,7 +597,10 @@ final class FileHelperTest extends TestCase
                 'bootstrap.bundle.js' => 'file 6 content',
                 'bootstrap.bundle.js.map' => 'file 7 content',
                 'bootstrap.min.js' => 'file 8 content'
-            ]
+            ],
+            'readme' => [
+                'how-to.txt' => 'file 9 content',
+            ],
         ];
 
         $this->createFileStructure([
@@ -604,8 +616,8 @@ final class FileHelperTest extends TestCase
             // options default false AssetManager
             'copyEmptyDirectories' => false,
             'filter' => (new PathMatcher())
-                ->only('css/*.css')
-                ->except('css/bootstrap.min.css')
+                ->only('css/*.css', '*.txt')
+                ->except('css/bootstrap.min.css', 'readme/')
         ];
 
         FileHelper::copyDirectory($source, $destination, $options);

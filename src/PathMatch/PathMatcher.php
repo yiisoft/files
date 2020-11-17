@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Yiisoft\Files\PathMatch;
 
+use Yiisoft\Strings\StringHelper;
+
 final class PathMatcher implements PathMatcherInterface
 {
     /**
@@ -17,13 +19,14 @@ final class PathMatcher implements PathMatcherInterface
     private ?array $except = null;
 
     /**
-     * @var PathPattern[]|null
+     * @var callable[]|null
      */
     private ?array $callbacks = null;
 
     private bool $caseSensitive = false;
     private bool $matchFullPath = false;
     private bool $matchSlashesExactly = true;
+    private bool $checkFilesystem = true;
 
     /**
      * Make string patterns case sensitive.
@@ -58,6 +61,13 @@ final class PathMatcher implements PathMatcherInterface
         return $new;
     }
 
+    public function notCheckFilesystem(): self
+    {
+        $new = clone $this;
+        $new->checkFilesystem = false;
+        return $new;
+    }
+
     /**
      * Set list of patterns that the files or directories should match.
      * @param string|PathPattern ...$patterns
@@ -75,7 +85,7 @@ final class PathMatcher implements PathMatcherInterface
      * @param string|PathPattern ...$patterns
      * @return self
      */
-    public function except(string ...$patterns): self
+    public function except(...$patterns): self
     {
         $new = clone $this;
         $new->except = $this->makePathPatterns($patterns);
@@ -102,22 +112,18 @@ final class PathMatcher implements PathMatcherInterface
      * Checks if the passed path would match specified conditions.
      *
      * @param string $path The tested path.
-     * @return bool Whether the path matches conditions or not.
+     * @return bool|null Whether the path matches conditions or not.
      */
-    public function match(string $path): bool
+    public function match(string $path): ?bool
     {
         $path = str_replace('\\', '/', $path);
 
-        if ($this->only !== null) {
-            if (!$this->matchPathPatterns($path, $this->only)) {
-                return false;
-            }
+        if (!$this->matchOnly($path)) {
+            return false;
         }
 
-        if ($this->except !== null) {
-            if ($this->matchPathPatterns($path, $this->except)) {
-                return false;
-            }
+        if ($this->matchExcept($path)) {
+            return false;
         }
 
         if ($this->callbacks !== null) {
@@ -133,13 +139,53 @@ final class PathMatcher implements PathMatcherInterface
 
     /**
      * @param string $path
-     * @param PathPattern[] $patterns
      * @return bool
      */
-    private function matchPathPatterns(string $path, array $patterns): bool
+    private function matchOnly(string $path): bool
     {
-        foreach ($patterns as $pattern) {
-            if ($pattern->match($path)) {
+        if ($this->only === null) {
+            return true;
+        }
+
+        $hasFalse = false;
+        $hasNull = false;
+
+        foreach ($this->only as $pattern) {
+            if ($pattern->match($path) === true) {
+                return true;
+            }
+            if ($pattern->match($path) === false) {
+                $hasFalse = true;
+            }
+            if ($pattern->match($path) === null) {
+                $hasNull = true;
+            }
+        }
+
+        if ($this->checkFilesystem) {
+            if (is_file($path)) {
+                return $hasFalse ? false : true;
+            }
+            if (is_dir($path)) {
+                return $hasNull ? true : false;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param string $path
+     * @return bool
+     */
+    private function matchExcept(string $path): bool
+    {
+        if ($this->except === null) {
+            return false;
+        }
+
+        foreach ($this->except as $pattern) {
+            if ($pattern->match($path) === true) {
                 return true;
             }
         }
@@ -160,6 +206,11 @@ final class PathMatcher implements PathMatcherInterface
                 continue;
             }
 
+            $isDirectory = StringHelper::endsWith($pattern, '/');
+            if ($isDirectory) {
+                $pattern = StringHelper::substring($pattern, 0, -1);
+            }
+
             $pathPattern = new PathPattern($pattern);
 
             if ($this->caseSensitive) {
@@ -172,6 +223,10 @@ final class PathMatcher implements PathMatcherInterface
 
             if (!$this->matchSlashesExactly) {
                 $pathPattern = $pathPattern->withNotExactSlashes();
+            }
+
+            if ($this->checkFilesystem) {
+                $pathPattern = $isDirectory ? $pathPattern->onlyDirectories() : $pathPattern->onlyFiles();
             }
 
             $pathPatterns[] = $pathPattern;

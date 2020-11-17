@@ -12,7 +12,11 @@ use Yiisoft\Strings\WildcardPattern;
  */
 final class PathPattern implements PathMatcherInterface
 {
+    private const FILES = 1;
+    private const DIRECTORIES = 2;
+
     private WildcardPattern $pattern;
+    private ?int $matchOnly = null;
 
     /**
      * @param string $pattern The path pattern to match against.
@@ -59,13 +63,42 @@ final class PathPattern implements PathMatcherInterface
     }
 
     /**
+     * If path is not file match return null
+     * @return self
+     */
+    public function onlyFiles(): self
+    {
+        $new = clone $this;
+        $new->matchOnly = self::FILES;
+        return $new;
+    }
+
+    /**
+     * If path is not directory match return null
+     * @return self
+     */
+    public function onlyDirectories(): self
+    {
+        $new = clone $this;
+        $new->matchOnly = self::DIRECTORIES;
+        return $new;
+    }
+
+    /**
      * Checks if the passed path would match the given shell path pattern.
      *
      * @param string $path The tested path.
-     * @return bool Whether the path matches pattern or not.
+     * @return bool|null Whether the path matches pattern or not.
      */
-    public function match(string $path): bool
+    public function match(string $path): ?bool
     {
+        if (
+            ($this->matchOnly === self::FILES && is_dir($path)) ||
+            ($this->matchOnly === self::DIRECTORIES && is_file($path))
+        ) {
+            return null;
+        }
+
         return $this->pattern->match($path);
     }
 }

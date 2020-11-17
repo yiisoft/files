@@ -264,8 +264,8 @@ class FileHelper
             $from = $source . '/' . $file;
             $to = $destination . '/' . $file;
 
-            if (is_file($from)) {
-                if (!isset($options['filter']) || $options['filter']->match($from)) {
+            if (!isset($options['filter']) || $options['filter']->match($from)) {
+                if (is_file($from)) {
                     if (!$destinationExists) {
                         static::createDirectory($destination, $options['dirMode'] ?? 0775);
                         $destinationExists = true;
@@ -274,9 +274,9 @@ class FileHelper
                     if (isset($options['fileMode'])) {
                         static::chmod($to, $options['fileMode']);
                     }
+                } elseif (!isset($options['recursive']) || $options['recursive']) {
+                    static::copyDirectory($from, $to, $options);
                 }
-            } elseif (!isset($options['recursive']) || $options['recursive']) {
-                static::copyDirectory($from, $to, $options);
             }
         }
 

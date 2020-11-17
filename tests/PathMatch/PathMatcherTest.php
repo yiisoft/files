@@ -103,6 +103,7 @@ final class PathMatcherTest extends TestCase
         $this->assertNotSame($original, $original->caseSensitive());
         $this->assertNotSame($original, $original->withFullPath());
         $this->assertNotSame($original, $original->withNotExactSlashes());
+        $this->assertNotSame($original, $original->notCheckFilesystem());
         $this->assertNotSame($original, $original->only('42.txt'));
         $this->assertNotSame($original, $original->except('42.txt'));
         $this->assertNotSame($original, $original->callback(fn ($path) => false));

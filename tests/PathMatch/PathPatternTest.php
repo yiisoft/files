@@ -73,5 +73,7 @@ final class PathPatternTest extends TestCase
         $this->assertNotSame($original, $original->caseSensitive());
         $this->assertNotSame($original, $original->withFullPath());
         $this->assertNotSame($original, $original->withNotExactSlashes());
+        $this->assertNotSame($original, $original->onlyFiles());
+        $this->assertNotSame($original, $original->onlyDirectories());
     }
 }
