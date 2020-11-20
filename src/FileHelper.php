@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Yiisoft\Files;
 
 use FilesystemIterator;
-use RecursiveIteratorIterator;
-use RecursiveDirectoryIterator;
-use Yiisoft\Strings\StringHelper;
-use Yiisoft\Strings\WildcardPattern;
-
 use function is_string;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use Yiisoft\Strings\StringHelper;
+
+use Yiisoft\Strings\WildcardPattern;
 
 /**
  * FileHelper provides useful methods to manage files and directories
@@ -78,11 +78,11 @@ class FileHelper
      * Set permissions directory.
      *
      * @param string $path
-     * @param integer $mode
+     * @param int $mode
      *
      * @throws \RuntimeException
      *
-     * @return boolean|null
+     * @return bool|null
      */
     private static function chmod(string $path, int $mode): ?bool
     {
@@ -149,8 +149,6 @@ class FileHelper
      *
      * @param string $directory the directory to be deleted recursively.
      * @param array $options options for directory remove ({@see clearDirectory()}).
-     *
-     * @return void
      */
     public static function removeDirectory(string $directory, array $options = []): void
     {
@@ -178,8 +176,6 @@ class FileHelper
      *   Only symlink would be removed in that default case.
      *
      * @throws \InvalidArgumentException if unable to open directory
-     *
-     * @return void
      */
     public static function clearDirectory(string $directory, array $options = []): void
     {
@@ -202,7 +198,9 @@ class FileHelper
 
     /**
      * Removes a file or symlink in a cross-platform way.
+     *
      * @param string $path
+     *
      * @return bool
      */
     public static function unlink(string $path): bool
@@ -226,7 +224,9 @@ class FileHelper
 
     /**
      * Tells whether the path is a empty directory
+     *
      * @param string $path
+     *
      * @return bool
      */
     public static function isEmptyDirectory(string $path): bool
@@ -285,8 +285,6 @@ class FileHelper
      *
      * @throws \InvalidArgumentException if unable to open directory
      * @throws \Exception
-     *
-     * @return void
      */
     public static function copyDirectory(string $source, string $destination, array $options = []): void
     {
@@ -348,8 +346,9 @@ class FileHelper
      *
      * @param string $directory
      *
-     * @return resource
      * @throws \InvalidArgumentException
+     *
+     * @return resource
      */
     private static function openDirectory(string $directory)
     {
@@ -490,7 +489,7 @@ class FileHelper
                 $type = gettype($options['filter']);
                 throw new \InvalidArgumentException("Option \"filter\" must be callable, $type given.");
             }
-            $result = call_user_func($options['filter'], $path);
+            $result = $options['filter']($path);
             if (is_bool($result)) {
                 return $result;
             }
@@ -522,7 +521,7 @@ class FileHelper
      *
      * @param string $pattern the pattern to search in.
      *
-     * @return int|bool position of first wildcard character or false if not found.
+     * @return bool|int position of first wildcard character or false if not found.
      */
     private static function firstWildcardInPattern(string $pattern)
     {
@@ -537,7 +536,6 @@ class FileHelper
         return array_reduce($wildcards, $wildcardSearch, false);
     }
 
-
     /**
      * Scan the given exclude list in reverse to see whether pathname should be ignored.
      *
@@ -550,10 +548,10 @@ class FileHelper
      * @param string $path.
      * @param array $excludes list of patterns to match $path against.
      *
-     * @return null|array null or one of $excludes item as an array with keys: 'pattern', 'flags'.
-     *
      * @throws \InvalidArgumentException if any of the exclude patterns is not a string or an array with keys: pattern,
      *                                   flags, firstWildcard.
+     *
+     * @return array|null null or one of $excludes item as an array with keys: 'pattern', 'flags'.
      */
     private static function lastExcludeMatchingFromList(string $basePath, string $path, array $excludes): ?array
     {
@@ -594,7 +592,7 @@ class FileHelper
      *
      * @param string $baseName file or directory name to compare with the pattern.
      * @param string $pattern the pattern that $baseName will be compared against.
-     * @param int|bool $firstWildcard location of first wildcard character in the $pattern.
+     * @param bool|int $firstWildcard location of first wildcard character in the $pattern.
      * @param int $flags pattern flags
      *
      * @return bool whether the name matches against pattern
@@ -631,7 +629,7 @@ class FileHelper
      * @param string $path full path to compare
      * @param string $basePath base of path that will not be compared
      * @param string $pattern the pattern that path part will be compared against
-     * @param int|bool $firstWildcard location of first wildcard character in the $pattern
+     * @param bool|int $firstWildcard location of first wildcard character in the $pattern
      * @param int $flags pattern flags
      *
      * @return bool whether the path part matches against pattern
@@ -728,7 +726,7 @@ class FileHelper
     /**
      * Check isCaseInsensitive.
      *
-     * @param boolean $caseSensitive
+     * @param bool $caseSensitive
      * @param array $result
      *
      * @return array
