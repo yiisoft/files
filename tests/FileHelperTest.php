@@ -21,7 +21,7 @@ final class FileHelperTest extends TestCase
 
     public function setUp(): void
     {
-        $this->testFilePath = FileHelper::normalizePath(realpath(sys_get_temp_dir()) . '/' . get_class($this));
+        $this->testFilePath = FileHelper::normalizePath(realpath(sys_get_temp_dir()) . '/' . self::class);
 
         FileHelper::createDirectory($this->testFilePath, 0777);
 
@@ -238,8 +238,6 @@ final class FileHelperTest extends TestCase
      * Copy directory.
      *
      * @depends testCreateDirectory
-     *
-     * @return void
      */
     public function testCopyDirectory(): void
     {
@@ -379,8 +377,6 @@ final class FileHelperTest extends TestCase
      * Copy directory to it self.
      *
      * @see https://github.com/yiisoft/yii2/issues/10710
-     *
-     * @return void
      */
     public function testCopyDirectoryToItself(): void
     {
@@ -400,8 +396,6 @@ final class FileHelperTest extends TestCase
      * Copy directory to sudirectory of it self.
      *
      * @see https://github.com/yiisoft/yii2/issues/10710
-     *
-     * @return void
      */
     public function testCopyDirToSubdirOfItself(): void
     {
@@ -421,8 +415,6 @@ final class FileHelperTest extends TestCase
      * Copy directory to another with same name.
      *
      * @see https://github.com/yiisoft/yii2/issues/10710
-     *
-     * @return void
      */
     public function testCopyDirToAnotherWithSameName(): void
     {
@@ -443,8 +435,6 @@ final class FileHelperTest extends TestCase
      * Copy directory with same name.
      *
      * @see https://github.com/yiisoft/yii2/issues/10710
-     *
-     * @return void
      */
     public function testCopyDirWithSameName(): void
     {
@@ -470,14 +460,14 @@ final class FileHelperTest extends TestCase
                 'bootstrap.css' => 'file 1 content',
                 'bootstrap.css.map' => 'file 2 content',
                 'bootstrap.min.css' => 'file 3 content',
-                'bootstrap.min.css.map' => 'file 4 content'
+                'bootstrap.min.css.map' => 'file 4 content',
             ],
             'js' => [
                 'bootstrap.js' => 'file 5 content',
                 'bootstrap.bundle.js' => 'file 6 content',
                 'bootstrap.bundle.js.map' => 'file 7 content',
-                'bootstrap.min.js' => 'file 8 content'
-            ]
+                'bootstrap.min.js' => 'file 8 content',
+            ],
         ];
 
         $this->createFileStructure([
@@ -506,34 +496,34 @@ final class FileHelperTest extends TestCase
                 'bootstrap.css' => 'file 1 content',
                 'bootstrap.css.map' => 'file 2 content',
                 'bootstrap.min.css' => 'file 3 content',
-                'bootstrap.min.css.map' => 'file 4 content'
+                'bootstrap.min.css.map' => 'file 4 content',
             ],
             'js' => [
                 'bootstrap.js' => 'file 5 content',
                 'bootstrap.bundle.js' => 'file 6 content',
                 'bootstrap.bundle.js.map' => 'file 7 content',
-                'bootstrap.min.js' => 'file 8 content'
-            ]
+                'bootstrap.min.js' => 'file 8 content',
+            ],
         ];
 
         $exist = [
             'css' => [
                 'bootstrap.css' => 'file 1 content',
                 'bootstrap.min.css' => 'file 3 content',
-            ]
+            ],
         ];
 
         $noexist = [
             'css' => [
                 'bootstrap.css.map' => 'file 2 content',
-                'bootstrap.min.css.map' => 'file 4 content'
+                'bootstrap.min.css.map' => 'file 4 content',
             ],
             'js' => [
                 'bootstrap.js' => 'file 5 content',
                 'bootstrap.bundle.js' => 'file 6 content',
                 'bootstrap.bundle.js.map' => 'file 7 content',
-                'bootstrap.min.js' => 'file 8 content'
-            ]
+                'bootstrap.min.js' => 'file 8 content',
+            ],
         ];
 
         $this->createFileStructure([
@@ -550,7 +540,7 @@ final class FileHelperTest extends TestCase
             'copyEmptyDirectories' => false,
             'only' => [
                 'css/*.css',
-            ]
+            ],
         ];
 
         FileHelper::copyDirectory($source, $destination, $options);
@@ -569,34 +559,34 @@ final class FileHelperTest extends TestCase
                 'bootstrap.css' => 'file 1 content',
                 'bootstrap.css.map' => 'file 2 content',
                 'bootstrap.min.css' => 'file 3 content',
-                'bootstrap.min.css.map' => 'file 4 content'
+                'bootstrap.min.css.map' => 'file 4 content',
             ],
             'js' => [
                 'bootstrap.js' => 'file 5 content',
                 'bootstrap.bundle.js' => 'file 6 content',
                 'bootstrap.bundle.js.map' => 'file 7 content',
-                'bootstrap.min.js' => 'file 8 content'
-            ]
+                'bootstrap.min.js' => 'file 8 content',
+            ],
         ];
 
         $exist = [
             'css' => [
                 'bootstrap.css' => 'file 1 content',
-            ]
+            ],
         ];
 
         $noexist = [
             'css' => [
                 'bootstrap.css.map' => 'file 2 content',
                 'bootstrap.min.css' => 'file 3 content',
-                'bootstrap.min.css.map' => 'file 4 content'
+                'bootstrap.min.css.map' => 'file 4 content',
             ],
             'js' => [
                 'bootstrap.js' => 'file 5 content',
                 'bootstrap.bundle.js' => 'file 6 content',
                 'bootstrap.bundle.js.map' => 'file 7 content',
-                'bootstrap.min.js' => 'file 8 content'
-            ]
+                'bootstrap.min.js' => 'file 8 content',
+            ],
         ];
 
         $this->createFileStructure([
@@ -615,8 +605,8 @@ final class FileHelperTest extends TestCase
                 'css/*.css',
             ],
             'except' => [
-                'css/bootstrap.min.css'
-            ]
+                'css/bootstrap.min.css',
+            ],
         ];
 
         FileHelper::copyDirectory($source, $destination, $options);
@@ -695,14 +685,13 @@ final class FileHelperTest extends TestCase
             [
                 [
                     'only' => [[]],
-                ]
+                ],
             ],
             [
                 [
                     'filter' => 42,
-                ]
+                ],
             ],
-
         ];
     }
 
@@ -739,6 +728,7 @@ final class FileHelperTest extends TestCase
 
     /**
      * 777 gives "read only" flag under Windows
+     *
      * @see https://github.com/yiisoft/files/issues/21
      */
     public function testUnlinkFile777(): void
@@ -805,12 +795,12 @@ final class FileHelperTest extends TestCase
             [
                 $dirName => [
                     'css' => [
-                        'stub.css' => 'testMe'
+                        'stub.css' => 'testMe',
                     ],
                     'js' => [
-                        'stub.js' => 'testMe'
-                    ]
-                ]
+                        'stub.js' => 'testMe',
+                    ],
+                ],
             ]
         );
 
@@ -822,8 +812,6 @@ final class FileHelperTest extends TestCase
      *
      * @param array $exist
      * @param string $dstDirName
-     *
-     * @return void
      */
     private function checkExist(array $exist, string $dstDirName): void
     {
@@ -843,8 +831,6 @@ final class FileHelperTest extends TestCase
      *
      * @param array $noexist
      * @param string $dstDirName
-     *
-     * @return void
      */
     private function checkNoexist(array $noexist, string $dstDirName): void
     {
@@ -864,8 +850,6 @@ final class FileHelperTest extends TestCase
      * @param int $expectedMode expected file permission mode.
      * @param string $fileName file name.
      * @param string $message error message
-     *
-     * @return void
      */
     private function assertFileMode(int $expectedMode, string $fileName, string $message = ''): void
     {
@@ -879,8 +863,6 @@ final class FileHelperTest extends TestCase
      * @param array $items file system objects to be created in format: objectName => objectContent
      *                         Arrays specifies directories, other values - files.
      * @param string|null $basePath structure base file path.
-     *
-     * @return void
      */
     private function createFileStructure(array $items, ?string $basePath = null): void
     {
