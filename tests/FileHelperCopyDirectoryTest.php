@@ -147,8 +147,6 @@ final class FileHelperCopyDirectoryTest extends FileSystemTestCase
      * Copy directory to it self.
      *
      * @see https://github.com/yiisoft/yii2/issues/10710
-     *
-     * @return void
      */
     public function testCopyToItself(): void
     {
@@ -168,8 +166,6 @@ final class FileHelperCopyDirectoryTest extends FileSystemTestCase
      * Copy directory to sudirectory of it self.
      *
      * @see https://github.com/yiisoft/yii2/issues/10710
-     *
-     * @return void
      */
     public function testCopyToSubdirOfItself(): void
     {
@@ -189,8 +185,6 @@ final class FileHelperCopyDirectoryTest extends FileSystemTestCase
      * Copy directory to another with same name.
      *
      * @see https://github.com/yiisoft/yii2/issues/10710
-     *
-     * @return void
      */
     public function testCopyToAnotherWithSameName(): void
     {
@@ -211,8 +205,6 @@ final class FileHelperCopyDirectoryTest extends FileSystemTestCase
      * Copy directory with same name.
      *
      * @see https://github.com/yiisoft/yii2/issues/10710
-     *
-     * @return void
      */
     public function testCopyWithSameName(): void
     {
