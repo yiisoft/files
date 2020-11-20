@@ -11,6 +11,30 @@ use Yiisoft\Strings\StringHelper;
  *  - process `only()`: if there is at least one match, then continue, else return `false`;
  *  - process `except()`: if there is at least one match, return `false`, else continue;
  *  - process `callback()`: if there is at least one not match, return `false`, else return `true`.
+ *
+ * As patterns can use `PathPattern` or strings, which will be converted to `PathPattern` according to the options.
+ *
+ * If the string ends in `/`, then `PathPattern` will be created with option {@see PathPattern::onlyDirectories()},
+ * else with option {@see PathPattern::onlyFiles()}. You can disable this behavior by enable option
+ * {@see PathMatcher::notCheckFilesystem()}.
+ *
+ * Other options:
+ *  - {@see PathMatcher::caseSensitive()}: make string patterns case sensitive;
+ *  - {@see PathMatcher::withFullPath()}: match string patterns as full path, not just ending of path;
+ *  - {@see PathMatcher::withNotExactSlashes()}: match `/` character with wildcards in string patterns.
+ *
+ * Usage example:
+ *
+ * ```php
+ * $matcher = (new PathMatcher())
+ *     ->notCheckFilesystem()
+ *     ->only('*.css', '*.js')
+ *     ->except('theme.css');
+ *
+ * $matcher->match('/var/www/example.com/assets/css/main.css'); // true
+ * $matcher->match('/var/www/example.com/assets/css/main.css.map'); // false
+ * $matcher->match('/var/www/example.com/assets/css/theme.css'); // false
+ * ```
  */
 final class PathMatcher implements PathMatcherInterface
 {
