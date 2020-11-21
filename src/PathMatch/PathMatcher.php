@@ -12,7 +12,8 @@ use Yiisoft\Strings\StringHelper;
  *  - process `except()`: if there is at least one match, return `false`, else continue;
  *  - process `callback()`: if there is at least one not match, return `false`, else return `true`.
  *
- * As patterns can use `PathPattern` or strings, which will be converted to `PathPattern` according to the options.
+ * As patterns can use any implementations of {@see PathMatcherInterface} or strings, which will be
+ * converted to `PathPattern` according to the options.
  *
  * If the string ends in `/`, then `PathPattern` will be created with option {@see PathPattern::onlyDirectories()},
  * else with option {@see PathPattern::onlyFiles()}. You can disable this behavior by enable option
@@ -39,12 +40,12 @@ use Yiisoft\Strings\StringHelper;
 final class PathMatcher implements PathMatcherInterface
 {
     /**
-     * @var PathPattern[]|null
+     * @var PathMatcherInterface[]|null
      */
     private ?array $only = null;
 
     /**
-     * @var PathPattern[]|null
+     * @var PathMatcherInterface[]|null
      */
     private ?array $except = null;
 
@@ -113,26 +114,26 @@ final class PathMatcher implements PathMatcherInterface
     /**
      * Set list of patterns that the files or directories should match.
      *
-     * @param string|PathPattern ...$patterns
+     * @param string|PathMatcherInterface ...$patterns
      * @return self
      */
     public function only(...$patterns): self
     {
         $new = clone $this;
-        $new->only = $this->makePathPatterns($patterns);
+        $new->only = $this->prepareMatchers($patterns);
         return $new;
     }
 
     /**
      * Set list of patterns that the files or directories should not match.
      *
-     * @param string|PathPattern ...$patterns
+     * @param string|PathMatcherInterface ...$patterns
      * @return self
      */
     public function except(...$patterns): self
     {
         $new = clone $this;
-        $new->except = $this->makePathPatterns($patterns);
+        $new->except = $this->prepareMatchers($patterns);
         return $new;
     }
 
@@ -236,14 +237,14 @@ final class PathMatcher implements PathMatcherInterface
     }
 
     /**
-     * @param string[]|PathPattern[] $patterns
-     * @return PathPattern[]
+     * @param string[]|PathMatcherInterface[] $patterns
+     * @return PathMatcherInterface[]
      */
-    private function makePathPatterns(array $patterns): array
+    private function prepareMatchers(array $patterns): array
     {
         $pathPatterns = [];
         foreach ($patterns as $pattern) {
-            if ($pattern instanceof PathPattern) {
+            if ($pattern instanceof PathMatcherInterface) {
                 $pathPatterns[] = $pattern;
                 continue;
             }
