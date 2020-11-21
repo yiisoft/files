@@ -52,9 +52,9 @@ class FileHelper
      * Set permissions directory.
      *
      * @param string $path
-     * @param integer $mode
+     * @param int $mode
      *
-     * @return boolean|null
+     * @return bool|null
      *
      * @throws RuntimeException
      */
@@ -123,8 +123,6 @@ class FileHelper
      *
      * @param string $directory the directory to be deleted recursively.
      * @param array $options options for directory remove ({@see clearDirectory()}).
-     *
-     * @return void
      */
     public static function removeDirectory(string $directory, array $options = []): void
     {
@@ -151,8 +149,6 @@ class FileHelper
      *   Defaults to `false`, meaning the content of the symlinked directory would not be deleted.
      *   Only symlink would be removed in that default case.
      *
-     * @return void
-     *
      * @throws InvalidArgumentException if unable to open directory
      */
     public static function clearDirectory(string $directory, array $options = []): void
@@ -176,7 +172,9 @@ class FileHelper
 
     /**
      * Removes a file or symlink in a cross-platform way.
+     *
      * @param string $path
+     *
      * @return bool
      */
     public static function unlink(string $path): bool
@@ -200,7 +198,9 @@ class FileHelper
 
     /**
      * Tells whether the path is a empty directory
+     *
      * @param string $path
+     *
      * @return bool
      */
     public static function isEmptyDirectory(string $path): bool
@@ -238,10 +238,8 @@ class FileHelper
      *   directories that do not contain files at the target destination because files have been filtered via `only` or
      *   `except`. Defaults to true.
      *
-     * @return void
-     * @throws Exception
-     *
      * @throws InvalidArgumentException if unable to open directory
+     * @throws Exception
      */
     public static function copyDirectory(string $source, string $destination, array $options = []): void
     {
@@ -303,9 +301,9 @@ class FileHelper
      *
      * @param string $directory
      *
-     * @return resource
-     *
      * @throws InvalidArgumentException
+     *
+     * @return resource
      */
     private static function openDirectory(string $directory)
     {

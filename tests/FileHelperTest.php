@@ -234,6 +234,7 @@ final class FileHelperTest extends FileSystemTestCase
 
     /**
      * 777 gives "read only" flag under Windows
+     *
      * @see https://github.com/yiisoft/files/issues/21
      */
     public function testUnlinkFile777(): void
@@ -300,12 +301,12 @@ final class FileHelperTest extends FileSystemTestCase
             [
                 $dirName => [
                     'css' => [
-                        'stub.css' => 'testMe'
+                        'stub.css' => 'testMe',
                     ],
                     'js' => [
-                        'stub.js' => 'testMe'
-                    ]
-                ]
+                        'stub.js' => 'testMe',
+                    ],
+                ],
             ]
         );
 
