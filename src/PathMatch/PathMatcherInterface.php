@@ -13,6 +13,7 @@ interface PathMatcherInterface
      * Checks if the path matches.
      *
      * @param string $path The tested path.
+     *
      * @return bool|null Whether the path matches or not, `null` if matching skipped.
      */
     public function match(string $path): ?bool;

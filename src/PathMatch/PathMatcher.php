@@ -114,7 +114,8 @@ final class PathMatcher implements PathMatcherInterface
     /**
      * Set list of patterns that the files or directories should match.
      *
-     * @param string|PathMatcherInterface ...$patterns
+     * @param PathMatcherInterface|string ...$patterns
+     *
      * @return self
      */
     public function only(...$patterns): self
@@ -127,7 +128,8 @@ final class PathMatcher implements PathMatcherInterface
     /**
      * Set list of patterns that the files or directories should not match.
      *
-     * @param string|PathMatcherInterface ...$patterns
+     * @param PathMatcherInterface|string ...$patterns
+     *
      * @return self
      */
     public function except(...$patterns): self
@@ -144,6 +146,7 @@ final class PathMatcher implements PathMatcherInterface
      * The callback should return `true` if the passed path would match and `false` if it doesn't.
      *
      * @param callable ...$callbacks
+     *
      * @return self
      */
     public function callback(callable ...$callbacks): self
@@ -157,6 +160,7 @@ final class PathMatcher implements PathMatcherInterface
      * Checks if the passed path would match specified conditions.
      *
      * @param string $path The tested path.
+     *
      * @return bool Whether the path matches conditions or not.
      */
     public function match(string $path): bool
@@ -182,6 +186,7 @@ final class PathMatcher implements PathMatcherInterface
 
     /**
      * @param string $path
+     *
      * @return bool
      */
     private function matchOnly(string $path): bool
@@ -219,6 +224,7 @@ final class PathMatcher implements PathMatcherInterface
 
     /**
      * @param string $path
+     *
      * @return bool
      */
     private function matchExcept(string $path): bool
@@ -237,7 +243,8 @@ final class PathMatcher implements PathMatcherInterface
     }
 
     /**
-     * @param string[]|PathMatcherInterface[] $patterns
+     * @param PathMatcherInterface[]|string[] $patterns
+     *
      * @return PathMatcherInterface[]
      */
     private function prepareMatchers(array $patterns): array

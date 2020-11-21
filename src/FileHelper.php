@@ -7,8 +7,8 @@ namespace Yiisoft\Files;
 use Exception;
 use FilesystemIterator;
 use InvalidArgumentException;
-use RecursiveIteratorIterator;
 use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 use RuntimeException;
 
 /**
@@ -54,9 +54,9 @@ class FileHelper
      * @param string $path
      * @param int $mode
      *
-     * @return bool|null
-     *
      * @throws RuntimeException
+     *
+     * @return bool|null
      */
     private static function chmod(string $path, int $mode): ?bool
     {

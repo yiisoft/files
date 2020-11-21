@@ -244,7 +244,7 @@ final class FileHelperCopyDirectoryTest extends FileSystemTestCase
                 'bootstrap.js' => 'file 5 content',
                 'bootstrap.bundle.js' => 'file 6 content',
                 'bootstrap.bundle.js.map' => 'file 7 content',
-                'bootstrap.min.js' => 'file 8 content'
+                'bootstrap.min.js' => 'file 8 content',
             ],
         ];
 
@@ -265,7 +265,7 @@ final class FileHelperCopyDirectoryTest extends FileSystemTestCase
                 'bootstrap.js' => 'file 5 content',
                 'bootstrap.bundle.js' => 'file 6 content',
                 'bootstrap.bundle.js.map' => 'file 7 content',
-                'bootstrap.min.js' => 'file 8 content'
+                'bootstrap.min.js' => 'file 8 content',
             ],
         ];
 
@@ -280,7 +280,7 @@ final class FileHelperCopyDirectoryTest extends FileSystemTestCase
         FileHelper::copyDirectory($source, $destination, [
             'filter' => (new PathMatcher())
                 ->only('/css/')
-                ->except('*.map', '*.txt')
+                ->except('*.map', '*.txt'),
         ]);
 
         $this->assertFileExists($destination, 'Destination directory does not exist!');
@@ -297,13 +297,13 @@ final class FileHelperCopyDirectoryTest extends FileSystemTestCase
                 'bootstrap.css' => 'file 1 content',
                 'bootstrap.css.map' => 'file 2 content',
                 'bootstrap.min.css' => 'file 3 content',
-                'bootstrap.min.css.map' => 'file 4 content'
+                'bootstrap.min.css.map' => 'file 4 content',
             ],
             'js' => [
                 'bootstrap.js' => 'file 5 content',
                 'bootstrap.bundle.js' => 'file 6 content',
                 'bootstrap.bundle.js.map' => 'file 7 content',
-                'bootstrap.min.js' => 'file 8 content'
+                'bootstrap.min.js' => 'file 8 content',
             ],
             'readme' => [
                 'how-to.txt' => 'file 9 content',
@@ -323,14 +323,14 @@ final class FileHelperCopyDirectoryTest extends FileSystemTestCase
         $noexist = [
             'css' => [
                 'bootstrap.css.map' => 'file 2 content',
-                'bootstrap.min.css.map' => 'file 4 content'
+                'bootstrap.min.css.map' => 'file 4 content',
             ],
             'js' => [
                 'bootstrap.js' => 'file 5 content',
                 'bootstrap.bundle.js' => 'file 6 content',
                 'bootstrap.bundle.js.map' => 'file 7 content',
-                'bootstrap.min.js' => 'file 8 content'
-            ]
+                'bootstrap.min.js' => 'file 8 content',
+            ],
         ];
 
         $this->createFileStructure([
@@ -370,7 +370,7 @@ final class FileHelperCopyDirectoryTest extends FileSystemTestCase
                 'bootstrap.js' => 'file 5 content',
                 'bootstrap.bundle.js' => 'file 6 content',
                 'bootstrap.bundle.js.map' => 'file 7 content',
-                'bootstrap.min.js' => 'file 8 content'
+                'bootstrap.min.js' => 'file 8 content',
             ],
             'readme' => [
                 'how-to.txt' => 'file 9 content',
@@ -380,20 +380,20 @@ final class FileHelperCopyDirectoryTest extends FileSystemTestCase
         $exist = [
             'css' => [
                 'bootstrap.css' => 'file 1 content',
-            ]
+            ],
         ];
 
         $noexist = [
             'css' => [
                 'bootstrap.css.map' => 'file 2 content',
                 'bootstrap.min.css' => 'file 3 content',
-                'bootstrap.min.css.map' => 'file 4 content'
+                'bootstrap.min.css.map' => 'file 4 content',
             ],
             'js' => [
                 'bootstrap.js' => 'file 5 content',
                 'bootstrap.bundle.js' => 'file 6 content',
                 'bootstrap.bundle.js.map' => 'file 7 content',
-                'bootstrap.min.js' => 'file 8 content'
+                'bootstrap.min.js' => 'file 8 content',
             ],
             'readme' => [
                 'how-to.txt' => 'file 9 content',
@@ -414,7 +414,7 @@ final class FileHelperCopyDirectoryTest extends FileSystemTestCase
             'copyEmptyDirectories' => false,
             'filter' => (new PathMatcher())
                 ->only('css/*.css', '*.txt')
-                ->except('css/bootstrap.min.css', 'readme/')
+                ->except('css/bootstrap.min.css', 'readme/'),
         ];
 
         FileHelper::copyDirectory($source, $destination, $options);

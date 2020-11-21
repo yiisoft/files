@@ -93,6 +93,7 @@ final class PathPattern implements PathMatcherInterface
      * If need match only files and path is directory or conversely then matching skipped and returned `null`.
      *
      * @param string $path The tested path.
+     *
      * @return bool|null Whether the path matches pattern or not, `null` if matching skipped.
      */
     public function match(string $path): ?bool

@@ -11,6 +11,7 @@ final class PathPatternTest extends TestCase
 {
     /**
      * Data provider for [[testMatchPath()]]
+     *
      * @return array test data.
      */
     public function dataMatch(): array

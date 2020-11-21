@@ -16,7 +16,7 @@ abstract class FileSystemTestCase extends TestCase
 
     public function setUp(): void
     {
-        $this->testFilePath = FileHelper::normalizePath(realpath(sys_get_temp_dir()) . '/' . get_class($this));
+        $this->testFilePath = FileHelper::normalizePath(realpath(sys_get_temp_dir()) . '/' . static::class);
 
         FileHelper::createDirectory($this->testFilePath, 0777);
 
@@ -36,8 +36,6 @@ abstract class FileSystemTestCase extends TestCase
      * @param array $items file system objects to be created in format: objectName => objectContent
      *                         Arrays specifies directories, other values - files.
      * @param string|null $basePath structure base file path.
-     *
-     * @return void
      */
     protected function createFileStructure(array $items, ?string $basePath = null): void
     {
@@ -66,8 +64,6 @@ abstract class FileSystemTestCase extends TestCase
      *
      * @param array $exist
      * @param string $dstDirName
-     *
-     * @return void
      */
     protected function checkExist(array $exist, string $dstDirName): void
     {
@@ -87,8 +83,6 @@ abstract class FileSystemTestCase extends TestCase
      *
      * @param array $noexist
      * @param string $dstDirName
-     *
-     * @return void
      */
     protected function checkNoexist(array $noexist, string $dstDirName): void
     {
@@ -108,8 +102,6 @@ abstract class FileSystemTestCase extends TestCase
      * @param int $expectedMode expected file permission mode.
      * @param string $fileName file name.
      * @param string $message error message
-     *
-     * @return void
      */
     protected function assertFileMode(int $expectedMode, string $fileName, string $message = ''): void
     {
