@@ -10,7 +10,7 @@ use Yiisoft\Files\PathMatcher\PathPattern;
 final class PathPatternTest extends TestCase
 {
     /**
-     * Data provider for [[testMatchPath()]]
+     * Data provider for {@see testMatch()}.
      *
      * @return array test data.
      */
@@ -57,13 +57,13 @@ final class PathPatternTest extends TestCase
     private function getPathPattern(string $pattern, array $options): PathPattern
     {
         $pathPattern = new PathPattern($pattern);
-        if (in_array('caseSensitive', $options)) {
+        if (in_array('caseSensitive', $options, true)) {
             $pathPattern = $pathPattern->caseSensitive();
         }
-        if (in_array('fullPath', $options)) {
+        if (in_array('fullPath', $options, true)) {
             $pathPattern = $pathPattern->withFullPath();
         }
-        if (in_array('notExactSlashes', $options)) {
+        if (in_array('notExactSlashes', $options, true)) {
             $pathPattern = $pathPattern->withNotExactSlashes();
         }
 

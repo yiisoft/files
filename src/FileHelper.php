@@ -222,9 +222,9 @@ class FileHelper
      * @param array $options options for directory copy. Valid options are:
      *
      * - dirMode: integer, the permission to be set for newly copied directories. Defaults to 0775.
-     * - fileMode:  integer, the permission to be set for newly copied files. Defaults to the current environment
+     * - fileMode: integer, the permission to be set for newly copied files. Defaults to the current environment
      *   setting.
-     * - filter: PathMatcherInterface
+     * - filter: a filter to apply while copying files. It should be an instance of {@see PathMatcherInterface}.
      * - recursive: boolean, whether the files under the subdirectories should also be copied. Defaults to true.
      * - beforeCopy: callback, a PHP callback that is called before copying each sub-directory or file. If the callback
      *   returns false, the copy operation for the sub-directory or file will be cancelled. The signature of the

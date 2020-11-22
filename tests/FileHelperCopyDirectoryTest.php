@@ -27,12 +27,12 @@ final class FileHelperCopyDirectoryTest extends FileSystemTestCase
 
         FileHelper::copyDirectory($source, $destination);
 
-        $this->assertFileExists($destination, 'Destination directory does not exist!');
+        $this->assertFileExists($destination, 'Destination directory does not exist.');
 
         foreach ($files as $name => $content) {
             $fileName = $destination . '/' . $name;
             $this->assertFileExists($fileName);
-            $this->assertStringEqualsFile($fileName, $content, 'Incorrect file content!');
+            $this->assertStringEqualsFile($fileName, $content, 'Incorrect file content.');
         }
     }
 
@@ -61,7 +61,7 @@ final class FileHelperCopyDirectoryTest extends FileSystemTestCase
 
         FileHelper::copyDirectory($source, $destination);
 
-        $this->assertFileExists($destination, 'Destination directory does not exist!');
+        $this->assertFileExists($destination, 'Destination directory does not exist.');
         $this->checkExist($structure, $destination);
     }
 
@@ -90,7 +90,7 @@ final class FileHelperCopyDirectoryTest extends FileSystemTestCase
 
         FileHelper::copyDirectory($source, $destination, ['recursive' => false]);
 
-        $this->assertFileExists($destination, 'Destination directory does not exist!');
+        $this->assertFileExists($destination, 'Destination directory does not exist.');
 
         foreach ($structure as $name => $content) {
             $fileName = $destination . '/' . $name;
@@ -98,7 +98,7 @@ final class FileHelperCopyDirectoryTest extends FileSystemTestCase
                 $this->assertFileDoesNotExist($fileName);
             } else {
                 $this->assertFileExists($fileName);
-                $this->assertStringEqualsFile($fileName, $content, 'Incorrect file content!');
+                $this->assertStringEqualsFile($fileName, $content, 'Incorrect file content.');
             }
         }
     }
@@ -138,9 +138,9 @@ final class FileHelperCopyDirectoryTest extends FileSystemTestCase
 
         FileHelper::copyDirectory($source, $destination, $options);
 
-        $this->assertFileMode($directoryMode, $destination, 'Destination directory has wrong mode!');
-        $this->assertFileMode($directoryMode, $destination . '/' . $subDirectory, 'Copied sub directory has wrong mode!');
-        $this->assertFileMode($fileMode, $destination . '/' . $fileName, 'Copied file has wrong mode!');
+        $this->assertFileMode($directoryMode, $destination, 'Destination directory has wrong mode.');
+        $this->assertFileMode($directoryMode, $destination . '/' . $subDirectory, 'Copied sub directory has wrong mode.');
+        $this->assertFileMode($fileMode, $destination . '/' . $fileName, 'Copied file has wrong mode.');
     }
 
     /**
@@ -163,7 +163,7 @@ final class FileHelperCopyDirectoryTest extends FileSystemTestCase
     }
 
     /**
-     * Copy directory to sudirectory of it self.
+     * Copy directory to subdirectory of it self.
      *
      * @see https://github.com/yiisoft/yii2/issues/10710
      */

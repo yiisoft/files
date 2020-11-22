@@ -77,7 +77,7 @@ final class PathPattern implements PathMatcherInterface
     }
 
     /**
-     * If path is not directory or directory not exists skip matching.
+     * Skip matching if path is not directory or directory does no exist.
      *
      * @return self
      */

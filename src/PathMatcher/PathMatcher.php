@@ -7,22 +7,24 @@ namespace Yiisoft\Files\PathMatcher;
 use Yiisoft\Strings\StringHelper;
 
 /**
- * Path matcher based on {@see PathPattern} with the following logic:
- *  - process `only()`: if there is at least one match, then continue, else return `false`;
- *  - process `except()`: if there is at least one match, return `false`, else continue;
- *  - process `callback()`: if there is at least one not match, return `false`, else return `true`.
+ * Path matcher is based on {@see PathPattern} with the following logic:
  *
- * As patterns can use any implementations of {@see PathMatcherInterface} or strings, which will be
- * converted to `PathPattern` according to the options.
+ *  1. Process `only()`. If there is at least one match, then continue, else return `false`;
+ *  2. Process `except()`. If there is at least one match, return `false`, else continue;
+ *  3. Process `callback()`. If there is at least one not match, return `false`, else return `true`.
  *
- * If the string ends in `/`, then `PathPattern` will be created with option {@see PathPattern::onlyDirectories()},
- * else with option {@see PathPattern::onlyFiles()}. You can disable this behavior by enable option
+ * Either implementations of {@see PathMatcherInterface} or strings could be used in all above. They will be converted
+ * {@see PathPattern} according to the options.
+ *
+ * If the string ends in `/`, then {@see PathPattern} will be created with {@see PathPattern::onlyDirectories()} option.
+ * Else it will be create with {@see PathPattern::onlyFiles()} option. You can disable this behavior using
  * {@see PathMatcher::notCheckFilesystem()}.
  *
- * Other options:
- *  - {@see PathMatcher::caseSensitive()}: make string patterns case sensitive;
- *  - {@see PathMatcher::withFullPath()}: match string patterns as full path, not just ending of path;
- *  - {@see PathMatcher::withNotExactSlashes()}: match `/` character with wildcards in string patterns.
+ * There are several other options available:
+ *
+ *  - {@see PathMatcher::caseSensitive()} makes string patterns case sensitive;
+ *  - {@see PathMatcher::withFullPath()} string patterns will be matched as full path, not just as ending of the path;
+ *  - {@see PathMatcher::withNotExactSlashes()} match `/` character with wildcards in string patterns.
  *
  * Usage example:
  *
@@ -73,7 +75,7 @@ final class PathMatcher implements PathMatcherInterface
     }
 
     /**
-     * Match string patterns as full path, not just ending of path.
+     * Match string patterns as full path, not just as an ending of the path.
      * Note: applies only to string patterns.
      *
      * @return self
@@ -99,7 +101,7 @@ final class PathMatcher implements PathMatcherInterface
     }
 
     /**
-     * Match path only as string, do not check file or directory exists.
+     * Match path only as string, do not check if file or directory exists.
      * Note: applies only to string patterns.
      *
      * @return self
@@ -140,10 +142,10 @@ final class PathMatcher implements PathMatcherInterface
     }
 
     /**
-     * Set list of PHP callback that is called for each path.
+     * Set list of PHP callbacks that are called for each path.
      *
      * The signature of the callback should be: `function ($path)`, where `$path` refers the full path to be filtered.
-     * The callback should return `true` if the passed path would match and `false` if it doesn't.
+     * The callback should return `true` if there is a match and `false` otherwise.
      *
      * @param callable ...$callbacks
      *
@@ -157,7 +159,7 @@ final class PathMatcher implements PathMatcherInterface
     }
 
     /**
-     * Checks if the passed path would match specified conditions.
+     * Checks if the passed path match specified conditions.
      *
      * @param string $path The tested path.
      *
@@ -184,11 +186,6 @@ final class PathMatcher implements PathMatcherInterface
         return true;
     }
 
-    /**
-     * @param string $path
-     *
-     * @return bool
-     */
     private function matchOnly(string $path): bool
     {
         if ($this->only === null) {
@@ -222,11 +219,6 @@ final class PathMatcher implements PathMatcherInterface
         return false;
     }
 
-    /**
-     * @param string $path
-     *
-     * @return bool
-     */
     private function matchExcept(string $path): bool
     {
         if ($this->except === null) {

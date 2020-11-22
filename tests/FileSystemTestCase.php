@@ -10,7 +10,7 @@ use Yiisoft\Files\FileHelper;
 abstract class FileSystemTestCase extends TestCase
 {
     /**
-     * @var string test files path
+     * @var string Test files path.
      */
     protected string $testFilePath = '';
 
@@ -21,7 +21,7 @@ abstract class FileSystemTestCase extends TestCase
         FileHelper::createDirectory($this->testFilePath, 0777);
 
         if (!file_exists($this->testFilePath)) {
-            $this->markTestIncomplete('Unit tests runtime directory should have writable permissions!');
+            $this->markTestIncomplete('Unit tests runtime directory should have writable permissions.');
         }
     }
 
@@ -73,7 +73,7 @@ abstract class FileSystemTestCase extends TestCase
             } else {
                 $fileName = $dstDirName . '/' . $name;
                 $this->assertFileExists($fileName);
-                $this->assertStringEqualsFile($fileName, $content, 'Incorrect file content!');
+                $this->assertStringEqualsFile($fileName, $content, 'Incorrect file content.');
             }
         }
     }
