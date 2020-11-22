@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Files\Tests;
 
 use Yiisoft\Files\FileHelper;
-use Yiisoft\Files\PathMatch\PathMatcher;
+use Yiisoft\Files\PathMatcher\PathMatcher;
 
 final class FileHelperCopyDirectoryTest extends FileSystemTestCase
 {

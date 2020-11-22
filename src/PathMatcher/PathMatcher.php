@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Files\PathMatch;
+namespace Yiisoft\Files\PathMatcher;
 
 use Yiisoft\Strings\StringHelper;
 

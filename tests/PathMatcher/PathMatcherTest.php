@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Files\Tests\PathMatch;
+namespace Yiisoft\Files\Tests\PathMatcher;
 
-use Yiisoft\Files\PathMatch\PathMatcher;
-use Yiisoft\Files\PathMatch\PathPattern;
+use Yiisoft\Files\PathMatcher\PathMatcher;
+use Yiisoft\Files\PathMatcher\PathPattern;
 use Yiisoft\Files\Tests\FileSystemTestCase;
 
 final class PathMatcherTest extends FileSystemTestCase

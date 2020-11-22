@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Files\PathMatch;
+namespace Yiisoft\Files\PathMatcher;
 
 /**
  * An interface implemented by objects that perform matching of paths.

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Files\Tests\PathMatch;
+namespace Yiisoft\Files\Tests\PathMatcher;
 
 use PHPUnit\Framework\TestCase;
-use Yiisoft\Files\PathMatch\PathPattern;
+use Yiisoft\Files\PathMatcher\PathPattern;
 
 final class PathPatternTest extends TestCase
 {
