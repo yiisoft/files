@@ -4,44 +4,18 @@ declare(strict_types=1);
 
 namespace Yiisoft\Files;
 
+use Exception;
 use FilesystemIterator;
-use function is_string;
+use InvalidArgumentException;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
-use Yiisoft\Strings\StringHelper;
-
-use Yiisoft\Strings\WildcardPattern;
+use RuntimeException;
 
 /**
  * FileHelper provides useful methods to manage files and directories
  */
 class FileHelper
 {
-    /**
-     * @var int PATTERN_NO_DIR
-     */
-    private const PATTERN_NO_DIR = 1;
-
-    /**
-     * @var int PATTERN_ENDS_WITH
-     */
-    private const PATTERN_ENDS_WITH = 4;
-
-    /**
-     * @var int PATTERN_MUST_BE_DIR
-     */
-    private const PATTERN_MUST_BE_DIR = 8;
-
-    /**
-     * @var int PATTERN_NEGATIVE
-     */
-    private const PATTERN_NEGATIVE = 16;
-
-    /**
-     * @var int PATTERN_CASE_INSENSITIVE
-     */
-    private const PATTERN_CASE_INSENSITIVE = 32;
-
     /**
      * Creates a new directory.
      *
@@ -61,9 +35,9 @@ class FileHelper
             if (!mkdir($path, $mode, true) && !is_dir($path)) {
                 return false;
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             if (!is_dir($path)) {
-                throw new \RuntimeException(
+                throw new RuntimeException(
                     "Failed to create directory \"$path\": " . $e->getMessage(),
                     $e->getCode(),
                     $e
@@ -80,7 +54,7 @@ class FileHelper
      * @param string $path
      * @param int $mode
      *
-     * @throws \RuntimeException
+     * @throws RuntimeException
      *
      * @return bool|null
      */
@@ -88,8 +62,8 @@ class FileHelper
     {
         try {
             return chmod($path, $mode);
-        } catch (\Exception $e) {
-            throw new \RuntimeException(
+        } catch (Exception $e) {
+            throw new RuntimeException(
                 "Failed to change permissions for directory \"$path\": " . $e->getMessage(),
                 $e->getCode(),
                 $e
@@ -154,7 +128,7 @@ class FileHelper
     {
         try {
             static::clearDirectory($directory, $options);
-        } catch (\InvalidArgumentException $e) {
+        } catch (InvalidArgumentException $e) {
             return;
         }
 
@@ -175,7 +149,7 @@ class FileHelper
      *   Defaults to `false`, meaning the content of the symlinked directory would not be deleted.
      *   Only symlink would be removed in that default case.
      *
-     * @throws \InvalidArgumentException if unable to open directory
+     * @throws InvalidArgumentException if unable to open directory
      */
     public static function clearDirectory(string $directory, array $options = []): void
     {
@@ -248,28 +222,9 @@ class FileHelper
      * @param array $options options for directory copy. Valid options are:
      *
      * - dirMode: integer, the permission to be set for newly copied directories. Defaults to 0775.
-     * - fileMode:  integer, the permission to be set for newly copied files. Defaults to the current environment
+     * - fileMode: integer, the permission to be set for newly copied files. Defaults to the current environment
      *   setting.
-     * - filter: callback, a PHP callback that is called for each directory or file.
-     *   The signature of the callback should be: `function ($path)`, where `$path` refers the full path to be filtered.
-     *   The callback can return one of the following values:
-     *
-     *   * true: the directory or file will be copied (the "only" and "except" options will be ignored).
-     *   * false: the directory or file will NOT be copied (the "only" and "except" options will be ignored).
-     *   * null: the "only" and "except" options will determine whether the directory or file should be copied.
-     *
-     * - only: array, list of patterns that the file paths should match if they want to be copied. A path matches a
-     *   pattern if it contains the pattern string at its end. For example, '.php' matches all file paths ending with
-     *   '.php'.
-     *   Note, the '/' characters in a pattern matches both '/' and '\' in the paths. If a file path matches a pattern
-     *   in both "only" and "except", it will NOT be copied.
-     * - except: array, list of patterns that the files or directories should match if they want to be excluded from
-     *   being copied. A path matches a pattern if it contains the pattern string at its end. Patterns ending with '/'
-     *   apply to directory paths only, and patterns not ending with '/' apply to file paths only. For example, '/a/b'
-     *   matches all file paths ending with '/a/b'; and '.svn/' matches directory paths ending with '.svn'. Note, the
-     *   '/' characters in a pattern matches both '/' and '\' in the paths.
-     * - caseSensitive: boolean, whether patterns specified at "only" or "except" should be case sensitive. Defaults to
-     *   true.
+     * - filter: a filter to apply while copying files. It should be an instance of {@see PathMatcherInterface}.
      * - recursive: boolean, whether the files under the subdirectories should also be copied. Defaults to true.
      * - beforeCopy: callback, a PHP callback that is called before copying each sub-directory or file. If the callback
      *   returns false, the copy operation for the sub-directory or file will be cancelled. The signature of the
@@ -283,8 +238,8 @@ class FileHelper
      *   directories that do not contain files at the target destination because files have been filtered via `only` or
      *   `except`. Defaults to true.
      *
-     * @throws \InvalidArgumentException if unable to open directory
-     * @throws \Exception
+     * @throws InvalidArgumentException if unable to open directory
+     * @throws Exception
      */
     public static function copyDirectory(string $source, string $destination, array $options = []): void
     {
@@ -307,7 +262,7 @@ class FileHelper
             $from = $source . '/' . $file;
             $to = $destination . '/' . $file;
 
-            if (static::filterPath($from, $options)) {
+            if (!isset($options['filter']) || $options['filter']->match($from)) {
                 if (is_file($from)) {
                     if (!$destinationExists) {
                         static::createDirectory($destination, $options['dirMode'] ?? 0775);
@@ -332,12 +287,12 @@ class FileHelper
      * @param string $source
      * @param string $destination
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     private static function assertNotSelfDirectory(string $source, string $destination): void
     {
         if ($source === $destination || strpos($destination, $source . '/') === 0) {
-            throw new \InvalidArgumentException('Trying to copy a directory to itself or a subdirectory.');
+            throw new InvalidArgumentException('Trying to copy a directory to itself or a subdirectory.');
         }
     }
 
@@ -346,7 +301,7 @@ class FileHelper
      *
      * @param string $directory
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      *
      * @return resource
      */
@@ -355,7 +310,7 @@ class FileHelper
         $handle = @opendir($directory);
 
         if ($handle === false) {
-            throw new \InvalidArgumentException("Unable to open directory: $directory");
+            throw new InvalidArgumentException("Unable to open directory: $directory");
         }
 
         return $handle;
@@ -374,7 +329,6 @@ class FileHelper
         if (!isset($options['basePath'])) {
             // this should be done only once
             $options['basePath'] = realpath($source);
-            $options = static::normalizeOptions($options);
         }
 
         return $options;
@@ -398,380 +352,6 @@ class FileHelper
         }
 
         return $destinationExists;
-    }
-
-    /**
-     * Normalize options.
-     *
-     * @param array $options raw options.
-     *
-     * @return array normalized options.
-     */
-    protected static function normalizeOptions(array $options): array
-    {
-        $options = static::setCaseSensitive($options);
-        $options = static::setExcept($options);
-        $options = static::setOnly($options);
-
-        return $options;
-    }
-
-    /**
-     * Set options case sensitive.
-     *
-     * @param array $options
-     *
-     * @return array
-     */
-    private static function setCaseSensitive(array $options): array
-    {
-        if (!array_key_exists('caseSensitive', $options)) {
-            $options['caseSensitive'] = true;
-        }
-
-        return $options;
-    }
-
-    /**
-     * Set options except.
-     *
-     * @param array $options
-     *
-     * @return array
-     */
-    private static function setExcept(array $options): array
-    {
-        if (isset($options['except'])) {
-            foreach ($options['except'] as $key => $value) {
-                if (is_string($value)) {
-                    $options['except'][$key] = self::parseExcludePattern($value, $options['caseSensitive']);
-                }
-            }
-        }
-
-        return $options;
-    }
-
-    /**
-     * Set options only.
-     *
-     * @param array $options
-     *
-     * @return array
-     */
-    private static function setOnly(array $options): array
-    {
-        if (isset($options['only'])) {
-            foreach ($options['only'] as $key => $value) {
-                if (is_string($value)) {
-                    $options['only'][$key] = self::parseExcludePattern($value, $options['caseSensitive']);
-                }
-            }
-        }
-
-        return $options;
-    }
-
-    /**
-     * Checks if the given file path satisfies the filtering options.
-     *
-     * @param string $path the path of the file or directory to be checked.
-     * @param array $options the filtering options.
-     *
-     * @return bool whether the file or directory satisfies the filtering options.
-     */
-    public static function filterPath(string $path, array $options): bool
-    {
-        $path = str_replace('\\', '/', $path);
-
-        if (isset($options['filter'])) {
-            if (!is_callable($options['filter'])) {
-                $type = gettype($options['filter']);
-                throw new \InvalidArgumentException("Option \"filter\" must be callable, $type given.");
-            }
-            $result = $options['filter']($path);
-            if (is_bool($result)) {
-                return $result;
-            }
-        }
-
-        if (!empty($options['except']) && self::lastExcludeMatchingFromList(
-            $options['basePath'] ?? '',
-            $path,
-            (array)$options['except']
-        ) !== null) {
-            return false;
-        }
-
-        if (!empty($options['only']) && !is_dir($path)) {
-            // don't check PATTERN_NEGATIVE since those entries are not prefixed with !
-            return
-                self::lastExcludeMatchingFromList(
-                    $options['basePath'] ?? '',
-                    $path,
-                    (array) $options['only']
-                ) !== null;
-        }
-
-        return true;
-    }
-
-    /**
-     * Searches for the first wildcard character in the pattern.
-     *
-     * @param string $pattern the pattern to search in.
-     *
-     * @return bool|int position of first wildcard character or false if not found.
-     */
-    private static function firstWildcardInPattern(string $pattern)
-    {
-        $wildcards = ['*', '?', '[', '\\'];
-        $wildcardSearch = static function ($carry, $item) use ($pattern) {
-            $position = strpos($pattern, $item);
-            if ($position === false) {
-                return $carry === false ? $position : $carry;
-            }
-            return $carry === false ? $position : min($carry, $position);
-        };
-        return array_reduce($wildcards, $wildcardSearch, false);
-    }
-
-    /**
-     * Scan the given exclude list in reverse to see whether pathname should be ignored.
-     *
-     * The first match (i.e. the last on the list), if any, determines the fate.  Returns the element which matched,
-     * or null for undecided.
-     *
-     * Based on last_exclude_matching_from_list() from dir.c of git 1.8.5.3 sources.
-     *
-     * @param string $basePath.
-     * @param string $path.
-     * @param array $excludes list of patterns to match $path against.
-     *
-     * @throws \InvalidArgumentException if any of the exclude patterns is not a string or an array with keys: pattern,
-     *                                   flags, firstWildcard.
-     *
-     * @return array|null null or one of $excludes item as an array with keys: 'pattern', 'flags'.
-     */
-    private static function lastExcludeMatchingFromList(string $basePath, string $path, array $excludes): ?array
-    {
-        foreach (array_reverse($excludes) as $exclude) {
-            if (is_string($exclude)) {
-                $exclude = self::parseExcludePattern($exclude, false);
-            }
-
-            if (!isset($exclude['pattern'], $exclude['flags'], $exclude['firstWildcard'])) {
-                throw new \InvalidArgumentException(
-                    'If exclude/include pattern is an array it must contain the pattern, flags and firstWildcard keys.'
-                );
-            }
-
-            if (($exclude['flags'] & self::PATTERN_MUST_BE_DIR) && !is_dir($path)) {
-                continue;
-            }
-
-            if ($exclude['flags'] & self::PATTERN_NO_DIR) {
-                if (self::matchBasename(basename($path), $exclude['pattern'], $exclude['firstWildcard'], $exclude['flags'])) {
-                    return $exclude;
-                }
-                continue;
-            }
-
-            if (self::matchPathname($path, $basePath, $exclude['pattern'], $exclude['firstWildcard'], $exclude['flags'])) {
-                return $exclude;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Performs a simple comparison of file or directory names.
-     *
-     * Based on match_basename() from dir.c of git 1.8.5.3 sources.
-     *
-     * @param string $baseName file or directory name to compare with the pattern.
-     * @param string $pattern the pattern that $baseName will be compared against.
-     * @param bool|int $firstWildcard location of first wildcard character in the $pattern.
-     * @param int $flags pattern flags
-     *
-     * @return bool whether the name matches against pattern
-     */
-    private static function matchBasename(string $baseName, string $pattern, $firstWildcard, int $flags): bool
-    {
-        if ($firstWildcard === false) {
-            if ($pattern === $baseName) {
-                return true;
-            }
-        } elseif ($flags & self::PATTERN_ENDS_WITH) {
-            /* "*literal" matching against "fooliteral" */
-            $n = StringHelper::byteLength($pattern);
-            if (StringHelper::byteSubstring($pattern, 1, $n) === StringHelper::byteSubstring($baseName, -$n, $n)) {
-                return true;
-            }
-        }
-
-
-        $wildcardPattern = new WildcardPattern($pattern);
-
-        if ($flags & self::PATTERN_CASE_INSENSITIVE) {
-            $wildcardPattern = $wildcardPattern->ignoreCase();
-        }
-
-        return $wildcardPattern->match($baseName);
-    }
-
-    /**
-     * Compares a path part against a pattern with optional wildcards.
-     *
-     * Based on match_pathname() from dir.c of git 1.8.5.3 sources.
-     *
-     * @param string $path full path to compare
-     * @param string $basePath base of path that will not be compared
-     * @param string $pattern the pattern that path part will be compared against
-     * @param bool|int $firstWildcard location of first wildcard character in the $pattern
-     * @param int $flags pattern flags
-     *
-     * @return bool whether the path part matches against pattern
-     */
-    private static function matchPathname(string $path, string $basePath, string $pattern, $firstWildcard, int $flags): bool
-    {
-        // match with FNM_PATHNAME; the pattern has base implicitly in front of it.
-        if (strpos($pattern, '/') === 0) {
-            $pattern = StringHelper::byteSubstring($pattern, 1, StringHelper::byteLength($pattern));
-            if ($firstWildcard !== false && $firstWildcard !== 0) {
-                $firstWildcard--;
-            }
-        }
-
-        $namelen = StringHelper::byteLength($path) - (empty($basePath) ? 0 : StringHelper::byteLength($basePath) + 1);
-        $name = StringHelper::byteSubstring($path, -$namelen, $namelen);
-
-        if ($firstWildcard !== 0) {
-            if ($firstWildcard === false) {
-                $firstWildcard = StringHelper::byteLength($pattern);
-            }
-
-            // if the non-wildcard part is longer than the remaining pathname, surely it cannot match.
-            if ($firstWildcard > $namelen) {
-                return false;
-            }
-
-            if (strncmp($pattern, $name, (int) $firstWildcard)) {
-                return false;
-            }
-
-            $pattern = StringHelper::byteSubstring($pattern, (int) $firstWildcard, StringHelper::byteLength($pattern));
-            $name = StringHelper::byteSubstring($name, (int) $firstWildcard, $namelen);
-
-            // If the whole pattern did not have a wildcard, then our prefix match is all we need; we do not need to call fnmatch at all.
-            if (empty($pattern) && empty($name)) {
-                return true;
-            }
-        }
-
-        $wildcardPattern = (new WildcardPattern($pattern))
-            ->withExactSlashes();
-
-        if ($flags & self::PATTERN_CASE_INSENSITIVE) {
-            $wildcardPattern = $wildcardPattern->ignoreCase();
-        }
-
-        return $wildcardPattern->match($name);
-    }
-
-    /**
-     * Processes the pattern, stripping special characters like / and ! from the beginning and settings flags instead.
-     *
-     * @param string $pattern
-     * @param bool $caseSensitive
-     *
-     * @return array with keys: (string) pattern, (int) flags, (int|bool) firstWildcard
-     */
-    private static function parseExcludePattern(string $pattern, bool $caseSensitive): array
-    {
-        $result = [
-            'pattern' => $pattern,
-            'flags' => 0,
-            'firstWildcard' => false,
-        ];
-
-        $result = static::isCaseInsensitive($caseSensitive, $result);
-
-        if (!isset($pattern[0])) {
-            return $result;
-        }
-
-        if (strpos($pattern, '!') === 0) {
-            $result['flags'] |= self::PATTERN_NEGATIVE;
-            $pattern = StringHelper::byteSubstring($pattern, 1, StringHelper::byteLength($pattern));
-        }
-
-        if (StringHelper::byteLength($pattern) && StringHelper::byteSubstring($pattern, -1, 1) === '/') {
-            $pattern = StringHelper::byteSubstring($pattern, 0, -1);
-            $result['flags'] |= self::PATTERN_MUST_BE_DIR;
-        }
-
-        $result = static::isPatternNoDir($pattern, $result);
-
-        $result['firstWildcard'] = self::firstWildcardInPattern($pattern);
-
-        $result = static::isPatternEndsWith($pattern, $result);
-
-        $result['pattern'] = $pattern;
-
-        return $result;
-    }
-
-    /**
-     * Check isCaseInsensitive.
-     *
-     * @param bool $caseSensitive
-     * @param array $result
-     *
-     * @return array
-     */
-    private static function isCaseInsensitive(bool $caseSensitive, array $result): array
-    {
-        if (!$caseSensitive) {
-            $result['flags'] |= self::PATTERN_CASE_INSENSITIVE;
-        }
-
-        return $result;
-    }
-
-    /**
-     * Check pattern no directory.
-     *
-     * @param string $pattern
-     * @param array $result
-     *
-     * @return array
-     */
-    private static function isPatternNoDir(string $pattern, array $result): array
-    {
-        if (strpos($pattern, '/') === false) {
-            $result['flags'] |= self::PATTERN_NO_DIR;
-        }
-
-        return $result;
-    }
-
-    /**
-     * Check pattern ends with
-     *
-     * @param string $pattern
-     * @param array $result
-     *
-     * @return array
-     */
-    private static function isPatternEndsWith(string $pattern, array $result): array
-    {
-        if (strpos($pattern, '*') === 0 && self::firstWildcardInPattern(StringHelper::byteSubstring($pattern, 1, StringHelper::byteLength($pattern))) === false) {
-            $result['flags'] |= self::PATTERN_ENDS_WITH;
-        }
-
-        return $result;
     }
 
     /**
