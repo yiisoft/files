@@ -189,7 +189,7 @@ class FileHelper
             return rmdir($path);
         }
 
-        if (!is_writable($path)) {
+        if (file_exists($path) && !is_writable($path)) {
             chmod($path, 0777);
         }
 
