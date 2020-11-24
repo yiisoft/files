@@ -45,30 +45,7 @@ class FileHelper
             }
         }
 
-        return static::chmod($path, $mode);
-    }
-
-    /**
-     * Set permissions directory.
-     *
-     * @param string $path
-     * @param int $mode
-     *
-     * @throws RuntimeException
-     *
-     * @return bool
-     */
-    private static function chmod(string $path, int $mode): bool
-    {
-        try {
-            return chmod($path, $mode);
-        } catch (Exception $e) {
-            throw new RuntimeException(
-                'Failed to change permissions for directory "' . $path . '": ' . $e->getMessage(),
-                (int)$e->getCode(),
-                $e
-            );
-        }
+        return chmod($path, $mode);
     }
 
     /**
@@ -289,7 +266,7 @@ class FileHelper
                     }
                     copy($from, $to);
                     if (isset($options['fileMode'])) {
-                        static::chmod($to, $options['fileMode']);
+                        chmod($to, $options['fileMode']);
                     }
                 } elseif (!isset($options['recursive']) || $options['recursive']) {
                     static::copyDirectory($from, $to, $options);
