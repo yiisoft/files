@@ -311,5 +311,6 @@ final class FileHelperTest extends FileSystemTestCase
         );
 
         $this->assertIsInt(FileHelper::lastModifiedTime($basePath));
+        $this->assertIsInt(FileHelper::lastModifiedTime($basePath . '/css/stub.css'));
     }
 }
