@@ -278,7 +278,7 @@ final class FileHelperTest extends FileSystemTestCase
         $this->assertDirectoryDoesNotExist($symlinkedDirectoryPath);
     }
 
-    public function testUnlinkNotExistsFile(): void
+    public function testUnlinkNonexistentFile(): void
     {
         $this->expectWarning();
         FileHelper::unlink($this->testFilePath . '/not-exists-file.txt');
