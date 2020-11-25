@@ -278,6 +278,12 @@ final class FileHelperTest extends FileSystemTestCase
         $this->assertDirectoryDoesNotExist($symlinkedDirectoryPath);
     }
 
+    public function testUnlinkNonexistentFile(): void
+    {
+        $this->expectWarning();
+        FileHelper::unlink($this->testFilePath . '/not-exists-file.txt');
+    }
+
     public function testIsEmptyDirectory(): void
     {
         $this->createFileStructure([
@@ -311,5 +317,6 @@ final class FileHelperTest extends FileSystemTestCase
         );
 
         $this->assertIsInt(FileHelper::lastModifiedTime($basePath));
+        $this->assertIsInt(FileHelper::lastModifiedTime($basePath . '/css/stub.css'));
     }
 }

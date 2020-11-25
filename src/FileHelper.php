@@ -38,37 +38,14 @@ class FileHelper
         } catch (Exception $e) {
             if (!is_dir($path)) {
                 throw new RuntimeException(
-                    "Failed to create directory \"$path\": " . $e->getMessage(),
-                    $e->getCode(),
+                    'Failed to create directory "' . $path . '": ' . $e->getMessage(),
+                    (int)$e->getCode(),
                     $e
                 );
             }
         }
 
-        return static::chmod($path, $mode);
-    }
-
-    /**
-     * Set permissions directory.
-     *
-     * @param string $path
-     * @param int $mode
-     *
-     * @throws RuntimeException
-     *
-     * @return bool|null
-     */
-    private static function chmod(string $path, int $mode): ?bool
-    {
-        try {
-            return chmod($path, $mode);
-        } catch (Exception $e) {
-            throw new RuntimeException(
-                "Failed to change permissions for directory \"$path\": " . $e->getMessage(),
-                $e->getCode(),
-                $e
-            );
-        }
+        return chmod($path, $mode);
     }
 
     /**
@@ -189,7 +166,7 @@ class FileHelper
             return rmdir($path);
         }
 
-        if (!is_writable($path)) {
+        if (file_exists($path) && !is_writable($path)) {
             chmod($path, 0777);
         }
 
@@ -240,6 +217,16 @@ class FileHelper
      *
      * @throws InvalidArgumentException if unable to open directory
      * @throws Exception
+     *
+     * @psalm-param array{
+     *   dirMode?: int,
+     *   fileMode?: int,
+     *   filter?: \Yiisoft\Files\PathMatcher\PathMatcherInterface,
+     *   recursive?: bool,
+     *   beforeCopy?: callable,
+     *   afterCopy?: callable,
+     *   copyEmptyDirectories?: bool,
+     * } $options
      */
     public static function copyDirectory(string $source, string $destination, array $options = []): void
     {
@@ -248,11 +235,20 @@ class FileHelper
 
         static::assertNotSelfDirectory($source, $destination);
 
-        $destinationExists = static::setDestination($destination, $options);
+        $destinationExists = is_dir($destination);
+        if (
+            !$destinationExists &&
+            (!isset($options['copyEmptyDirectories']) || $options['copyEmptyDirectories'])
+        ) {
+            static::createDirectory($destination, $options['dirMode'] ?? 0775);
+            $destinationExists = true;
+        }
 
         $handle = static::openDirectory($source);
 
-        $options = static::setBasePath($source, $options);
+        if (!isset($options['basePath'])) {
+            $options['basePath'] = realpath($source);
+        }
 
         while (($file = readdir($handle)) !== false) {
             if ($file === '.' || $file === '..') {
@@ -270,7 +266,7 @@ class FileHelper
                     }
                     copy($from, $to);
                     if (isset($options['fileMode'])) {
-                        static::chmod($to, $options['fileMode']);
+                        chmod($to, $options['fileMode']);
                     }
                 } elseif (!isset($options['recursive']) || $options['recursive']) {
                     static::copyDirectory($from, $to, $options);
@@ -317,44 +313,6 @@ class FileHelper
     }
 
     /**
-     * Set base path directory.
-     *
-     * @param string $source
-     * @param array $options
-     *
-     * @return array
-     */
-    private static function setBasePath(string $source, array $options): array
-    {
-        if (!isset($options['basePath'])) {
-            // this should be done only once
-            $options['basePath'] = realpath($source);
-        }
-
-        return $options;
-    }
-
-    /**
-     * Set destination directory.
-     *
-     * @param string $destination
-     * @param array $options
-     *
-     * @return bool
-     */
-    private static function setDestination(string $destination, array $options): bool
-    {
-        $destinationExists = is_dir($destination);
-
-        if (!$destinationExists && (!isset($options['copyEmptyDirectories']) || $options['copyEmptyDirectories'])) {
-            static::createDirectory($destination, $options['dirMode'] ?? 0775);
-            $destinationExists = true;
-        }
-
-        return $destinationExists;
-    }
-
-    /**
      * Returns the last modification time for the given path.
      *
      * If the path is a directory, any nested files/directories will be checked as well.
@@ -366,20 +324,26 @@ class FileHelper
     public static function lastModifiedTime(string $path): int
     {
         if (is_file($path)) {
-            return filemtime($path);
+            return static::modifiedTime($path);
         }
 
-        $times = [filemtime($path)];
+        $times = [static::modifiedTime($path)];
 
+        /** @var iterable<string, string> $iterator */
         $iterator = new RecursiveIteratorIterator(
             new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS),
             RecursiveIteratorIterator::SELF_FIRST
         );
 
         foreach ($iterator as $p => $info) {
-            $times[] = filemtime($p);
+            $times[] = static::modifiedTime($p);
         }
 
         return max($times);
+    }
+
+    private static function modifiedTime(string $path): int
+    {
+        return (int)filemtime($path);
     }
 }
