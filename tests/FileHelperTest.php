@@ -14,7 +14,7 @@ final class FileHelperTest extends FileSystemTestCase
 {
     public function testOpenFileWithFile(): void
     {
-        $resource = FileHelper::openFile($this->testFilePath, 'rb', true);
+        $resource = FileHelper::openFile(tempnam($this->testFilePath, 'test'), 'rb', true);
         $this->assertIsResource($resource);
         fclose($resource);
     }
