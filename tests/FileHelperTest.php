@@ -12,6 +12,26 @@ use Yiisoft\Files\FileHelper;
  */
 final class FileHelperTest extends FileSystemTestCase
 {
+    public function testOpenFileWithFile(): void
+    {
+        $resource = FileHelper::openFile(tempnam($this->testFilePath, 'test'), 'rb', true);
+        $this->assertIsResource($resource);
+        fclose($resource);
+    }
+
+    public function testOpenFileWithUrl(): void
+    {
+        $resource = FileHelper::openFile('php://output', 'wb');
+        $this->assertIsResource($resource);
+        fclose($resource);
+    }
+
+    public function testOpenFileException(): void
+    {
+        $this->expectException(RuntimeException::class);
+        FileHelper::openFile('invalid://uri', 'rb');
+    }
+
     public function testCreateDirectory(): void
     {
         $basePath = $this->testFilePath;
