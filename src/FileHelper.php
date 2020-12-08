@@ -17,6 +17,34 @@ use RuntimeException;
 class FileHelper
 {
     /**
+     * Opens a file or URL.
+     *
+     * This method is similar to the PHP `fopen()` function, except that it suppresses the `E_WARNING`
+     * level error and throws the `\RuntimeException` exception if it can't open the file.
+     *
+     * @param string $filename The file or URL.
+     * @param string $mode The type of access.
+     * @param bool $useIncludePath Whether to search for a file in the include path.
+     * @param resource|null $context The stream context or `null`.
+     *
+     * @throws RuntimeException If the file could not be opened.
+     *
+     * @return resource The file pointer resource.
+     *
+     * @psalm-suppress PossiblyNullArgument
+     */
+    public static function openFile(string $filename, string $mode, bool $useIncludePath = false, $context = null)
+    {
+        $filePointer = @fopen($filename, $mode, $useIncludePath, $context);
+
+        if ($filePointer === false) {
+            throw new RuntimeException("The file \"{$filename}\" could not be opened.");
+        }
+
+        return $filePointer;
+    }
+
+    /**
      * Creates a new directory.
      *
      * This method is similar to the PHP `mkdir()` function except that it uses `chmod()` to set the permission of the
