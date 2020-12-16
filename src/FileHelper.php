@@ -386,4 +386,56 @@ class FileHelper
     {
         return (int)filemtime($path);
     }
+
+    /**
+     * Returns the directories found under the specified directory and subdirectories.
+     *
+     * @param string $directory the directory under which the files will be looked for.
+     * @param array $options options for directory searching. Valid options are:
+     *
+     * - filter: a filter to apply while looked directories. It should be an instance of {@see PathMatcherInterface}.
+     * - recursive: boolean, whether the subdirectories should also be looked for. Defaults to `true`.
+     *
+     * @psalm-param array{
+     *   filter?: \Yiisoft\Files\PathMatcher\PathMatcherInterface,
+     *   recursive?: bool,
+     * } $options
+     *
+     * @throws InvalidArgumentException if the directory is invalid.
+     *
+     * @return string[] directories found under the directory, in no particular order.
+     * Ordering depends on the files system used.
+     */
+    public static function findDirectories(string $directory, array $options = []): array
+    {
+        if (!is_dir($directory)) {
+            throw new InvalidArgumentException("The \"directory\" argument must be a directory: $directory");
+        }
+        $directory = static::normalizePath($directory);
+
+        $result = [];
+
+        $handle = static::openDirectory($directory);
+        while (false !== $file = readdir($handle)) {
+            if ($file === '.' || $file === '..') {
+                continue;
+            }
+
+            $path = $directory . '/' . $file;
+            if (is_file($path)) {
+                continue;
+            }
+
+            if (!isset($options['filter']) || $options['filter']->match($path)) {
+                $result[] = $path;
+            }
+
+            if (!isset($options['recursive']) || $options['recursive']) {
+                $result = array_merge($result, static::findDirectories($path, $options));
+            }
+        }
+        closedir($handle);
+
+        return $result;
+    }
 }
