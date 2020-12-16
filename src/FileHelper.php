@@ -181,30 +181,29 @@ class FileHelper
      * Removes a file or symlink in a cross-platform way.
      *
      * @param string $path
-     *
-     * @return bool
      */
-    public static function unlink(string $path): bool
+    public static function unlink(string $path): void
     {
         $isWindows = DIRECTORY_SEPARATOR === '\\';
 
         if (!$isWindows) {
-            return unlink($path);
+            unlink($path);
+            return;
         }
 
         if (is_link($path)) {
             try {
-                return unlink($path);
+                unlink($path);
             } catch (Throwable $e) {
-                return rmdir($path);
+                rmdir($path);
             }
+            return;
         }
 
         if (file_exists($path) && !is_writable($path)) {
             chmod($path, 0777);
         }
-
-        return unlink($path);
+        unlink($path);
     }
 
     /**
