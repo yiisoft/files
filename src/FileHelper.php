@@ -7,6 +7,7 @@ namespace Yiisoft\Files;
 use Exception;
 use FilesystemIterator;
 use InvalidArgumentException;
+use LogicException;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RuntimeException;
@@ -345,28 +346,39 @@ class FileHelper
      *
      * If the path is a directory, any nested files/directories will be checked as well.
      *
-     * @param string $path the directory to be checked
+     * @param string ...$paths the directory to be checked
+     *
+     * @throws LogicException when path not set
      *
      * @return int Unix timestamp representing the last modification time
      */
-    public static function lastModifiedTime(string $path): int
+    public static function lastModifiedTime(string ...$paths): int
     {
-        if (is_file($path)) {
-            return static::modifiedTime($path);
+        if (empty($paths)) {
+            throw new LogicException('Path is required.');
         }
 
-        $times = [static::modifiedTime($path)];
+        $times = [];
 
-        /** @var iterable<string, string> $iterator */
-        $iterator = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS),
-            RecursiveIteratorIterator::SELF_FIRST
-        );
+        foreach ($paths as $path) {
+            $times[] = static::modifiedTime($path);
 
-        foreach ($iterator as $p => $info) {
-            $times[] = static::modifiedTime($p);
+            if (is_file($path)) {
+                continue;
+            }
+
+            /** @var iterable<string, string> $iterator */
+            $iterator = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS),
+                RecursiveIteratorIterator::SELF_FIRST
+            );
+
+            foreach ($iterator as $p => $info) {
+                $times[] = static::modifiedTime($p);
+            }
         }
 
+        /** @psalm-suppress ArgumentTypeCoercion */
         return max($times);
     }
 
