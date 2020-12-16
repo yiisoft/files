@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Files\Tests;
 
+use LogicException;
 use RuntimeException;
 use Yiisoft\Files\FileHelper;
 
@@ -338,5 +339,12 @@ final class FileHelperTest extends FileSystemTestCase
 
         $this->assertIsInt(FileHelper::lastModifiedTime($basePath));
         $this->assertIsInt(FileHelper::lastModifiedTime($basePath . '/css/stub.css'));
+        $this->assertIsInt(FileHelper::lastModifiedTime($basePath . '/css', $basePath . '/js'));
+    }
+
+    public function testLastModifiedTimeWithoutArguments(): void
+    {
+        $this->expectException(LogicException::class);
+        FileHelper::lastModifiedTime();
     }
 }
