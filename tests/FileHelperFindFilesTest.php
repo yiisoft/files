@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Yiisoft\Files\Tests;
 
+use InvalidArgumentException;
 use Yiisoft\Files\FileHelper;
 use Yiisoft\Files\PathMatcher\PathMatcher;
 
 final class FileHelperFindFilesTest extends FileSystemTestCase
 {
-    public function testSimple()
+    public function testSimple(): void
     {
         $dirName = 'find-files-simple-test';
         $this->createFileStructure([
@@ -87,7 +88,7 @@ final class FileHelperFindFilesTest extends FileSystemTestCase
         );
     }
 
-    public function testWithSymLink()
+    public function testWithSymLink(): void
     {
         $dirName = 'find-files-with-symlink-test';
         $this->createFileStructure([
@@ -109,5 +110,18 @@ final class FileHelperFindFilesTest extends FileSystemTestCase
             ],
             FileHelper::findFiles($basePath)
         );
+    }
+
+    public function testIncorrectDirectory(): void
+    {
+        $dirName = 'find-files-incorrect-directory-test';
+        $this->createFileStructure([
+            $dirName => [
+                'file1.txt' => 'content',
+            ],
+        ]);
+
+        $this->expectException(InvalidArgumentException::class);
+        FileHelper::findFiles($this->testFilePath . '/not-exists-directory');
     }
 }
