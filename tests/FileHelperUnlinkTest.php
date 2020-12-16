@@ -34,7 +34,7 @@ final class FileHelperUnlinkTest extends FileSystemTestCase
         $this->createFileStructure([
             $dirName => [
                 'dir' => [
-                    'file.txt' => 'content'
+                    'file.txt' => 'content',
                 ],
                 'symlink' => ['symlink', 'dir'],
             ],
