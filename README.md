@@ -88,7 +88,7 @@ File helper methods are static so usage is like the following:
 
 Overall the helper has the following method groups.
 
-### Workinkg with directories
+### Working with directories
 
 - createDirectory
 - copyDirectory
@@ -153,4 +153,3 @@ Maintained by [Yii Software](https://www.yiiframework.com/).
 [![Telegram](https://img.shields.io/badge/telegram-join-1DA1F2?style=flat&logo=telegram)](https://t.me/yii3en)
 [![Facebook](https://img.shields.io/badge/facebook-join-1DA1F2?style=flat&logo=facebook&logoColor=ffffff)](https://www.facebook.com/groups/yiitalk)
 [![Slack](https://img.shields.io/badge/slack-join-1DA1F2?style=flat&logo=slack)](https://yiiframework.com/go/slack)
-
