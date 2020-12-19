@@ -192,7 +192,7 @@ class FileHelper
 
         if (is_link($path)) {
             if (false === @unlink($path)) {
-                @rmdir($path);
+                rmdir($path);
             }
             return;
         }
