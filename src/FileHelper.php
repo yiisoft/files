@@ -404,13 +404,13 @@ class FileHelper
      *
      * @throws InvalidArgumentException if the directory is invalid.
      *
-     * @return string[] directories found under the directory, in no particular order.
+     * @return string[] directories found under the directory specified, in no particular order.
      * Ordering depends on the files system used.
      */
     public static function findDirectories(string $directory, array $options = []): array
     {
         if (!is_dir($directory)) {
-            throw new InvalidArgumentException("The \"directory\" argument must be a directory: $directory");
+            throw new InvalidArgumentException("\"$directory\" is not a directory.");
         }
         $directory = static::normalizePath($directory);
 
@@ -456,13 +456,13 @@ class FileHelper
      *
      * @throws InvalidArgumentException if the dir is invalid.
      *
-     * @return array files found under the directory, in no particular order.
+     * @return array files found under the directory specified, in no particular order.
      * Ordering depends on the files system used.
      */
     public static function findFiles(string $directory, array $options = []): array
     {
         if (!is_dir($directory)) {
-            throw new InvalidArgumentException("The \"directory\" argument must be a directory: $directory");
+            throw new InvalidArgumentException("\"$directory\" is not a directory.");
         }
         $directory = static::normalizePath($directory);
 
