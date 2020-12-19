@@ -136,4 +136,11 @@ abstract class FileSystemTestCase extends TestCase
 
         return $mode === '0700';
     }
+
+    protected function assertEqualsPaths(array $expected, array $actual): void
+    {
+        sort($expected);
+        sort($actual);
+        $this->assertEquals($expected, $actual);
+    }
 }

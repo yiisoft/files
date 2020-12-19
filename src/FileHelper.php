@@ -180,26 +180,27 @@ class FileHelper
      * Removes a file or symlink in a cross-platform way.
      *
      * @param string $path
-     *
-     * @return bool
      */
-    public static function unlink(string $path): bool
+    public static function unlink(string $path): void
     {
         $isWindows = DIRECTORY_SEPARATOR === '\\';
 
         if (!$isWindows) {
-            return unlink($path);
+            unlink($path);
+            return;
         }
 
-        if (is_link($path) && is_dir($path)) {
-            return rmdir($path);
+        if (is_link($path)) {
+            if (false === @unlink($path)) {
+                rmdir($path);
+            }
+            return;
         }
 
         if (file_exists($path) && !is_writable($path)) {
             chmod($path, 0777);
         }
-
-        return unlink($path);
+        unlink($path);
     }
 
     /**
@@ -385,5 +386,109 @@ class FileHelper
     private static function modifiedTime(string $path): int
     {
         return (int)filemtime($path);
+    }
+
+    /**
+     * Returns the directories found under the specified directory and subdirectories.
+     *
+     * @param string $directory the directory under which the files will be looked for.
+     * @param array $options options for directory searching. Valid options are:
+     *
+     * - filter: a filter to apply while looked directories. It should be an instance of {@see PathMatcherInterface}.
+     * - recursive: boolean, whether the subdirectories should also be looked for. Defaults to `true`.
+     *
+     * @psalm-param array{
+     *   filter?: \Yiisoft\Files\PathMatcher\PathMatcherInterface,
+     *   recursive?: bool,
+     * } $options
+     *
+     * @throws InvalidArgumentException if the directory is invalid.
+     *
+     * @return string[] directories found under the directory specified, in no particular order.
+     * Ordering depends on the files system used.
+     */
+    public static function findDirectories(string $directory, array $options = []): array
+    {
+        if (!is_dir($directory)) {
+            throw new InvalidArgumentException("\"$directory\" is not a directory.");
+        }
+        $directory = static::normalizePath($directory);
+
+        $result = [];
+
+        $handle = static::openDirectory($directory);
+        while (false !== $file = readdir($handle)) {
+            if ($file === '.' || $file === '..') {
+                continue;
+            }
+
+            $path = $directory . '/' . $file;
+            if (is_file($path)) {
+                continue;
+            }
+
+            if (!isset($options['filter']) || $options['filter']->match($path)) {
+                $result[] = $path;
+            }
+
+            if (!isset($options['recursive']) || $options['recursive']) {
+                $result = array_merge($result, static::findDirectories($path, $options));
+            }
+        }
+        closedir($handle);
+
+        return $result;
+    }
+
+    /**
+     * Returns the files found under the specified directory and subdirectories.
+     *
+     * @param string $directory the directory under which the files will be looked for.
+     * @param array $options options for file searching. Valid options are:
+     *
+     * - filter: a filter to apply while looked files. It should be an instance of {@see PathMatcherInterface}.
+     * - recursive: boolean, whether the files under the subdirectories should also be looked for. Defaults to `true`.
+     *
+     * @psalm-param array{
+     *   filter?: \Yiisoft\Files\PathMatcher\PathMatcherInterface,
+     *   recursive?: bool,
+     * } $options
+     *
+     * @throws InvalidArgumentException if the dir is invalid.
+     *
+     * @return array files found under the directory specified, in no particular order.
+     * Ordering depends on the files system used.
+     */
+    public static function findFiles(string $directory, array $options = []): array
+    {
+        if (!is_dir($directory)) {
+            throw new InvalidArgumentException("\"$directory\" is not a directory.");
+        }
+        $directory = static::normalizePath($directory);
+
+        $result = [];
+
+        $handle = static::openDirectory($directory);
+        while (false !== $file = readdir($handle)) {
+            if ($file === '.' || $file === '..') {
+                continue;
+            }
+
+            $path = $directory . '/' . $file;
+
+            if (is_file($path)) {
+                if (!isset($options['filter']) || $options['filter']->match($path)) {
+                    $result[] = $path;
+                }
+                continue;
+            }
+
+            if (!isset($options['recursive']) || $options['recursive']) {
+                $result = array_merge($result, static::findFiles($path, $options));
+            }
+        }
+        closedir($handle);
+
+        return $result;
     }
 }
