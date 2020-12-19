@@ -17,6 +17,17 @@ The package provides useful methods to manage files and directories.
 [![static analysis](https://github.com/yiisoft/files/workflows/static%20analysis/badge.svg)](https://github.com/yiisoft/files/actions?query=workflow%3A%22static+analysis%22)
 [![type-coverage](https://shepherd.dev/github/yiisoft/files/coverage.svg)](https://shepherd.dev/github/yiisoft/files)
 
+## Requirements
+
+- PHP 7.4 or higher.
+
+## Installation
+
+The package could be installed with composer:
+
+```shell
+composer require yiisoft/files --prefer-dist
+```
 
 ## General usage
 
@@ -67,6 +78,38 @@ echo FileHelper::normalizePath($path);
 // /home/samdark/dev/yii
 ```
 
+## File helper usage
+
+File helper methods are static so usage is like the following:
+
+```php
+\Yiisoft\Files\FileHelper::copyDirectory('/home/master/inbox', '/backup/inbox') ?>
+```
+
+Overall the helper has the following method groups.
+
+### Workinkg with directories
+
+- createDirectory
+- copyDirectory
+- clearDirectory
+- removeDirectory
+- isEmptyDirectory
+
+## Search
+
+- findDirectories
+- findFiles
+
+### Other
+
+- openFile
+- normalizePath
+- unlink
+- lastModifiedTime
+
+## Testing
+
 ### Unit testing
 
 The package is tested with [PHPUnit](https://phpunit.de/). To run tests:
@@ -77,10 +120,11 @@ The package is tested with [PHPUnit](https://phpunit.de/). To run tests:
 
 ### Mutation testing
 
-The package tests are checked with [Infection](https://infection.github.io/) mutation framework. To run it:
+The package tests are checked with [Infection](https://infection.github.io/) mutation framework with
+[Infection Static Analysis Plugin](https://github.com/Roave/infection-static-analysis-plugin). To run it:
 
 ```shell
-./vendor/bin/infection
+./vendor/bin/roave-infection-static-analysis-plugin
 ```
 
 ### Static analysis
