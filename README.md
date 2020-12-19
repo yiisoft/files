@@ -96,7 +96,7 @@ Overall the helper has the following method groups.
 - removeDirectory
 - isEmptyDirectory
 
-## Search
+### Search
 
 - findDirectories
 - findFiles
