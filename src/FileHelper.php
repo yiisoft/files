@@ -11,7 +11,6 @@ use LogicException;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RuntimeException;
-use Throwable;
 
 /**
  * FileHelper provides useful methods to manage files and directories
@@ -192,10 +191,8 @@ class FileHelper
         }
 
         if (is_link($path)) {
-            try {
-                unlink($path);
-            } catch (Throwable $e) {
-                rmdir($path);
+            if (false === @unlink($path)) {
+                @rmdir($path);
             }
             return;
         }
