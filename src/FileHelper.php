@@ -61,7 +61,7 @@ class FileHelper
         $path = static::normalizePath($path);
 
         try {
-            if (!mkdir($path, $mode, true) && !is_dir($path)) {
+            if (!is_dir($path) && !mkdir($path, $mode, true)) {
                 return false;
             }
         } catch (Exception $e) {
