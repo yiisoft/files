@@ -51,7 +51,7 @@ final class FileHelperTest extends FileSystemTestCase
         $basePath = $this->testFilePath;
         $dirName = $basePath . '/test_dir_perms';
 
-        $this->assertTrue(FileHelper::ensureDirectory($dirName, 0700));
+        FileHelper::ensureDirectory($dirName, 0700);
         $this->assertFileMode(0700, $dirName);
     }
 
