@@ -37,9 +37,9 @@ final class FileHelperTest extends FileSystemTestCase
     {
         $basePath = $this->testFilePath;
         $directory = $basePath . '/test_dir_level_1/test_dir_level_2';
-        FileHelper::createDirectory($directory);
+        FileHelper::ensureDirectory($directory);
         $this->assertFileExists($directory, 'Unable to create directory recursively!');
-        FileHelper::createDirectory($directory);
+        FileHelper::ensureDirectory($directory);
     }
 
     public function testCreateDirectoryPermissions(): void
@@ -51,7 +51,7 @@ final class FileHelperTest extends FileSystemTestCase
         $basePath = $this->testFilePath;
         $dirName = $basePath . '/test_dir_perms';
 
-        $this->assertTrue(FileHelper::createDirectory($dirName, 0700));
+        $this->assertTrue(FileHelper::ensureDirectory($dirName, 0700));
         $this->assertFileMode(0700, $dirName);
     }
 
@@ -65,7 +65,7 @@ final class FileHelperTest extends FileSystemTestCase
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessageMatches('/^Failed to create directory/');
-        FileHelper::createDirectory($this->testFilePath . '/test_dir/file.txt');
+        FileHelper::ensureDirectory($this->testFilePath . '/test_dir/file.txt');
     }
 
     public function testRemoveDirectory(): void
