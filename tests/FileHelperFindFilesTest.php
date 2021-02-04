@@ -62,6 +62,15 @@ final class FileHelperFindFilesTest extends FileSystemTestCase
         );
     }
 
+    public function testInvalidFilter(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Filter should be an instance of PathMatcherInterface');
+        FileHelper::findFiles('', [
+            'filter' => 'wrong_type',
+        ]);
+    }
+
     public function testNotRecursive(): void
     {
         $dirName = 'find-files-not-recursive-test';

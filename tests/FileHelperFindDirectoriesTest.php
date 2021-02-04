@@ -104,6 +104,15 @@ final class FileHelperFindDirectoriesTest extends FileSystemTestCase
         );
     }
 
+    public function testInvalidFilter(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Filter should be an instance of PathMatcherInterface');
+        FileHelper::findDirectories('', [
+            'filter' => 'wrong_type',
+        ]);
+    }
+
     public function testDeepFilter(): void
     {
         $dirName = 'find-directory-deep-filter-test';
