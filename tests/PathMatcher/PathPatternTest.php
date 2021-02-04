@@ -6,6 +6,7 @@ namespace Yiisoft\Files\Tests\PathMatcher;
 
 use PHPUnit\Framework\TestCase;
 use Yiisoft\Files\PathMatcher\PathPattern;
+use function in_array;
 
 final class PathPatternTest extends TestCase
 {

@@ -13,15 +13,15 @@ use RecursiveIteratorIterator;
 use RuntimeException;
 
 /**
- * FileHelper provides useful methods to manage files and directories
+ * FileHelper provides useful methods to manage files and directories.
  */
 class FileHelper
 {
     /**
      * Opens a file or URL.
      *
-     * This method is similar to the PHP `fopen()` function, except that it suppresses the `E_WARNING`
-     * level error and throws the `\RuntimeException` exception if it can't open the file.
+     * This method is similar to the PHP {@see fopen()} function, except that it suppresses the {@see E_WARNING}
+     * level error and throws the {@see \RuntimeException} exception if it can't open the file.
      *
      * @param string $filename The file or URL.
      * @param string $mode The type of access.
@@ -48,13 +48,13 @@ class FileHelper
     /**
      * Creates a new directory.
      *
-     * This method is similar to the PHP `mkdir()` function except that it uses `chmod()` to set the permission of the
+     * This method is similar to the PHP {@see mkdir()} function except that it uses {@see chmod()} to set the permission of the
      * created directory in order to avoid the impact of the `umask` setting.
      *
-     * @param string $path path of the directory to be created.
-     * @param int $mode the permission to be set for the created directory.
+     * @param string $path Path of the directory to be created.
+     * @param int $mode The permission to be set for the created directory.
      *
-     * @return bool whether the directory is created successfully.
+     * @return bool Whether the directory is created successfully.
      */
     public static function createDirectory(string $path, int $mode = 0775): bool
     {
@@ -87,9 +87,9 @@ class FileHelper
      * - Turn multiple consecutive slashes into a single one (e.g. "/a///b/c" becomes "/a/b/c")
      * - Remove ".." and "." based on their meanings (e.g. "/a/./b/../c" becomes "/a/c")
      *
-     * @param string $path the file/directory path to be normalized
+     * @param string $path The file/directory path to be normalized.
      *
-     * @return string the normalized file/directory path
+     * @return string The normalized file/directory path.
      */
     public static function normalizePath(string $path): string
     {
@@ -127,8 +127,8 @@ class FileHelper
     /**
      * Removes a directory (and all its content) recursively.
      *
-     * @param string $directory the directory to be deleted recursively.
-     * @param array $options options for directory remove ({@see clearDirectory()}).
+     * @param string $directory The directory to be deleted recursively.
+     * @param array $options Options for directory remove ({@see clearDirectory()}).
      */
     public static function removeDirectory(string $directory, array $options = []): void
     {
@@ -148,14 +148,14 @@ class FileHelper
     /**
      * Clear all directory content.
      *
-     * @param string $directory the directory to be cleared.
-     * @param array $options options for directory clear . Valid options are:
+     * @param string $directory The directory to be cleared.
+     * @param array $options Options for directory clear . Valid options are:
      *
      * - traverseSymlinks: boolean, whether symlinks to the directories should be traversed too.
      *   Defaults to `false`, meaning the content of the symlinked directory would not be deleted.
      *   Only symlink would be removed in that default case.
      *
-     * @throws InvalidArgumentException if unable to open directory
+     * @throws InvalidArgumentException if unable to open directory.
      */
     public static function clearDirectory(string $directory, array $options = []): void
     {
@@ -179,7 +179,7 @@ class FileHelper
     /**
      * Removes a file or symlink in a cross-platform way.
      *
-     * @param string $path
+     * @param string $path Path to unlink.
      */
     public static function unlink(string $path): void
     {
@@ -204,9 +204,9 @@ class FileHelper
     }
 
     /**
-     * Tells whether the path is a empty directory
+     * Tells whether the path is a empty directory.
      *
-     * @param string $path
+     * @param string $path Path to check for being an empty directory.
      *
      * @return bool
      */
@@ -224,9 +224,9 @@ class FileHelper
      *
      * The files and sub-directories will also be copied over.
      *
-     * @param string $source the source directory.
-     * @param string $destination the destination directory.
-     * @param array $options options for directory copy. Valid options are:
+     * @param string $source The source directory.
+     * @param string $destination The destination directory.
+     * @param array $options Options for directory copy. Valid options are:
      *
      * - dirMode: integer, the permission to be set for newly copied directories. Defaults to 0775.
      * - fileMode: integer, the permission to be set for newly copied files. Defaults to the current environment
@@ -308,10 +308,10 @@ class FileHelper
     }
 
     /**
-     * Check copy it self directory.
+     * Assert that destination is not within the source directory.
      *
-     * @param string $source
-     * @param string $destination
+     * @param string $source Path to source.
+     * @param string $destination Path to destination.
      *
      * @throws InvalidArgumentException
      */
@@ -325,7 +325,7 @@ class FileHelper
     /**
      * Open directory handle.
      *
-     * @param string $directory
+     * @param string $directory Path to directory.
      *
      * @throws InvalidArgumentException
      *
@@ -336,22 +336,22 @@ class FileHelper
         $handle = @opendir($directory);
 
         if ($handle === false) {
-            throw new InvalidArgumentException("Unable to open directory: $directory");
+            throw new InvalidArgumentException("Unable to open directory: $directory.");
         }
 
         return $handle;
     }
 
     /**
-     * Returns the last modification time for the given path.
+     * Returns the last modification time for the given paths.
      *
      * If the path is a directory, any nested files/directories will be checked as well.
      *
-     * @param string ...$paths the directory to be checked
+     * @param string ...$paths The directories to be checked.
      *
-     * @throws LogicException when path not set
+     * @throws LogicException If path is not set.
      *
-     * @return int Unix timestamp representing the last modification time
+     * @return int Unix timestamp representing the last modification time.
      */
     public static function lastModifiedTime(string ...$paths): int
     {
@@ -391,8 +391,8 @@ class FileHelper
     /**
      * Returns the directories found under the specified directory and subdirectories.
      *
-     * @param string $directory the directory under which the files will be looked for.
-     * @param array $options options for directory searching. Valid options are:
+     * @param string $directory The directory under which the files will be looked for.
+     * @param array $options Options for directory searching. Valid options are:
      *
      * - filter: a filter to apply while looked directories. It should be an instance of {@see PathMatcherInterface}.
      * - recursive: boolean, whether the subdirectories should also be looked for. Defaults to `true`.
@@ -402,10 +402,10 @@ class FileHelper
      *   recursive?: bool,
      * } $options
      *
-     * @throws InvalidArgumentException if the directory is invalid.
+     * @throws InvalidArgumentException If the directory is invalid.
      *
-     * @return string[] directories found under the directory specified, in no particular order.
-     * Ordering depends on the files system used.
+     * @return string[] Directories found under the directory specified, in no particular order.
+     * Ordering depends on the file system used.
      */
     public static function findDirectories(string $directory, array $options = []): array
     {
@@ -443,8 +443,8 @@ class FileHelper
     /**
      * Returns the files found under the specified directory and subdirectories.
      *
-     * @param string $directory the directory under which the files will be looked for.
-     * @param array $options options for file searching. Valid options are:
+     * @param string $directory The directory under which the files will be looked for.
+     * @param array $options Options for file searching. Valid options are:
      *
      * - filter: a filter to apply while looked files. It should be an instance of {@see PathMatcherInterface}.
      * - recursive: boolean, whether the files under the subdirectories should also be looked for. Defaults to `true`.
@@ -454,9 +454,9 @@ class FileHelper
      *   recursive?: bool,
      * } $options
      *
-     * @throws InvalidArgumentException if the dir is invalid.
+     * @throws InvalidArgumentException If the directory is invalid.
      *
-     * @return array files found under the directory specified, in no particular order.
+     * @return array Files found under the directory specified, in no particular order.
      * Ordering depends on the files system used.
      */
     public static function findFiles(string $directory, array $options = []): array
