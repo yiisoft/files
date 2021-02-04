@@ -418,7 +418,7 @@ class FileHelper
         }
 
         if (array_key_exists('filter', $options) && !$options['filter'] instanceof PathMatcherInterface) {
-            $type = is_object($options['filter']) ?  get_class($options['filter']) : gettype($options['filter']);
+            $type = is_object($options['filter']) ? get_class($options['filter']) : gettype($options['filter']);
             throw new InvalidArgumentException(sprintf('Filter should be an instance of PathMatcherInterface, %s given.', $type));
         }
 
@@ -476,7 +476,7 @@ class FileHelper
         }
 
         if (array_key_exists('filter', $options) && !$options['filter'] instanceof PathMatcherInterface) {
-            $type = is_object($options['filter']) ?  get_class($options['filter']) : gettype($options['filter']);
+            $type = is_object($options['filter']) ? get_class($options['filter']) : gettype($options['filter']);
             throw new InvalidArgumentException(sprintf('Filter should be an instance of PathMatcherInterface, %s given.', $type));
         }
 
