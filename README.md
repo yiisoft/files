@@ -29,7 +29,11 @@ The package could be installed with composer:
 composer require yiisoft/files --prefer-dist
 ```
 
-## General usage
+## FileHelper usage
+
+FileHelper provides static methods you can use for various filesystem-related operations.
+
+### Working with directories 
 
 Create a new directory:
 
@@ -58,6 +62,83 @@ $directory = '/path/to/dir';
 FileHelper::removeDirectory($directory);
 ```
 
+Remove everything within a directory but not directory itself:
+
+```php
+use \Yiisoft\Files\FileHelper;
+
+$directory = '/path/to/dir';
+FileHelper::clearDirectory($directory);
+```
+
+Check if directory is empty:
+
+```php
+use \Yiisoft\Files\FileHelper;
+
+$directory = '/path/to/dir';
+FileHelper::isEmptyDirectory($directory);
+```
+
+Copy directory:
+
+```php
+use \Yiisoft\Files\FileHelper;
+
+$source = '/path/to/source';
+$destination = '/path/to/destination';
+FileHelper::copyDirectory($source, $destination);
+```
+
+Additional options could be specified as third argument such as `filter` or `copyEmptyDirectories`.
+Check method phpdoc for a full list of options.
+
+### Search
+
+Searching for files:
+
+```php
+use \Yiisoft\Files\FileHelper;
+use Yiisoft\Files\PathMatcher\PathMatcher;
+
+$files = FileHelper::findFiles('/path/to/where/to/search', [
+    'filter' => (new PathMatcher())->only('*.png', '*.jpg')->except('logo.png'),
+]);
+```
+
+Searching for directories:
+
+```php
+use \Yiisoft\Files\FileHelper;
+use Yiisoft\Files\PathMatcher\PathMatcher;
+
+$directories = FileHelper::findDirectories('/path/to/where/to/search', [
+    'filter' => (new PathMatcher())->except('*meta'),
+]);
+```
+
+### Other
+
+Open a file. Same as PHP's `fopen()` but throwing exceptions.
+
+```php
+use \Yiisoft\Files\FileHelper;
+
+$handler = FileHelper::openFile('/path/to/file', 'rb');
+```
+
+Get last modified time for a directory or file:
+
+```php
+use \Yiisoft\Files\FileHelper;
+
+$directory = '/path/to/dir';
+$time = FileHelper::lastModifiedTime($directory);
+```
+
+The method is different from PHP's `filemtime()` because it actually scans a directory and selects the largest
+modification time from all files.
+
 Remove a file or symlink:
 
 ```php
@@ -77,36 +158,6 @@ echo FileHelper::normalizePath($path);
 // outputs:
 // /home/samdark/dev/yii
 ```
-
-## File helper usage
-
-File helper methods are static so usage is like the following:
-
-```php
-\Yiisoft\Files\FileHelper::copyDirectory('/home/master/inbox', '/backup/inbox') ?>
-```
-
-Overall the helper has the following method groups.
-
-### Working with directories
-
-- createDirectory
-- copyDirectory
-- clearDirectory
-- removeDirectory
-- isEmptyDirectory
-
-### Search
-
-- findDirectories
-- findFiles
-
-### Other
-
-- openFile
-- normalizePath
-- unlink
-- lastModifiedTime
 
 ## Testing
 
