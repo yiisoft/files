@@ -67,7 +67,7 @@ $file = '/path/to/file.txt';
 FileHelper::unlink($file);
 ```
 
-Normalize path:
+Normalize a path:
 
 ```php
 use \Yiisoft\Files\FileHelper;

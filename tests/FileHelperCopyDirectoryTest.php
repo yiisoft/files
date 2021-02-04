@@ -144,7 +144,7 @@ final class FileHelperCopyDirectoryTest extends FileSystemTestCase
     }
 
     /**
-     * Copy directory to it self.
+     * Copy directory to itself.
      *
      * @see https://github.com/yiisoft/yii2/issues/10710
      */
@@ -163,7 +163,7 @@ final class FileHelperCopyDirectoryTest extends FileSystemTestCase
     }
 
     /**
-     * Copy directory to subdirectory of it self.
+     * Copy directory to subdirectory of itself.
      *
      * @see https://github.com/yiisoft/yii2/issues/10710
      */

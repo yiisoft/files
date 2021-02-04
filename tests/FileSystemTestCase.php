@@ -6,6 +6,7 @@ namespace Yiisoft\Files\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Yiisoft\Files\FileHelper;
+use function is_array;
 
 abstract class FileSystemTestCase extends TestCase
 {
@@ -34,7 +35,7 @@ abstract class FileSystemTestCase extends TestCase
      * Creates test files structure.
      *
      * @param array $items file system objects to be created in format: objectName => objectContent
-     *                         Arrays specifies directories, other values - files.
+     * Arrays specifies directories, other values - files.
      * @param string|null $basePath structure base file path.
      */
     protected function createFileStructure(array $items, ?string $basePath = null): void

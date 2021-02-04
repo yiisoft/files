@@ -28,9 +28,9 @@ final class FileHelperUnlinkTest extends FileSystemTestCase
         $this->assertFileDoesNotExist($symlinkedFilePath);
     }
 
-    public function testUnlinkSymlinkToNonexistentsDirectory(): void
+    public function testUnlinkSymlinkToNonExistingDirectory(): void
     {
-        $dirName = 'unlink-symlink-to-nonexistents-directory';
+        $dirName = 'unlink-symlink-to-non-existing-directory';
         $this->createFileStructure([
             $dirName => [
                 'dir' => [
@@ -50,9 +50,9 @@ final class FileHelperUnlinkTest extends FileSystemTestCase
         $this->assertFalse(is_link($basePath . '/symlink'));
     }
 
-    public function testUnlinkSymlinkToNonexistentsFile(): void
+    public function testUnlinkSymlinkToNonExistingFile(): void
     {
-        $dirName = 'unlink-symlink-to-nonexistents-file';
+        $dirName = 'unlink-symlink-to-non-existing-file';
         $this->createFileStructure([
             $dirName => [
                 'file.txt' => 'content',
@@ -70,7 +70,7 @@ final class FileHelperUnlinkTest extends FileSystemTestCase
     }
 
     /**
-     * 777 gives "read only" flag under Windows
+     * 777 gives "read only" flag under Windows.
      *
      * @see https://github.com/yiisoft/files/issues/21
      */
