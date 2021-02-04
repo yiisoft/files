@@ -226,25 +226,22 @@ class FileHelper
 
         $isWindows = DIRECTORY_SEPARATOR === '\\';
 
-        if (!$isWindows) {
-            unlink($path);
-            return;
-        }
-
-        if (is_link($path)) {
-            try {
+        if ($isWindows) {
+            if (is_link($path)) {
+                try {
+                    unlink($path);
+                } catch (RuntimeException $e) {
+                    rmdir($path);
+                }
+            } else {
+                if (file_exists($path) && !is_writable($path)) {
+                    chmod($path, 0777);
+                }
                 unlink($path);
-            } catch (RuntimeException $e) {
-                rmdir($path);
             }
-            return;
+        } else {
+            unlink($path);
         }
-
-        if (file_exists($path) && !is_writable($path)) {
-            chmod($path, 0777);
-        }
-        unlink($path);
-
         restore_error_handler();
     }
 
