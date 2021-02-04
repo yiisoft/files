@@ -39,6 +39,7 @@ class FileHelper
      */
     public static function openFile(string $filename, string $mode, bool $useIncludePath = false, $context = null)
     {
+        /** @psalm-suppress InvalidArgument, MixedArgumentTypeCoercion */
         set_error_handler(static function (int $errorNumber, string $errorString) use ($filename): ?bool {
             throw new RuntimeException(
                 sprintf('Failed to open a file "%s". ', $filename) . $errorString,
@@ -75,6 +76,7 @@ class FileHelper
         $path = static::normalizePath($path);
 
         if (!is_dir($path)) {
+            /** @psalm-suppress InvalidArgument, MixedArgumentTypeCoercion */
             set_error_handler(static function (int $errorNumber, string $errorString) use ($path) {
                 // Handle race condition.
                 // See https://github.com/kalessil/phpinspectionsea/blob/master/docs/probable-bugs.md#mkdir-race-condition
@@ -162,7 +164,8 @@ class FileHelper
         if (is_link($directory)) {
             self::unlink($directory);
         } else {
-            set_error_handler(static function (int $errorNumber, string $errorString, string $errorFile, int $errorLine, array $context) use ($directory) {
+            /** @psalm-suppress InvalidArgument, MixedArgumentTypeCoercion */
+            set_error_handler(static function (int $errorNumber, string $errorString) use ($directory) {
                 throw new RuntimeException(
                     sprintf('Failed to remove directory "%s". ', $directory) . $errorString,
                     $errorNumber
@@ -213,6 +216,7 @@ class FileHelper
      */
     public static function unlink(string $path): void
     {
+        /** @psalm-suppress InvalidArgument, MixedArgumentTypeCoercion */
         set_error_handler(static function (int $errorNumber, string $errorString) use ($path) {
             throw new RuntimeException(
                 sprintf('Failed to unlink "%s". ', $path) . $errorString,
@@ -291,7 +295,7 @@ class FileHelper
      * @psalm-param array{
      *   dirMode?: int,
      *   fileMode?: int,
-     *   filter?: \Yiisoft\Files\PathMatcher\PathMatcherInterface,
+     *   filter?: \Yiisoft\Files\PathMatcher\PathMatcherInterface|mixed,
      *   recursive?: bool,
      *   beforeCopy?: callable,
      *   afterCopy?: callable,
@@ -386,6 +390,7 @@ class FileHelper
      */
     private static function openDirectory(string $directory)
     {
+        /** @psalm-suppress InvalidArgument, MixedArgumentTypeCoercion */
         set_error_handler(static function (int $errorNumber, string $errorString) use ($directory) {
             throw new RuntimeException(
                 sprintf('Unable to open directory "%s". ', $directory) . $errorString,
