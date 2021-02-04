@@ -35,7 +35,7 @@ FileHelper provides static methods you can use for various filesystem-related op
 
 ### Working with directories 
 
-Create a new directory:
+Create a directory:
 
 ```php
 use \Yiisoft\Files\FileHelper;
@@ -44,7 +44,7 @@ $directory = '/path/to/dir';
 FileHelper::createDirectory($directory);
 ```
 
-Create a new directory with the permission to be set:
+Create a directory, and set permission specified:
 
 ```php
 use \Yiisoft\Files\FileHelper;
