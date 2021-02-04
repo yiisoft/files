@@ -39,7 +39,7 @@ class FileHelper
      */
     public static function openFile(string $filename, string $mode, bool $useIncludePath = false, $context = null)
     {
-        set_error_handler(static function (int $errorNumber, string $errorString) use ($filename) {
+        set_error_handler(static function (int $errorNumber, string $errorString) use ($filename): ?bool {
             throw new RuntimeException(
                 sprintf('Failed to open a file "%s". ', $filename) . $errorString,
                 $errorNumber
@@ -162,7 +162,7 @@ class FileHelper
         if (is_link($directory)) {
             self::unlink($directory);
         } else {
-            set_error_handler(static function (int $errorNumber, string $errorString) use ($directory) {
+            set_error_handler(static function (int $errorNumber, string $errorString, string $errorFile, int $errorLine, array $context) use ($directory) {
                 throw new RuntimeException(
                     sprintf('Failed to remove directory "%s". ', $directory) . $errorString,
                     $errorNumber
@@ -300,6 +300,19 @@ class FileHelper
      */
     public static function copyDirectory(string $source, string $destination, array $options = []): void
     {
+        $filter = null;
+        if (array_key_exists('filter', $options)) {
+            if (!$options['filter'] instanceof PathMatcherInterface) {
+                $type = is_object($options['filter']) ? get_class($options['filter']) : gettype($options['filter']);
+                throw new InvalidArgumentException(sprintf('Filter should be an instance of PathMatcherInterface, %s given.', $type));
+            }
+            $filter = $options['filter'];
+        }
+
+        $recursive = !array_key_exists('recursive', $options) || $options['recursive'];
+        $fileMode = $options['fileMode'] ?? null;
+        $dirMode = $options['dirMode'] ?? 0775;
+
         $source = static::normalizePath($source);
         $destination = static::normalizePath($destination);
 
@@ -308,15 +321,15 @@ class FileHelper
         $destinationExists = is_dir($destination);
         if (
             !$destinationExists &&
-            (!isset($options['copyEmptyDirectories']) || $options['copyEmptyDirectories'])
+            (!array_key_exists('copyEmptyDirectories', $options) || $options['copyEmptyDirectories'])
         ) {
-            static::ensureDirectory($destination, $options['dirMode'] ?? 0775);
+            static::ensureDirectory($destination, $dirMode);
             $destinationExists = true;
         }
 
         $handle = static::openDirectory($source);
 
-        if (!isset($options['basePath'])) {
+        if (!array_key_exists('basePath', $options)) {
             $options['basePath'] = realpath($source);
         }
 
@@ -328,17 +341,17 @@ class FileHelper
             $from = $source . '/' . $file;
             $to = $destination . '/' . $file;
 
-            if (!isset($options['filter']) || $options['filter']->match($from)) {
+            if ($filter === null || $filter->match($from)) {
                 if (is_file($from)) {
                     if (!$destinationExists) {
-                        static::ensureDirectory($destination, $options['dirMode'] ?? 0775);
+                        static::ensureDirectory($destination, $dirMode);
                         $destinationExists = true;
                     }
                     copy($from, $to);
-                    if (isset($options['fileMode'])) {
-                        chmod($to, $options['fileMode']);
+                    if ($fileMode !== null) {
+                        chmod($to, $fileMode);
                     }
-                } elseif (!isset($options['recursive']) || $options['recursive']) {
+                } elseif ($recursive) {
                     static::copyDirectory($from, $to, $options);
                 }
             }
@@ -447,7 +460,7 @@ class FileHelper
      * - recursive: boolean, whether the subdirectories should also be looked for. Defaults to `true`.
      *
      * @psalm-param array{
-     *   filter?: \Yiisoft\Files\PathMatcher\PathMatcherInterface,
+     *   filter?: \Yiisoft\Files\PathMatcher\PathMatcherInterface|mixed,
      *   recursive?: bool,
      * } $options
      *
@@ -462,10 +475,16 @@ class FileHelper
             throw new InvalidArgumentException("\"$directory\" is not a directory.");
         }
 
-        if (array_key_exists('filter', $options) && !$options['filter'] instanceof PathMatcherInterface) {
-            $type = is_object($options['filter']) ? get_class($options['filter']) : gettype($options['filter']);
-            throw new InvalidArgumentException(sprintf('Filter should be an instance of PathMatcherInterface, %s given.', $type));
+        $filter = null;
+        if (array_key_exists('filter', $options)) {
+            if (!$options['filter'] instanceof PathMatcherInterface) {
+                $type = is_object($options['filter']) ? get_class($options['filter']) : gettype($options['filter']);
+                throw new InvalidArgumentException(sprintf('Filter should be an instance of PathMatcherInterface, %s given.', $type));
+            }
+            $filter = $options['filter'];
         }
+
+        $recursive = !array_key_exists('recursive', $options) || $options['recursive'];
 
         $directory = static::normalizePath($directory);
 
@@ -482,11 +501,11 @@ class FileHelper
                 continue;
             }
 
-            if (!isset($options['filter']) || $options['filter']->match($path)) {
+            if ($filter === null || $filter->match($path)) {
                 $result[] = $path;
             }
 
-            if (!isset($options['recursive']) || $options['recursive']) {
+            if ($recursive) {
                 $result = array_merge($result, static::findDirectories($path, $options));
             }
         }
@@ -505,7 +524,7 @@ class FileHelper
      * - recursive: boolean, whether the files under the subdirectories should also be looked for. Defaults to `true`.
      *
      * @psalm-param array{
-     *   filter?: \Yiisoft\Files\PathMatcher\PathMatcherInterface,
+     *   filter?: \Yiisoft\Files\PathMatcher\PathMatcherInterface|mixed,
      *   recursive?: bool,
      * } $options
      *
@@ -520,10 +539,16 @@ class FileHelper
             throw new InvalidArgumentException("\"$directory\" is not a directory.");
         }
 
-        if (array_key_exists('filter', $options) && !$options['filter'] instanceof PathMatcherInterface) {
-            $type = is_object($options['filter']) ? get_class($options['filter']) : gettype($options['filter']);
-            throw new InvalidArgumentException(sprintf('Filter should be an instance of PathMatcherInterface, %s given.', $type));
+        $filter = null;
+        if (array_key_exists('filter', $options)) {
+            if (!$options['filter'] instanceof PathMatcherInterface) {
+                $type = is_object($options['filter']) ? get_class($options['filter']) : gettype($options['filter']);
+                throw new InvalidArgumentException(sprintf('Filter should be an instance of PathMatcherInterface, %s given.', $type));
+            }
+            $filter = $options['filter'];
         }
+
+        $recursive = !array_key_exists('recursive', $options) || $options['recursive'];
 
         $directory = static::normalizePath($directory);
 
@@ -538,13 +563,13 @@ class FileHelper
             $path = $directory . '/' . $file;
 
             if (is_file($path)) {
-                if (!isset($options['filter']) || $options['filter']->match($path)) {
+                if ($filter === null || $filter->match($path)) {
                     $result[] = $path;
                 }
                 continue;
             }
 
-            if (!isset($options['recursive']) || $options['recursive']) {
+            if ($recursive) {
                 $result = array_merge($result, static::findFiles($path, $options));
             }
         }
