@@ -198,7 +198,7 @@ final class FileHelperTest extends FileSystemTestCase
         $this->assertFileDoesNotExist($dirName . '/file1.txt');
         $this->assertDirectoryDoesNotExist($dirName . '/test_sub_dir');
 
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(RuntimeException::class);
         FileHelper::clearDirectory($this->testFilePath . '/nonExisting');
     }
 
