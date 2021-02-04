@@ -224,7 +224,7 @@ final class FileHelperCopyDirectoryTest extends FileSystemTestCase
     public function testCopyNotExistsDirectory(): void
     {
         $dir = $this->testFilePath . '/not_exists_dir';
-        $this->expectExceptionMessage('Unable to open directory: ' . $dir);
+        $this->expectExceptionMessage(sprintf('Unable to open directory "%s".', $dir));
         FileHelper::copyDirectory($dir, $this->testFilePath . '/copy');
     }
 

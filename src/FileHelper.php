@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\Files;
 
-use Exception;
 use FilesystemIterator;
 use InvalidArgumentException;
 use LogicException;
@@ -40,10 +39,19 @@ class FileHelper
      */
     public static function openFile(string $filename, string $mode, bool $useIncludePath = false, $context = null)
     {
-        $filePointer = @fopen($filename, $mode, $useIncludePath, $context);
+        set_error_handler(static function (int $errorNumber, string $errorString) use ($filename) {
+            throw new RuntimeException(
+                sprintf('Failed to open a file "%s". ', $filename) . $errorString,
+                $errorNumber
+            );
+        });
+
+        $filePointer = fopen($filename, $mode, $useIncludePath, $context);
+
+        restore_error_handler();
 
         if ($filePointer === false) {
-            throw new RuntimeException("The file \"{$filename}\" could not be opened.");
+            throw new RuntimeException(sprintf('Failed to open a file "%s". ', $filename));
         }
 
         return $filePointer;
@@ -68,24 +76,24 @@ class FileHelper
 
         if (!is_dir($path)) {
             set_error_handler(static function (int $errorNumber, string $errorString) use ($path) {
-                throw new RuntimeException(
-                    sprintf('Failed to create directory "%s". ', $path) . $errorString,
-                    $errorNumber,
-                    null
-                );
+                // Handle race condition.
+                // See https://github.com/kalessil/phpinspectionsea/blob/master/docs/probable-bugs.md#mkdir-race-condition
+                if (!is_dir($path)) {
+                    throw new RuntimeException(
+                        sprintf('Failed to create directory "%s". ', $path) . $errorString,
+                        $errorNumber
+                    );
+                }
             });
 
-            // See https://github.com/kalessil/phpinspectionsea/blob/master/docs/probable-bugs.md#mkdir-race-condition
-            if (!mkdir($path, $mode, true) && !is_dir($path)) {
-                throw new RuntimeException(
-                    sprintf('Failed to create directory "%s".', $path),
-                );
-            }
+            mkdir($path, $mode, true);
 
             restore_error_handler();
         }
 
-        chmod($path, $mode);
+        if (!chmod($path, $mode)) {
+            throw new RuntimeException(sprintf('Unable to set mode "%s" for "%s".', $mode, $path));
+        }
     }
 
     /**
@@ -136,23 +144,34 @@ class FileHelper
     }
 
     /**
-     * Removes a directory (and all its content) recursively.
+     * Removes a directory (and all its content) recursively. Does nothing if directory does not exists.
      *
      * @param string $directory The directory to be deleted recursively.
      * @param array $options Options for directory remove ({@see clearDirectory()}).
+     *
+     * @throw RuntimeException when unable to remove directory.
      */
     public static function removeDirectory(string $directory, array $options = []): void
     {
-        try {
-            static::clearDirectory($directory, $options);
-        } catch (InvalidArgumentException $e) {
+        if (!file_exists($directory)) {
             return;
         }
+
+        static::clearDirectory($directory, $options);
 
         if (is_link($directory)) {
             self::unlink($directory);
         } else {
+            set_error_handler(static function (int $errorNumber, string $errorString) use ($directory) {
+                throw new RuntimeException(
+                    sprintf('Failed to remove directory "%s". ', $directory) . $errorString,
+                    $errorNumber
+                );
+            });
+
             rmdir($directory);
+
+            restore_error_handler();
         }
     }
 
@@ -166,7 +185,7 @@ class FileHelper
      *   Defaults to `false`, meaning the content of the symlinked directory would not be deleted.
      *   Only symlink would be removed in that default case.
      *
-     * @throws InvalidArgumentException if unable to open directory.
+     * @throws RuntimeException if unable to open directory.
      */
     public static function clearDirectory(string $directory, array $options = []): void
     {
@@ -194,6 +213,13 @@ class FileHelper
      */
     public static function unlink(string $path): void
     {
+        set_error_handler(static function (int $errorNumber, string $errorString) use ($path) {
+            throw new RuntimeException(
+                sprintf('Failed to unlink "%s". ', $path) . $errorString,
+                $errorNumber
+            );
+        });
+
         $isWindows = DIRECTORY_SEPARATOR === '\\';
 
         if (!$isWindows) {
@@ -202,7 +228,9 @@ class FileHelper
         }
 
         if (is_link($path)) {
-            if (false === @unlink($path)) {
+            try {
+                unlink($path);
+            } catch (RuntimeException $e) {
                 rmdir($path);
             }
             return;
@@ -212,6 +240,8 @@ class FileHelper
             chmod($path, 0777);
         }
         unlink($path);
+
+        restore_error_handler();
     }
 
     /**
@@ -256,8 +286,7 @@ class FileHelper
      *   directories that do not contain files at the target destination because files have been filtered via `only` or
      *   `except`. Defaults to true.
      *
-     * @throws InvalidArgumentException if unable to open directory
-     * @throws Exception
+     * @throws RuntimeException if unable to open directory
      *
      * @psalm-param array{
      *   dirMode?: int,
@@ -338,17 +367,26 @@ class FileHelper
      *
      * @param string $directory Path to directory.
      *
-     * @throws InvalidArgumentException
+     * @throws RuntimeException
      *
      * @return resource
      */
     private static function openDirectory(string $directory)
     {
-        $handle = @opendir($directory);
+        set_error_handler(static function (int $errorNumber, string $errorString) use ($directory) {
+            throw new RuntimeException(
+                sprintf('Unable to open directory "%s". ', $directory) . $errorString,
+                $errorNumber
+            );
+        });
+
+        $handle = opendir($directory);
 
         if ($handle === false) {
-            throw new InvalidArgumentException("Unable to open directory: $directory.");
+            throw new RuntimeException(sprintf('Unable to open directory "%s". ', $directory));
         }
+
+        restore_error_handler();
 
         return $handle;
     }

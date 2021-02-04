@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Files\Tests;
 
+use RuntimeException;
 use Yiisoft\Files\FileHelper;
 
 final class FileHelperUnlinkTest extends FileSystemTestCase
@@ -117,7 +118,7 @@ final class FileHelperUnlinkTest extends FileSystemTestCase
 
     public function testUnlinkNonexistentFile(): void
     {
-        $this->expectWarning();
+        $this->expectException(RuntimeException::class);
         FileHelper::unlink($this->testFilePath . '/not-exists-file.txt');
     }
 }
