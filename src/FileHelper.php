@@ -11,6 +11,10 @@ use LogicException;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RuntimeException;
+use Yiisoft\Files\PathMatcher\PathMatcherInterface;
+use function array_key_exists;
+use function get_class;
+use function is_object;
 
 /**
  * FileHelper provides useful methods to manage files and directories.
@@ -412,6 +416,12 @@ class FileHelper
         if (!is_dir($directory)) {
             throw new InvalidArgumentException("\"$directory\" is not a directory.");
         }
+
+        if (array_key_exists('filter', $options) && !$options['filter'] instanceof PathMatcherInterface) {
+            $type = is_object($options['filter']) ?  get_class($options['filter']) : gettype($options['filter']);
+            throw new InvalidArgumentException(sprintf('Filter should be an instance of PathMatcherInterface, %s given.', $type));
+        }
+
         $directory = static::normalizePath($directory);
 
         $result = [];
@@ -464,6 +474,12 @@ class FileHelper
         if (!is_dir($directory)) {
             throw new InvalidArgumentException("\"$directory\" is not a directory.");
         }
+
+        if (array_key_exists('filter', $options) && !$options['filter'] instanceof PathMatcherInterface) {
+            $type = is_object($options['filter']) ?  get_class($options['filter']) : gettype($options['filter']);
+            throw new InvalidArgumentException(sprintf('Filter should be an instance of PathMatcherInterface, %s given.', $type));
+        }
+
         $directory = static::normalizePath($directory);
 
         $result = [];

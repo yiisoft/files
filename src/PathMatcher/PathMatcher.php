@@ -209,10 +209,10 @@ final class PathMatcher implements PathMatcherInterface
 
         if ($this->checkFilesystem) {
             if (is_file($path)) {
-                return $hasFalse ? false : true;
+                return !$hasFalse;
             }
             if (is_dir($path)) {
-                return $hasNull ? true : false;
+                return $hasNull;
             }
         }
 
