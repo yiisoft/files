@@ -37,9 +37,9 @@ final class FileHelperTest extends FileSystemTestCase
     {
         $basePath = $this->testFilePath;
         $directory = $basePath . '/test_dir_level_1/test_dir_level_2';
-        $this->assertTrue(FileHelper::createDirectory($directory), 'FileHelper::createDirectory should return true if directory was created!');
+        FileHelper::createDirectory($directory);
         $this->assertFileExists($directory, 'Unable to create directory recursively!');
-        $this->assertTrue(FileHelper::createDirectory($directory), 'FileHelper::createDirectory should return true for already existing directories!');
+        FileHelper::createDirectory($directory);
     }
 
     public function testCreateDirectoryPermissions(): void

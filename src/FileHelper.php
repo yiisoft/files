@@ -52,33 +52,40 @@ class FileHelper
     /**
      * Creates a new directory.
      *
-     * This method is similar to the PHP {@see mkdir()} function except that it uses {@see chmod()} to set the permission of the
-     * created directory in order to avoid the impact of the `umask` setting.
+     * This method is similar to the PHP {@see mkdir()} function with some differences:
+     *
+     * - It does not fail if directory already exists.
+     * - It uses {@see chmod()} to set the permission of the created directory in order to avoid the impact
+     *   of the `umask` setting.
+     * - It throws exceptions instead of returning false and emitting {@see E_WARNING}.
      *
      * @param string $path Path of the directory to be created.
      * @param int $mode The permission to be set for the created directory.
-     *
-     * @return bool Whether the directory is created successfully.
      */
-    public static function createDirectory(string $path, int $mode = 0775): bool
+    public static function createDirectory(string $path, int $mode = 0775): void
     {
         $path = static::normalizePath($path);
 
-        try {
-            if (!mkdir($path, $mode, true) && !is_dir($path)) {
-                return false;
-            }
-        } catch (Exception $e) {
-            if (!is_dir($path)) {
+        if (!is_dir($path)) {
+            set_error_handler(static function (int $errorNumber, string $errorString) use ($path) {
                 throw new RuntimeException(
-                    'Failed to create directory "' . $path . '": ' . $e->getMessage(),
-                    (int)$e->getCode(),
-                    $e
+                    sprintf('Failed to create directory "%s". ', $path) . $errorString,
+                    $errorNumber,
+                    null
+                );
+            });
+
+            // See https://github.com/kalessil/phpinspectionsea/blob/master/docs/probable-bugs.md#mkdir-race-condition
+            if (!mkdir($path, $mode, true) && !is_dir($path)) {
+                throw new RuntimeException(
+                    sprintf('Failed to create directory "%s".', $path),
                 );
             }
+
+            restore_error_handler();
         }
 
-        return chmod($path, $mode);
+        chmod($path, $mode);
     }
 
     /**
