@@ -50,7 +50,7 @@ class FileHelper
     }
 
     /**
-     * Creates a new directory.
+     * Ensures directory exists and has specific permissions.
      *
      * This method is similar to the PHP {@see mkdir()} function with some differences:
      *
@@ -62,7 +62,7 @@ class FileHelper
      * @param string $path Path of the directory to be created.
      * @param int $mode The permission to be set for the created directory.
      */
-    public static function createDirectory(string $path, int $mode = 0775): void
+    public static function ensureDirectory(string $path, int $mode = 0775): void
     {
         $path = static::normalizePath($path);
 
@@ -281,7 +281,7 @@ class FileHelper
             !$destinationExists &&
             (!isset($options['copyEmptyDirectories']) || $options['copyEmptyDirectories'])
         ) {
-            static::createDirectory($destination, $options['dirMode'] ?? 0775);
+            static::ensureDirectory($destination, $options['dirMode'] ?? 0775);
             $destinationExists = true;
         }
 
@@ -302,7 +302,7 @@ class FileHelper
             if (!isset($options['filter']) || $options['filter']->match($from)) {
                 if (is_file($from)) {
                     if (!$destinationExists) {
-                        static::createDirectory($destination, $options['dirMode'] ?? 0775);
+                        static::ensureDirectory($destination, $options['dirMode'] ?? 0775);
                         $destinationExists = true;
                     }
                     copy($from, $to);

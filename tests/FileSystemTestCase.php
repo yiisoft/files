@@ -19,7 +19,7 @@ abstract class FileSystemTestCase extends TestCase
     {
         $this->testFilePath = FileHelper::normalizePath(realpath(sys_get_temp_dir()) . '/' . static::class);
 
-        FileHelper::createDirectory($this->testFilePath, 0777);
+        FileHelper::ensureDirectory($this->testFilePath, 0777);
 
         if (!file_exists($this->testFilePath)) {
             $this->markTestIncomplete('Unit tests runtime directory should have writable permissions.');

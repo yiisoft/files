@@ -35,22 +35,22 @@ FileHelper provides static methods you can use for various filesystem-related op
 
 ### Working with directories 
 
-Create a directory:
+Ensure a directory exists:
 
 ```php
 use \Yiisoft\Files\FileHelper;
 
 $directory = '/path/to/dir';
-FileHelper::createDirectory($directory);
+FileHelper::ensureDirectory($directory);
 ```
 
-Create a directory, and set permission specified:
+Ensure a directory exists, and permission specified is set:
 
 ```php
 use \Yiisoft\Files\FileHelper;
 
 $directory = '/path/to/dir';
-FileHelper::createDirectory($directory, 0775);
+FileHelper::ensureDirectory($directory, 0775);
 ```
 
 Remove a directory:
