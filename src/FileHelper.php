@@ -301,29 +301,19 @@ class FileHelper
      */
     public static function copyDirectory(string $source, string $destination, array $options = []): void
     {
-        $filter = null;
-        if (array_key_exists('filter', $options)) {
-            if (!$options['filter'] instanceof PathMatcherInterface) {
-                $type = is_object($options['filter']) ? get_class($options['filter']) : gettype($options['filter']);
-                throw new InvalidArgumentException(sprintf('Filter should be an instance of PathMatcherInterface, %s given.', $type));
-            }
-            $filter = $options['filter'];
-        }
-
+        $filter = self::getFilter($options);
         $recursive = !array_key_exists('recursive', $options) || $options['recursive'];
         $fileMode = $options['fileMode'] ?? null;
         $dirMode = $options['dirMode'] ?? 0775;
 
         $source = static::normalizePath($source);
         $destination = static::normalizePath($destination);
+        $copyEmptyDirectories = !array_key_exists('copyEmptyDirectories', $options) || $options['copyEmptyDirectories'];
 
         static::assertNotSelfDirectory($source, $destination);
 
         $destinationExists = is_dir($destination);
-        if (
-            !$destinationExists &&
-            (!array_key_exists('copyEmptyDirectories', $options) || $options['copyEmptyDirectories'])
-        ) {
+        if (!$destinationExists && $copyEmptyDirectories) {
             static::ensureDirectory($destination, $dirMode);
             $destinationExists = true;
         }
@@ -361,6 +351,20 @@ class FileHelper
         closedir($handle);
     }
 
+    private static function getFilter(array $options): ?PathMatcherInterface
+    {
+        if (!array_key_exists('filter', $options)) {
+            return null;
+        }
+
+        if (!$options['filter'] instanceof PathMatcherInterface) {
+            $type = is_object($options['filter']) ? get_class($options['filter']) : gettype($options['filter']);
+            throw new InvalidArgumentException(sprintf('Filter should be an instance of PathMatcherInterface, %s given.', $type));
+        }
+
+        return $options['filter'];
+    }
+
     /**
      * Assert that destination is not within the source directory.
      *
@@ -381,12 +385,21 @@ class FileHelper
      *
      * @param string $directory Path to directory.
      *
-     * @throws RuntimeException
+     * @throws RuntimeException if unable to open directory.
+     * @throws InvalidArgumentException if argument is not a directory.
      *
      * @return resource
      */
     private static function openDirectory(string $directory)
     {
+        if (!file_exists($directory)) {
+            throw new InvalidArgumentException("\"$directory\" does not exist.");
+        }
+
+        if (!is_dir($directory)) {
+            throw new InvalidArgumentException("\"$directory\" is not a directory.");
+        }
+
         /** @psalm-suppress InvalidArgument, MixedArgumentTypeCoercion */
         set_error_handler(static function (int $errorNumber, string $errorString) use ($directory) {
             throw new RuntimeException(
@@ -473,21 +486,8 @@ class FileHelper
      */
     public static function findDirectories(string $directory, array $options = []): array
     {
-        if (!is_dir($directory)) {
-            throw new InvalidArgumentException("\"$directory\" is not a directory.");
-        }
-
-        $filter = null;
-        if (array_key_exists('filter', $options)) {
-            if (!$options['filter'] instanceof PathMatcherInterface) {
-                $type = is_object($options['filter']) ? get_class($options['filter']) : gettype($options['filter']);
-                throw new InvalidArgumentException(sprintf('Filter should be an instance of PathMatcherInterface, %s given.', $type));
-            }
-            $filter = $options['filter'];
-        }
-
+        $filter = self::getFilter($options);
         $recursive = !array_key_exists('recursive', $options) || $options['recursive'];
-
         $directory = static::normalizePath($directory);
 
         $result = [];
@@ -537,19 +537,7 @@ class FileHelper
      */
     public static function findFiles(string $directory, array $options = []): array
     {
-        if (!is_dir($directory)) {
-            throw new InvalidArgumentException("\"$directory\" is not a directory.");
-        }
-
-        $filter = null;
-        if (array_key_exists('filter', $options)) {
-            if (!$options['filter'] instanceof PathMatcherInterface) {
-                $type = is_object($options['filter']) ? get_class($options['filter']) : gettype($options['filter']);
-                throw new InvalidArgumentException(sprintf('Filter should be an instance of PathMatcherInterface, %s given.', $type));
-            }
-            $filter = $options['filter'];
-        }
-
+        $filter = self::getFilter($options);
         $recursive = !array_key_exists('recursive', $options) || $options['recursive'];
 
         $directory = static::normalizePath($directory);

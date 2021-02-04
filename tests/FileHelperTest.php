@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Files\Tests;
 
+use InvalidArgumentException;
 use LogicException;
 use RuntimeException;
 use Yiisoft\Files\FileHelper;
@@ -198,7 +199,7 @@ final class FileHelperTest extends FileSystemTestCase
         $this->assertFileDoesNotExist($dirName . '/file1.txt');
         $this->assertDirectoryDoesNotExist($dirName . '/test_sub_dir');
 
-        $this->expectException(RuntimeException::class);
+        $this->expectException(InvalidArgumentException::class);
         FileHelper::clearDirectory($this->testFilePath . '/nonExisting');
     }
 

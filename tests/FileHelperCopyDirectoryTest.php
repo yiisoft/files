@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Files\Tests;
 
+use InvalidArgumentException;
 use Yiisoft\Files\FileHelper;
 use Yiisoft\Files\PathMatcher\PathMatcher;
 
@@ -155,7 +156,7 @@ final class FileHelperCopyDirectoryTest extends FileSystemTestCase
         $this->createFileStructure([
             $directoryName => [],
         ]);
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
 
         $directoryName = $this->testFilePath . '/test_dir';
 
@@ -173,7 +174,7 @@ final class FileHelperCopyDirectoryTest extends FileSystemTestCase
             'data' => [],
             'backup' => ['data' => []],
         ]);
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
 
         FileHelper::copyDirectory(
             $this->testFilePath . '/backup',
@@ -224,7 +225,7 @@ final class FileHelperCopyDirectoryTest extends FileSystemTestCase
     public function testCopyNotExistsDirectory(): void
     {
         $dir = $this->testFilePath . '/not_exists_dir';
-        $this->expectExceptionMessage(sprintf('Unable to open directory "%s".', $dir));
+        $this->expectExceptionMessage(sprintf('"%s" does not exist.', $dir));
         FileHelper::copyDirectory($dir, $this->testFilePath . '/copy');
     }
 
