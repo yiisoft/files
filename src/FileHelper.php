@@ -73,7 +73,7 @@ final class FileHelper
      */
     public static function ensureDirectory(string $path, int $mode = 0775): void
     {
-        $path = static::normalizePath($path);
+        $path = self::normalizePath($path);
 
         if (!is_dir($path)) {
             /** @psalm-suppress InvalidArgument, MixedArgumentTypeCoercion */
@@ -159,7 +159,7 @@ final class FileHelper
             return;
         }
 
-        static::clearDirectory($directory, $options);
+        self::clearDirectory($directory, $options);
 
         if (is_link($directory)) {
             self::unlink($directory);
@@ -192,7 +192,7 @@ final class FileHelper
      */
     public static function clearDirectory(string $directory, array $options = []): void
     {
-        $handle = static::openDirectory($directory);
+        $handle = self::openDirectory($directory);
         if (!empty($options['traverseSymlinks']) || !is_link($directory)) {
             while (($file = readdir($handle)) !== false) {
                 if ($file === '.' || $file === '..') {
@@ -306,19 +306,19 @@ final class FileHelper
         $fileMode = $options['fileMode'] ?? null;
         $dirMode = $options['dirMode'] ?? 0775;
 
-        $source = static::normalizePath($source);
-        $destination = static::normalizePath($destination);
+        $source = self::normalizePath($source);
+        $destination = self::normalizePath($destination);
         $copyEmptyDirectories = !array_key_exists('copyEmptyDirectories', $options) || $options['copyEmptyDirectories'];
 
-        static::assertNotSelfDirectory($source, $destination);
+        self::assertNotSelfDirectory($source, $destination);
 
         $destinationExists = is_dir($destination);
         if (!$destinationExists && $copyEmptyDirectories) {
-            static::ensureDirectory($destination, $dirMode);
+            self::ensureDirectory($destination, $dirMode);
             $destinationExists = true;
         }
 
-        $handle = static::openDirectory($source);
+        $handle = self::openDirectory($source);
 
         if (!array_key_exists('basePath', $options)) {
             $options['basePath'] = realpath($source);
@@ -335,7 +335,7 @@ final class FileHelper
             if ($filter === null || $filter->match($from)) {
                 if (is_file($from)) {
                     if (!$destinationExists) {
-                        static::ensureDirectory($destination, $dirMode);
+                        self::ensureDirectory($destination, $dirMode);
                         $destinationExists = true;
                     }
                     copy($from, $to);
@@ -343,7 +343,7 @@ final class FileHelper
                         chmod($to, $fileMode);
                     }
                 } elseif ($recursive) {
-                    static::copyDirectory($from, $to, $options);
+                    self::copyDirectory($from, $to, $options);
                 }
             }
         }
@@ -439,7 +439,7 @@ final class FileHelper
         $times = [];
 
         foreach ($paths as $path) {
-            $times[] = static::modifiedTime($path);
+            $times[] = self::modifiedTime($path);
 
             if (is_file($path)) {
                 continue;
@@ -452,7 +452,7 @@ final class FileHelper
             );
 
             foreach ($iterator as $p => $info) {
-                $times[] = static::modifiedTime($p);
+                $times[] = self::modifiedTime($p);
             }
         }
 
@@ -488,11 +488,11 @@ final class FileHelper
     {
         $filter = self::getFilter($options);
         $recursive = !array_key_exists('recursive', $options) || $options['recursive'];
-        $directory = static::normalizePath($directory);
+        $directory = self::normalizePath($directory);
 
         $result = [];
 
-        $handle = static::openDirectory($directory);
+        $handle = self::openDirectory($directory);
         while (false !== $file = readdir($handle)) {
             if ($file === '.' || $file === '..') {
                 continue;
@@ -508,7 +508,7 @@ final class FileHelper
             }
 
             if ($recursive) {
-                $result = array_merge($result, static::findDirectories($path, $options));
+                $result = array_merge($result, self::findDirectories($path, $options));
             }
         }
         closedir($handle);
@@ -540,11 +540,11 @@ final class FileHelper
         $filter = self::getFilter($options);
         $recursive = !array_key_exists('recursive', $options) || $options['recursive'];
 
-        $directory = static::normalizePath($directory);
+        $directory = self::normalizePath($directory);
 
         $result = [];
 
-        $handle = static::openDirectory($directory);
+        $handle = self::openDirectory($directory);
         while (false !== $file = readdir($handle)) {
             if ($file === '.' || $file === '..') {
                 continue;
@@ -560,7 +560,7 @@ final class FileHelper
             }
 
             if ($recursive) {
-                $result = array_merge($result, static::findFiles($path, $options));
+                $result = array_merge($result, self::findFiles($path, $options));
             }
         }
         closedir($handle);
