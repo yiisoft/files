@@ -18,7 +18,7 @@ use function is_object;
 /**
  * FileHelper provides useful methods to manage files and directories.
  */
-class FileHelper
+final class FileHelper
 {
     /**
      * Opens a file or URL.
