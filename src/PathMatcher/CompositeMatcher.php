@@ -24,7 +24,7 @@ final class CompositeMatcher implements PathMatcherInterface
     {
         foreach ($matchers as $matcher) {
             if (!$matcher instanceof PathMatcherInterface) {
-                $type = is_object($matcher) ? get_class($matcher) :  gettype($matcher);
+                $type = is_object($matcher) ? get_class($matcher) : gettype($matcher);
                 $message = sprintf(
                     'Matchers should contain instances of \Yiisoft\Files\PathMatcher\PathMatcherInterface, %s given.',
                     $type
