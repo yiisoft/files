@@ -47,12 +47,6 @@ final class CompositeMatcherTest extends TestCase
         $this->assertSame($expected, $matcher->match(''));
     }
 
-    public function testIncorrectAnyArgument(): void
-    {
-        $this->expectException(InvalidArgumentException::class);
-        CompositeMatcher::any('incorrect');
-    }
-
     public function allProvider(): array
     {
         return [
@@ -87,12 +81,6 @@ final class CompositeMatcherTest extends TestCase
     {
         $matcher = CompositeMatcher::all(...$matchers);
         $this->assertSame($expected, $matcher->match(''));
-    }
-
-    public function testIncorrectAllArgument(): void
-    {
-        $this->expectException(InvalidArgumentException::class);
-        CompositeMatcher::all('incorrect');
     }
 
     private function getTrueMatcher(): PathMatcherInterface
