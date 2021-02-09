@@ -24,7 +24,7 @@ final class CompositeMatcher implements PathMatcherInterface
     {
         foreach ($matchers as $matcher) {
             if (!$matcher instanceof PathMatcherInterface) {
-                $type = $this->getVariableType($matcher);
+                $type = is_object($matcher) ? get_class($matcher) :  gettype($matcher);
                 $message = sprintf(
                     'Matchers should contain instances of \Yiisoft\Files\PathMatcher\PathMatcherInterface, %s given.',
                     $type
@@ -84,14 +84,5 @@ final class CompositeMatcher implements PathMatcherInterface
         }
 
         return $allNulls ? null : !$this->matchAny;
-    }
-
-    private function getVariableType($variable): string
-    {
-        if (is_object($variable)) {
-            return get_class($variable);
-        }
-
-        return gettype($variable);
     }
 }
