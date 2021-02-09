@@ -12,7 +12,7 @@ final class CompositeMatcher implements PathMatcherInterface
     private bool $matchAny;
 
     /**
-     * @var array PathMatcherInterface[]
+     * @var PathMatcherInterface[]
      */
     private array $matchers;
 
