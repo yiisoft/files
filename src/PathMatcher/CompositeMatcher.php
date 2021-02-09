@@ -40,6 +40,7 @@ final class CompositeMatcher implements PathMatcherInterface
      * Get an instance of composite matcher that gives a match if any of sub-matchers match.
      *
      * @param mixed ...$matchers Matchers to check.
+     *
      * @return static
      */
     public static function any(...$matchers): self
@@ -51,6 +52,7 @@ final class CompositeMatcher implements PathMatcherInterface
      * Get an instance of composite matcher that gives a match only if all of sub-matchers match.
      *
      * @param mixed ...$matchers Matchers to check.
+     *
      * @return static
      */
     public static function all(...$matchers): self
