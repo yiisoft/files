@@ -50,7 +50,6 @@ final class CompositeMatcher implements PathMatcherInterface
     {
         $allNulls = true;
 
-        /** @var PathMatcherInterface $matcher */
         foreach ($this->matchers as $matcher) {
             $match = $matcher->match($path);
 
