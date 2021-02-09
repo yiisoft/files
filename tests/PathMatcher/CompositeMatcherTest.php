@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\Files\Tests\PathMatcher;
 
-use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Yiisoft\Files\PathMatcher\CompositeMatcher;
 use Yiisoft\Files\PathMatcher\PathMatcherInterface;

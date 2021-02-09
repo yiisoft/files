@@ -4,10 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\Files\PathMatcher;
 
-use InvalidArgumentException;
-use function get_class;
-use function is_object;
-
 /**
  * Composite matcher allows combining several matchers.
  */
