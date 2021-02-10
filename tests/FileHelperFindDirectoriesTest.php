@@ -99,7 +99,7 @@ final class FileHelperFindDirectoriesTest extends FileSystemTestCase
                 $basePath . '/dir2',
             ],
             FileHelper::findDirectories($basePath, [
-                'filter' => (new PathMatcher())->except('-local/'),
+                'filter' => (new PathMatcher())->except('**-local/'),
             ])
         );
     }
@@ -144,7 +144,7 @@ final class FileHelperFindDirectoriesTest extends FileSystemTestCase
                 $basePath . '/dir2-local',
             ],
             FileHelper::findDirectories($basePath, [
-                'filter' => (new PathMatcher())->only('-local/'),
+                'filter' => (new PathMatcher())->only('**-local/'),
             ])
         );
     }

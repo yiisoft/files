@@ -280,8 +280,8 @@ final class FileHelperCopyDirectoryTest extends FileSystemTestCase
 
         FileHelper::copyDirectory($source, $destination, [
             'filter' => (new PathMatcher())
-                ->only('/css/')
-                ->except('*.map', '*.txt'),
+                ->only('**/css/')
+                ->except('**.map', '**.txt'),
         ]);
 
         $this->assertFileExists($destination, 'Destination directory does not exist!');
@@ -346,7 +346,7 @@ final class FileHelperCopyDirectoryTest extends FileSystemTestCase
         $options = [
             // options default false AssetManager
             'copyEmptyDirectories' => false,
-            'filter' => (new PathMatcher())->only('css/*.css', 'readme/', '*.txt'),
+            'filter' => (new PathMatcher())->only('**css/**.css', '**readme/', '**.txt'),
         ];
 
         FileHelper::copyDirectory($source, $destination, $options);
@@ -414,8 +414,8 @@ final class FileHelperCopyDirectoryTest extends FileSystemTestCase
             // options default false AssetManager
             'copyEmptyDirectories' => false,
             'filter' => (new PathMatcher())
-                ->only('css/*.css', '*.txt')
-                ->except('css/bootstrap.min.css', 'readme/'),
+                ->only('**css/**.css', '**.txt')
+                ->except('**css/bootstrap.min.css', '**readme/'),
         ];
 
         FileHelper::copyDirectory($source, $destination, $options);

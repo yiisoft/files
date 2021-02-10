@@ -57,7 +57,7 @@ final class FileHelperFindFilesTest extends FileSystemTestCase
                 $basePath . '/subdir/file2.txt',
             ],
             FileHelper::findFiles($basePath, [
-                'filter' => (new PathMatcher())->except('-local.txt'),
+                'filter' => (new PathMatcher())->except('**-local.txt'),
             ])
         );
     }
