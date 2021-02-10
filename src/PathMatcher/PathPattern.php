@@ -22,10 +22,7 @@ final class PathPattern implements PathMatcherInterface
      */
     public function __construct(string $pattern)
     {
-        $this->pattern = (new WildcardPattern($pattern))
-            ->withExactSlashes()
-            ->ignoreCase()
-            ->withEnding();
+        $this->pattern = (new WildcardPattern($pattern))->ignoreCase();
     }
 
     /**
@@ -37,30 +34,6 @@ final class PathPattern implements PathMatcherInterface
     {
         $new = clone $this;
         $new->pattern = $this->pattern->ignoreCase(false);
-        return $new;
-    }
-
-    /**
-     * Match full path, not just ending of path.
-     *
-     * @return self
-     */
-    public function withFullPath(): self
-    {
-        $new = clone $this;
-        $new->pattern = $this->pattern->withEnding(false);
-        return $new;
-    }
-
-    /**
-     * Match `/` character with wildcards.
-     *
-     * @return self
-     */
-    public function withNotExactSlashes(): self
-    {
-        $new = clone $this;
-        $new->pattern = $this->pattern->withExactSlashes(false);
         return $new;
     }
 

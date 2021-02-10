@@ -57,8 +57,6 @@ final class PathMatcher implements PathMatcherInterface
     private ?array $callbacks = null;
 
     private bool $caseSensitive = false;
-    private bool $matchFullPath = false;
-    private bool $matchSlashesExactly = true;
     private bool $checkFilesystem = true;
 
     /**
@@ -75,38 +73,12 @@ final class PathMatcher implements PathMatcherInterface
     }
 
     /**
-     * Match string patterns as full path, not just as an ending of the path.
-     * Note: applies only to string patterns.
-     *
-     * @return self
-     */
-    public function withFullPath(): self
-    {
-        $new = clone $this;
-        $new->matchFullPath = true;
-        return $new;
-    }
-
-    /**
-     * Match `/` character with wildcards in string patterns.
-     * Note: applies only to string patterns.
-     *
-     * @return self
-     */
-    public function withNotExactSlashes(): self
-    {
-        $new = clone $this;
-        $new->matchSlashesExactly = false;
-        return $new;
-    }
-
-    /**
      * Match path only as string, do not check if file or directory exists.
      * Note: applies only to string patterns.
      *
      * @return self
      */
-    public function notCheckFilesystem(): self
+    public function doNotCheckFilesystem(): self
     {
         $new = clone $this;
         $new->checkFilesystem = false;
@@ -257,14 +229,6 @@ final class PathMatcher implements PathMatcherInterface
 
             if ($this->caseSensitive) {
                 $pathPattern = $pathPattern->caseSensitive();
-            }
-
-            if ($this->matchFullPath) {
-                $pathPattern = $pathPattern->withFullPath();
-            }
-
-            if (!$this->matchSlashesExactly) {
-                $pathPattern = $pathPattern->withNotExactSlashes();
             }
 
             if ($this->checkFilesystem) {

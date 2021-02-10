@@ -13,7 +13,7 @@ final class PathMatcherTest extends FileSystemTestCase
     public function testEmpty(): void
     {
         $matcher = (new PathMatcher())
-            ->notCheckFilesystem();
+            ->doNotCheckFilesystem();
 
         $this->assertTrue($matcher->match(''));
         $this->assertTrue($matcher->match('hello.png'));
@@ -22,8 +22,8 @@ final class PathMatcherTest extends FileSystemTestCase
     public function testOnly(): void
     {
         $matcher = (new PathMatcher())
-            ->notCheckFilesystem()
-            ->only('*.jpg', '*.png');
+            ->doNotCheckFilesystem()
+            ->only('**.jpg', '**.png');
 
         $this->assertTrue($matcher->match('hello.png'));
         $this->assertFalse($matcher->match('hello.gif'));
@@ -32,8 +32,8 @@ final class PathMatcherTest extends FileSystemTestCase
     public function testExcept(): void
     {
         $matcher = (new PathMatcher())
-            ->notCheckFilesystem()
-            ->except('*.jpg', '*.png');
+            ->doNotCheckFilesystem()
+            ->except('**.jpg', '**.png');
 
         $this->assertTrue($matcher->match('hello.gif'));
         $this->assertFalse($matcher->match('hello.png'));
@@ -42,7 +42,7 @@ final class PathMatcherTest extends FileSystemTestCase
     public function testCallback(): void
     {
         $matcher = (new PathMatcher())
-            ->notCheckFilesystem()
+            ->doNotCheckFilesystem()
             ->callback(fn ($path) => false);
 
         $this->assertFalse($matcher->match('hello.png'));
@@ -51,9 +51,9 @@ final class PathMatcherTest extends FileSystemTestCase
     public function testCaseSensitive(): void
     {
         $matcher = (new PathMatcher())
-            ->notCheckFilesystem()
+            ->doNotCheckFilesystem()
             ->caseSensitive()
-            ->only('*.jpg');
+            ->only('**.jpg');
 
         $this->assertTrue($matcher->match('hello.jpg'));
         $this->assertFalse($matcher->match('hello.JPG'));
@@ -62,8 +62,7 @@ final class PathMatcherTest extends FileSystemTestCase
     public function testFullPath(): void
     {
         $matcher = (new PathMatcher())
-            ->notCheckFilesystem()
-            ->withFullPath()
+            ->doNotCheckFilesystem()
             ->only('dir/*.jpg');
 
         $this->assertTrue($matcher->match('dir/42.jpg'));
@@ -73,9 +72,8 @@ final class PathMatcherTest extends FileSystemTestCase
     public function testNotExactSlashes(): void
     {
         $matcher = (new PathMatcher())
-            ->notCheckFilesystem()
-            ->withNotExactSlashes()
-            ->only('dir/*.jpg');
+            ->doNotCheckFilesystem()
+            ->only('dir/**.jpg');
 
         $this->assertTrue($matcher->match('dir/inner/42.jpg'));
     }
@@ -83,8 +81,8 @@ final class PathMatcherTest extends FileSystemTestCase
     public function testMatchDirectories(): void
     {
         $matcher = (new PathMatcher())
-            ->notCheckFilesystem()
-            ->only('notes/');
+            ->doNotCheckFilesystem()
+            ->only('**notes/');
 
         $this->assertTrue($matcher->match('dir/notes'));
         $this->assertFalse($matcher->match('dir/otes'));
@@ -93,10 +91,10 @@ final class PathMatcherTest extends FileSystemTestCase
     public function testPathPattern(): void
     {
         $matcher = (new PathMatcher())
-            ->notCheckFilesystem()
+            ->doNotCheckFilesystem()
             ->only(
-                (new PathPattern('.png'))->withFullPath(),
-                '.jpg'
+                '.png',
+                '**.jpg'
             );
 
         $this->assertTrue($matcher->match('42.jpg'));
@@ -129,7 +127,7 @@ final class PathMatcherTest extends FileSystemTestCase
         $matcher = (new PathMatcher())->only('part2/');
         $this->assertTrue($matcher->match($basePath . '/part1/intro.txt'));
 
-        $matcher = (new PathMatcher())->notCheckFilesystem()->only('dir/');
+        $matcher = (new PathMatcher())->doNotCheckFilesystem()->only('dir/');
         $this->assertFalse($matcher->match($basePath . '/how-to.txt'));
     }
 
@@ -137,9 +135,7 @@ final class PathMatcherTest extends FileSystemTestCase
     {
         $original = new PathMatcher();
         $this->assertNotSame($original, $original->caseSensitive());
-        $this->assertNotSame($original, $original->withFullPath());
-        $this->assertNotSame($original, $original->withNotExactSlashes());
-        $this->assertNotSame($original, $original->notCheckFilesystem());
+        $this->assertNotSame($original, $original->doNotCheckFilesystem());
         $this->assertNotSame($original, $original->only('42.txt'));
         $this->assertNotSame($original, $original->except('42.txt'));
         $this->assertNotSame($original, $original->callback(fn ($path) => false));

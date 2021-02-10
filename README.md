@@ -102,7 +102,7 @@ use \Yiisoft\Files\FileHelper;
 use Yiisoft\Files\PathMatcher\PathMatcher;
 
 $files = FileHelper::findFiles('/path/to/where/to/search', [
-    'filter' => (new PathMatcher())->only('*.png', '*.jpg')->except('logo.png'),
+    'filter' => (new PathMatcher())->only('**\.png', '**\.jpg')->except('logo.png'),
 ]);
 ```
 
@@ -113,7 +113,7 @@ use \Yiisoft\Files\FileHelper;
 use Yiisoft\Files\PathMatcher\PathMatcher;
 
 $directories = FileHelper::findDirectories('/path/to/where/to/search', [
-    'filter' => (new PathMatcher())->except('*meta'),
+    'filter' => (new PathMatcher())->except('**meta'),
 ]);
 ```
 
