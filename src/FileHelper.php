@@ -93,6 +93,11 @@ final class FileHelper
             restore_error_handler();
         }
 
+        // Skip chmod if permission is already the same
+        if (fileperms($path) == $mode) {
+            return;
+        }
+
         if (!chmod($path, $mode)) {
             throw new RuntimeException(sprintf('Unable to set mode "%s" for "%s".', $mode, $path));
         }
