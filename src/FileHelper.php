@@ -11,8 +11,10 @@ use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RuntimeException;
 use Yiisoft\Files\PathMatcher\PathMatcherInterface;
+
 use function array_key_exists;
 use function get_class;
+use function gettype;
 use function is_object;
 
 /**
@@ -532,7 +534,7 @@ final class FileHelper
      *
      * @throws InvalidArgumentException If the directory is invalid.
      *
-     * @return array Files found under the directory specified, in no particular order.
+     * @return string[] Files found under the directory specified, in no particular order.
      * Ordering depends on the files system used.
      */
     public static function findFiles(string $directory, array $options = []): array
