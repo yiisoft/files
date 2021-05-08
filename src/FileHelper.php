@@ -453,7 +453,7 @@ final class FileHelper
                 RecursiveIteratorIterator::SELF_FIRST
             );
 
-            foreach ($iterator as $p => $info) {
+            foreach ($iterator as $p => $_info) {
                 $times[] = self::modifiedTime($p);
             }
         }
