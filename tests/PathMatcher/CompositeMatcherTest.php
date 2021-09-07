@@ -84,7 +84,7 @@ final class CompositeMatcherTest extends TestCase
 
     private function getTrueMatcher(): PathMatcherInterface
     {
-        return new class() implements PathMatcherInterface {
+        return new class () implements PathMatcherInterface {
             public function match(string $path): ?bool
             {
                 return true;
@@ -94,7 +94,7 @@ final class CompositeMatcherTest extends TestCase
 
     private function getFalseMatcher(): PathMatcherInterface
     {
-        return new class() implements PathMatcherInterface {
+        return new class () implements PathMatcherInterface {
             public function match(string $path): ?bool
             {
                 return false;
@@ -104,7 +104,7 @@ final class CompositeMatcherTest extends TestCase
 
     private function getNullMatcher(): PathMatcherInterface
     {
-        return new class() implements PathMatcherInterface {
+        return new class () implements PathMatcherInterface {
             public function match(string $path): ?bool
             {
                 return null;
