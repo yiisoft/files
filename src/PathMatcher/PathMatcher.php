@@ -102,7 +102,9 @@ final class PathMatcher implements PathMatcherInterface
     /**
      * Set list of patterns that the files or directories should not match.
      *
-     * @param PathMatcherInterface|string ...$patterns
+     * @see https://github.com/yiisoft/strings#wildcardpattern-usage
+     *
+     * @param PathMatcherInterface|string ...$patterns Simple POSIX-style string matching.
      *
      * @return self
      */
