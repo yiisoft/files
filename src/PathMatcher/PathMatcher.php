@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\Files\PathMatcher;
 
-use Yiisoft\Files\FileHelper;
 use Yiisoft\Strings\StringHelper;
 
 /**
