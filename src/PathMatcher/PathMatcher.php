@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Files\PathMatcher;
 
+use Yiisoft\Files\FileHelper;
 use Yiisoft\Strings\StringHelper;
 
 /**
@@ -221,6 +222,8 @@ final class PathMatcher implements PathMatcherInterface
                 $pathPatterns[] = $pattern;
                 continue;
             }
+
+            $pattern = strtr($pattern, '/\\', '//');
 
             $isDirectoryPattern = StringHelper::endsWith($pattern, '/');
             if ($isDirectoryPattern) {
