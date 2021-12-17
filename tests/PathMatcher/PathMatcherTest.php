@@ -68,6 +68,16 @@ final class PathMatcherTest extends FileSystemTestCase
         $this->assertFalse($matcher->match('var/dir/42.jpg'));
     }
 
+    public function testWindowsFullPath(): void
+    {
+        $matcher = (new PathMatcher())
+            ->doNotCheckFilesystem()
+            ->only('dir\\*.jpg');
+
+        $this->assertTrue($matcher->match('dir/42.jpg'));
+        $this->assertFalse($matcher->match('var/dir/42.jpg'));
+    }
+
     public function testNotExactSlashes(): void
     {
         $matcher = (new PathMatcher())
