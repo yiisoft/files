@@ -1,7 +1,7 @@
 # Yii Files Change Log
 
 
-## 1.0.1 under development
+## 1.0.1 December 18, 2021
 
 - Bug #55: Directory separator was not normalized in patterns (darkdef)
 
