@@ -3,7 +3,7 @@
 
 ## 1.0.1 under development
 
-- no changes in this release.
+- Bug #55: Directory separator was not normalized in patterns (darkdef)
 
 ## 1.0.0 February 10, 2021
 
