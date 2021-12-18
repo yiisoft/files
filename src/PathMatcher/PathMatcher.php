@@ -222,6 +222,8 @@ final class PathMatcher implements PathMatcherInterface
                 continue;
             }
 
+            $pattern = strtr($pattern, '/\\', '//');
+
             $isDirectoryPattern = StringHelper::endsWith($pattern, '/');
             if ($isDirectoryPattern) {
                 $pattern = StringHelper::substring($pattern, 0, -1);
