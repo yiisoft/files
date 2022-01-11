@@ -42,7 +42,7 @@ final class FileHelper
     public static function openFile(string $filename, string $mode, bool $useIncludePath = false, $context = null)
     {
         /** @psalm-suppress InvalidArgument, MixedArgumentTypeCoercion */
-        set_error_handler(static function (int $errorNumber, string $errorString) use ($filename): ?bool {
+        set_error_handler(static function (int $errorNumber, string $errorString) use ($filename): bool {
             throw new RuntimeException(
                 sprintf('Failed to open a file "%s". ', $filename) . $errorString,
                 $errorNumber
