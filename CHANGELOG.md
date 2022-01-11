@@ -1,6 +1,6 @@
 # Yii Files Change Log
 
-## 1.0.2 under development
+## 1.0.2 January 11, 2022
 
 - Bug #57: Fix return type for callback of `set_error_handler()` function (devanych)
 
