@@ -2,7 +2,7 @@
 
 ## 1.0.2 under development
 
-- Bug #56: Fix return type for callback of `set_error_handler()` function (devanych)
+- Bug #57: Fix return type for callback of `set_error_handler()` function (devanych)
 
 ## 1.0.1 December 18, 2021
 
