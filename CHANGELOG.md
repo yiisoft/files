@@ -2,7 +2,7 @@
 
 ## 1.0.3 under development
 
-- no changes in this release.
+- Bug #58: Add missed return value and type for callback of `set_error_handler()` function (vjik)
 
 ## 1.0.2 January 11, 2022
 
