@@ -78,8 +78,7 @@ final class FileHelper
         $path = self::normalizePath($path);
 
         if (!is_dir($path)) {
-            /** @psalm-suppress InvalidArgument, MixedArgumentTypeCoercion */
-            set_error_handler(static function (int $errorNumber, string $errorString) use ($path) {
+            set_error_handler(static function (int $errorNumber, string $errorString) use ($path): bool {
                 // Handle race condition.
                 // See https://github.com/kalessil/phpinspectionsea/blob/master/docs/probable-bugs.md#mkdir-race-condition
                 if (!is_dir($path)) {
@@ -88,6 +87,7 @@ final class FileHelper
                         $errorNumber
                     );
                 }
+                return true;
             });
 
             mkdir($path, $mode, true);
@@ -166,8 +166,7 @@ final class FileHelper
         if (is_link($directory)) {
             self::unlink($directory);
         } else {
-            /** @psalm-suppress InvalidArgument, MixedArgumentTypeCoercion */
-            set_error_handler(static function (int $errorNumber, string $errorString) use ($directory) {
+            set_error_handler(static function (int $errorNumber, string $errorString) use ($directory): bool {
                 throw new RuntimeException(
                     sprintf('Failed to remove directory "%s". ', $directory) . $errorString,
                     $errorNumber
@@ -219,7 +218,7 @@ final class FileHelper
     public static function unlink(string $path): void
     {
         /** @psalm-suppress InvalidArgument, MixedArgumentTypeCoercion */
-        set_error_handler(static function (int $errorNumber, string $errorString) use ($path) {
+        set_error_handler(static function (int $errorNumber, string $errorString) use ($path): bool {
             throw new RuntimeException(
                 sprintf('Failed to unlink "%s". ', $path) . $errorString,
                 $errorNumber
@@ -403,7 +402,7 @@ final class FileHelper
         }
 
         /** @psalm-suppress InvalidArgument, MixedArgumentTypeCoercion */
-        set_error_handler(static function (int $errorNumber, string $errorString) use ($directory) {
+        set_error_handler(static function (int $errorNumber, string $errorString) use ($directory): bool {
             throw new RuntimeException(
                 sprintf('Unable to open directory "%s". ', $directory) . $errorString,
                 $errorNumber
