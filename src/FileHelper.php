@@ -303,9 +303,13 @@ final class FileHelper
     public static function copyDirectory(string $source, string $destination, array $options = []): void
     {
         $filter = self::getFilter($options);
+        $afterCopy = $options['afterCopy'] ?? null;
+        $beforeCopy = $options['beforeCopy'] ?? null;
         $recursive = !array_key_exists('recursive', $options) || $options['recursive'];
-        $fileMode = $options['fileMode'] ?? null;
-        $dirMode = $options['dirMode'] ?? 0775;
+
+        if (!isset($options['dirMode'])) {
+            $options['dirMode'] = 0755;
+        }
 
         $source = self::normalizePath($source);
         $destination = self::normalizePath($destination);
@@ -313,10 +317,12 @@ final class FileHelper
 
         self::assertNotSelfDirectory($source, $destination);
 
-        $destinationExists = is_dir($destination);
-        if (!$destinationExists && $copyEmptyDirectories) {
-            self::ensureDirectory($destination, $dirMode);
-            $destinationExists = true;
+        if (!is_dir($destination) && $copyEmptyDirectories) {
+            self::ensureDirectory($destination, $options['dirMode']);
+        }
+
+        if ($beforeCopy && $beforeCopy($source, $destination) === false) {
+            return;
         }
 
         $handle = self::openDirectory($source);
@@ -335,14 +341,7 @@ final class FileHelper
 
             if ($filter === null || $filter->match($from)) {
                 if (is_file($from)) {
-                    if (!$destinationExists) {
-                        self::ensureDirectory($destination, $dirMode);
-                        $destinationExists = true;
-                    }
-                    copy($from, $to);
-                    if ($fileMode !== null) {
-                        chmod($to, $fileMode);
-                    }
+                    self::copyFile($from, $to, $options);
                 } elseif ($recursive) {
                     self::copyDirectory($from, $to, $options);
                 }
@@ -350,6 +349,77 @@ final class FileHelper
         }
 
         closedir($handle);
+
+        if ($afterCopy) {
+            $afterCopy($source, $destination);
+        }
+    }
+
+    /**
+     * Copies files with some options.
+     *
+     * - dirMode: integer or null, the permission to be set for newly copied directories. Defaults to null.
+     *   When null - directory will be not created
+     * - fileMode: integer, the permission to be set for newly copied files. Defaults to the current environment
+     *   setting.
+     * - beforeCopy: callback, a PHP callback that is called before copying file. If the callback
+     *   returns false, the copy operation for file will be cancelled. The signature of the
+     *   callback should be: `function ($from, $to)`, where `$from` is the file to be copied from,
+     *   while `$to` is the copy target.
+     * - afterCopy: callback, a PHP callback that is called after file if successfully copied.
+     *   The signature of the callback should be: `function ($from, $to)`, where `$from` is the file
+     *   copied from, while `$to` is the copy target.
+     *
+     * @param string $source The source file
+     * @param string $destination The destination filename
+     * @param array $options
+     *
+     * @psalm-param array{
+     *   dirMode?: int,
+     *   fileMode?: int,
+     *   beforeCopy?: callable,
+     *   afterCopy?: callable,
+     * } $options
+     *
+     * @return bool
+     */
+    public static function copyFile(string $source, string $destination, array $options = []): bool
+    {
+        if (!is_file($source)) {
+            return false;
+        }
+
+        $dirname = dirname($destination);
+        $dirMode = $options['dirMode'] ?? null;
+        $fileMode = $options['fileMode'] ?? null;
+        $afterCopy = $options['afterCopy'] ?? null;
+        $beforeCopy = $options['beforeCopy'] ?? null;
+
+        if ($beforeCopy && $beforeCopy($source, $destination) === false) {
+            return false;
+        }
+
+        if (!is_dir($dirname)) {
+            if ($dirMode === null) {
+                return false;
+            }
+
+            self::ensureDirectory($dirname, $dirMode);
+        }
+
+        if (copy($source, $destination)) {
+            if ($fileMode !== null) {
+                chmod($destination, $fileMode);
+            }
+
+            if ($afterCopy) {
+                $afterCopy($source, $destination);
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     private static function getFilter(array $options): ?PathMatcherInterface
