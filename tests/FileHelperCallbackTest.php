@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Files\Tests;
 
 use Yiisoft\Files\FileHelper;
+use PHPUnit\Framework\TestCase;
 
 final class FileHelperCallbackTest extends FileSystemTestCase
 {
@@ -165,5 +166,48 @@ final class FileHelperCallbackTest extends FileSystemTestCase
 
             $this->assertFileExists($destFile . '.gz');
         }
+    }
+
+    public function testCallable(): void
+    {
+        $callable = new class ($this) {
+            private TestCase $testCase;
+
+            public function __construct(TestCase $testCase)
+            {
+                $this->testCase = $testCase;
+            }
+
+            public function beforeCopy(string $source, string $destination): void
+            {
+                $this->testCase->assertFileDoesNotExist($destination);
+            }
+
+            public function afterCopy(string $source, string $destination): void
+            {
+                $this->testCase->assertFileExists($destination);
+            }
+        };
+
+        $source = 'test_src_dir';
+        $files = [
+            'file1.txt' => 'file 1 content',
+            'file2.txt' => 'file 2 content',
+        ];
+
+        $this->createFileStructure([
+            $source => $files,
+        ]);
+
+        $basePath = $this->testFilePath;
+        $source = $basePath . '/' . $source;
+        $destination = $basePath . '/test_dst_dir';
+
+        $options = [
+            'beforeCopy' => [$callable, 'beforeCopy'],
+            'afterCopy' => [$callable, 'afterCopy'],
+        ];
+
+        FileHelper::copyDirectory($source, $destination, $options);
     }
 }

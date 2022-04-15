@@ -379,13 +379,11 @@ final class FileHelper
      *   beforeCopy?: callable,
      *   afterCopy?: callable,
      * } $options
-     *
-     * @return bool
      */
-    public static function copyFile(string $source, string $destination, array $options = []): bool
+    public static function copyFile(string $source, string $destination, array $options = []): void
     {
         if (!is_file($source)) {
-            return false;
+            throw new InvalidArgumentException('Argument $source must be an existing file.');
         }
 
         $dirname = dirname($destination);
@@ -395,28 +393,26 @@ final class FileHelper
         $beforeCopy = $options['beforeCopy'] ?? null;
 
         if (self::processCallback($beforeCopy, $source, $destination) === false) {
-            return false;
+            return;
         }
 
         if (!is_dir($dirname)) {
             if ($dirMode === null) {
-                return false;
+                throw new RuntimeException('Directory ' . $dirname . ' does not exist and cannot be created.');
             }
 
             self::ensureDirectory($dirname, $dirMode);
         }
 
-        if (copy($source, $destination)) {
-            if ($fileMode !== null) {
-                chmod($destination, $fileMode);
-            }
-
-            self::processCallback($afterCopy, $source, $destination);
-
-            return true;
+        if (!copy($source, $destination)) {
+            throw new RuntimeException('Failed to copy the file.');
         }
 
-        return false;
+        if ($fileMode !== null && !chmod($destination, $fileMode)) {
+            throw new RuntimeException('Failed to change file permissions.');
+        }
+
+        self::processCallback($afterCopy, $source, $destination);
     }
 
     /**
@@ -433,15 +429,11 @@ final class FileHelper
             return;
         }
 
-        if ($callback instanceof Closure) {
-            return $callback(...$arguments);
-        }
-
-        if (is_callable($callback)) {
+        if ($callback instanceof Closure || is_callable($callback)) {
             return call_user_func_array($callback, $arguments);
         }
 
-        $type = \is_object($callback) ? \get_class($callback) : \gettype($callback);
+        $type = is_object($callback) ? get_class($callback) : gettype($callback);
 
         throw new InvalidArgumentException('Argument $callback must be null, callable or Closure instance. "' . $type . '" given.');
     }
