@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Files;
 
+use Closure;
 use FilesystemIterator;
 use InvalidArgumentException;
 use LogicException;
@@ -317,12 +318,12 @@ final class FileHelper
 
         self::assertNotSelfDirectory($source, $destination);
 
-        if (!is_dir($destination) && $copyEmptyDirectories) {
-            self::ensureDirectory($destination, $options['dirMode']);
+        if (self::processCallback($beforeCopy, $source, $destination) === false) {
+            return;
         }
 
-        if ($beforeCopy && $beforeCopy($source, $destination) === false) {
-            return;
+        if (!is_dir($destination) && $copyEmptyDirectories) {
+            self::ensureDirectory($destination, $options['dirMode']);
         }
 
         $handle = self::openDirectory($source);
@@ -350,9 +351,7 @@ final class FileHelper
 
         closedir($handle);
 
-        if ($afterCopy) {
-            $afterCopy($source, $destination);
-        }
+        self::processCallback($afterCopy, $source, $destination);
     }
 
     /**
@@ -395,7 +394,7 @@ final class FileHelper
         $afterCopy = $options['afterCopy'] ?? null;
         $beforeCopy = $options['beforeCopy'] ?? null;
 
-        if ($beforeCopy && $beforeCopy($source, $destination) === false) {
+        if (self::processCallback($beforeCopy, $source, $destination) === false) {
             return false;
         }
 
@@ -412,14 +411,39 @@ final class FileHelper
                 chmod($destination, $fileMode);
             }
 
-            if ($afterCopy) {
-                $afterCopy($source, $destination);
-            }
+            self::processCallback($afterCopy, $source, $destination);
 
             return true;
         }
 
         return false;
+    }
+
+    /**
+     * @param mixed $callback
+     * @param array $arguments
+     *
+     * @throws InvalidArgumentException
+     *
+     * @return mixed
+     */
+    private static function processCallback($callback, ...$arguments)
+    {
+        if ($callback === null) {
+            return;
+        }
+
+        if ($callback instanceof Closure) {
+            return $callback(...$arguments);
+        }
+
+        if (is_callable($callback)) {
+            return call_user_func_array($callback, $arguments);
+        }
+
+        $type = \is_object($callback) ? \get_class($callback) : \gettype($callback);
+
+        throw new InvalidArgumentException('Argument $callback must be null, callable or Closure instance. "' . $type . '" given.');
     }
 
     private static function getFilter(array $options): ?PathMatcherInterface
