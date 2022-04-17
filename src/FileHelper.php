@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\Files;
 
-use Closure;
 use FilesystemIterator;
 use InvalidArgumentException;
 use LogicException;
@@ -409,7 +408,7 @@ final class FileHelper
         }
 
         if ($fileMode !== null && !chmod($destination, $fileMode)) {
-            throw new RuntimeException('Failed to change file permissions.');
+            throw new RuntimeException(sprintf('Unable to set mode "%s" for "%s".', $fileMode, $destination));
         }
 
         self::processCallback($afterCopy, $source, $destination);
@@ -429,7 +428,7 @@ final class FileHelper
             return;
         }
 
-        if ($callback instanceof Closure || is_callable($callback)) {
+        if (is_callable($callback)) {
             return call_user_func_array($callback, $arguments);
         }
 
