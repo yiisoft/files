@@ -52,15 +52,13 @@ final class FileHelperCopyFileTest extends FileSystemTestCase
         $source = $basePath . '/' . $source;
         $destination = $basePath . '/test_dst_dir';
 
-        $this->expectException(RuntimeException::class);
-
         foreach ($files as $name => $content) {
             $sourceFile = $source . '/' . $name;
             $destFile = $destination . '/' . $name;
 
             FileHelper::copyFile($sourceFile, $destFile);
 
-            $this->assertFileDoesNotExist($destFile);
+            $this->assertFileExists($destFile);
         }
     }
 

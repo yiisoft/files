@@ -386,7 +386,7 @@ final class FileHelper
         }
 
         $dirname = dirname($destination);
-        $dirMode = $options['dirMode'] ?? null;
+        $dirMode = $options['dirMode'] ?? 0755;
         $fileMode = $options['fileMode'] ?? null;
         $afterCopy = $options['afterCopy'] ?? null;
         $beforeCopy = $options['beforeCopy'] ?? null;
@@ -396,10 +396,6 @@ final class FileHelper
         }
 
         if (!is_dir($dirname)) {
-            if ($dirMode === null) {
-                throw new RuntimeException('Directory ' . $dirname . ' does not exist and cannot be created.');
-            }
-
             self::ensureDirectory($dirname, $dirMode);
         }
 
