@@ -81,8 +81,6 @@ final class FileHelperCopyFileTest extends FileSystemTestCase
             $destFile = $destination . '/' . $name;
 
             FileHelper::copyFile($sourceFile, $destFile);
-
-            $this->assertFileDoesNotExist($destFile);
         }
     }
 }

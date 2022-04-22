@@ -3,6 +3,7 @@
 ## 1.0.3 under development
 
 - Bug #58: Add missed return value and type for callback of `set_error_handler()` function (vjik)
+- Feature #59: Add new `copyFile` method and `beforeCopy`, `afterCopy` callbacks
 
 ## 1.0.2 January 11, 2022
 

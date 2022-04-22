@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Files\Tests;
 
+use InvalidArgumentException;
 use Yiisoft\Files\FileHelper;
 use PHPUnit\Framework\TestCase;
 
@@ -24,9 +25,11 @@ final class FileHelperCallbackTest extends FileSystemTestCase
         $basePath = $this->testFilePath;
         $source = $basePath . '/' . $source;
         $destination = $basePath . '/test_dst_dir';
+        $callbackCalled = false;
 
         $options = [
-            'beforeCopy' => function (string $source, string $destination) use ($files, $basePath) {
+            'beforeCopy' => function (string $source, string $destination) use ($files, $basePath, &$callbackCalled) {
+                $callbackCalled = true;
                 $this->assertFileExists($source);
 
                 if (is_file($source)) {
@@ -40,6 +43,8 @@ final class FileHelperCallbackTest extends FileSystemTestCase
         ];
 
         FileHelper::copyDirectory($source, $destination, $options);
+
+        $this->assertTrue($callbackCalled);
     }
 
     public function testBeforeCopyFalse(): void
@@ -172,6 +177,8 @@ final class FileHelperCallbackTest extends FileSystemTestCase
     {
         $callable = new class ($this) {
             private TestCase $testCase;
+            public bool $beforeCalled = false;
+            public bool $afterCalled = false;
 
             public function __construct(TestCase $testCase)
             {
@@ -180,11 +187,13 @@ final class FileHelperCallbackTest extends FileSystemTestCase
 
             public function beforeCopy(string $source, string $destination): void
             {
+                $this->beforeCalled = true;
                 $this->testCase->assertFileDoesNotExist($destination);
             }
 
             public function afterCopy(string $source, string $destination): void
             {
+                $this->afterCalled = true;
                 $this->testCase->assertFileExists($destination);
             }
         };
@@ -209,5 +218,36 @@ final class FileHelperCallbackTest extends FileSystemTestCase
         ];
 
         FileHelper::copyDirectory($source, $destination, $options);
+
+        $this->assertTrue($callable->beforeCalled);
+        $this->assertTrue($callable->afterCalled);
+    }
+
+    public function testException(): void
+    {
+        $source = 'test_src_dir';
+
+        $files = [
+            'file1.txt' => 'file 1 content',
+            'file2.txt' => 'file 2 content',
+        ];
+
+        $this->createFileStructure([
+            $source => $files,
+        ]);
+
+        $basePath = $this->testFilePath;
+        $source = $basePath . '/' . $source;
+        $destination = $basePath . '/test_dst_dir';
+
+        $this->expectException(InvalidArgumentException::class);
+
+        FileHelper::copyDirectory($source, $destination, [
+            'beforeCopy' => 'not_exists_callback'
+        ]);
+
+        FileHelper::copyDirectory($source, $destination, [
+            'afterCopy' => 'not_exists_callback'
+        ]);
     }
 }
