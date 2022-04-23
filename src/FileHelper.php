@@ -293,7 +293,7 @@ final class FileHelper
      * @psalm-param array{
      *   dirMode?: int,
      *   fileMode?: int,
-     *   filter?: \Yiisoft\Files\PathMatcher\PathMatcherInterface|mixed,
+     *   filter?: PathMatcherInterface|mixed,
      *   recursive?: bool,
      *   beforeCopy?: callable,
      *   afterCopy?: callable,
@@ -321,7 +321,7 @@ final class FileHelper
             return;
         }
 
-        if (!is_dir($destination) && $copyEmptyDirectories) {
+        if ($copyEmptyDirectories && !is_dir($destination)) {
             self::ensureDirectory($destination, $options['dirMode']);
         }
 
@@ -430,7 +430,12 @@ final class FileHelper
 
         $type = is_object($callback) ? get_class($callback) : gettype($callback);
 
-        throw new InvalidArgumentException('Argument $callback must be null, callable or Closure instance. "' . $type . '" given.');
+        throw new InvalidArgumentException(
+            sprintf(
+                'Argument $callback must be null, callable or Closure instance. %s given.',
+                $type
+            )
+        );
     }
 
     private static function getFilter(array $options): ?PathMatcherInterface
@@ -441,7 +446,9 @@ final class FileHelper
 
         if (!$options['filter'] instanceof PathMatcherInterface) {
             $type = is_object($options['filter']) ? get_class($options['filter']) : gettype($options['filter']);
-            throw new InvalidArgumentException(sprintf('Filter should be an instance of PathMatcherInterface, %s given.', $type));
+            throw new InvalidArgumentException(
+                sprintf('Filter should be an instance of PathMatcherInterface, %s given.', $type)
+            );
         }
 
         return $options['filter'];
@@ -557,7 +564,7 @@ final class FileHelper
      * - recursive: boolean, whether the subdirectories should also be looked for. Defaults to `true`.
      *
      * @psalm-param array{
-     *   filter?: \Yiisoft\Files\PathMatcher\PathMatcherInterface|mixed,
+     *   filter?: PathMatcherInterface|mixed,
      *   recursive?: bool,
      * } $options
      *
@@ -608,7 +615,7 @@ final class FileHelper
      * - recursive: boolean, whether the files under the subdirectories should also be looked for. Defaults to `true`.
      *
      * @psalm-param array{
-     *   filter?: \Yiisoft\Files\PathMatcher\PathMatcherInterface|mixed,
+     *   filter?: PathMatcherInterface|mixed,
      *   recursive?: bool,
      * } $options
      *
