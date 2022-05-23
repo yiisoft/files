@@ -136,7 +136,9 @@ final class PathMatcherTest extends FileSystemTestCase
         $matcher = (new PathMatcher())->only('part2/');
         $this->assertTrue($matcher->match($basePath . '/part1/intro.txt'));
 
-        $matcher = (new PathMatcher())->doNotCheckFilesystem()->only('dir/');
+        $matcher = (new PathMatcher())
+            ->doNotCheckFilesystem()
+            ->only('dir/');
         $this->assertFalse($matcher->match($basePath . '/how-to.txt'));
     }
 
