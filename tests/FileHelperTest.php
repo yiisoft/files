@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Yiisoft\Files\Tests;
 
+use FilesystemIterator;
 use InvalidArgumentException;
 use LogicException;
+use RecursiveDirectoryIterator;
 use RuntimeException;
 use Yiisoft\Files\FileHelper;
 
@@ -269,6 +271,30 @@ final class FileHelperTest extends FileSystemTestCase
         $this->assertIsInt(FileHelper::lastModifiedTime($basePath));
         $this->assertIsInt(FileHelper::lastModifiedTime($basePath . '/css/stub.css'));
         $this->assertIsInt(FileHelper::lastModifiedTime($basePath . '/css', $basePath . '/js'));
+    }
+
+    public function testLastModifiedTimeIterator(): void
+    {
+        $dirName = 'assets';
+        $basePath = $this->testFilePath . '/' . $dirName;
+
+        $this->createFileStructure(
+            [
+                $dirName => [
+                    'css' => [
+                        'stub.css' => 'testMe',
+                    ],
+                    'js' => [
+                        'stub.js' => 'testMe',
+                    ],
+                ],
+            ]
+        );
+
+        $filemtime = FileHelper::lastModifiedTime($basePath);
+        $iterator = new RecursiveDirectoryIterator($basePath, FilesystemIterator::SKIP_DOTS);
+
+        $this->assertSame($filemtime, FileHelper::lastModifedFromIterator($iterator));
     }
 
     public function testLastModifiedTimeWithoutArguments(): void

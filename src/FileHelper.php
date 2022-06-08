@@ -534,19 +534,33 @@ final class FileHelper
                 continue;
             }
 
-            /** @var iterable<string, string> $iterator */
-            $iterator = new RecursiveIteratorIterator(
-                new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS),
-                RecursiveIteratorIterator::SELF_FIRST
+            $timestamp = self::lastModifedFromIterator(
+                new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS)
             );
 
-            foreach ($iterator as $p => $_info) {
-                $times[] = self::modifiedTime($p);
+            if ($timestamp !== null) {
+                $times[] = $timestamp;
             }
         }
 
         /** @psalm-suppress ArgumentTypeCoercion */
         return max($times);
+    }
+
+    public static function lastModifedFromIterator(RecursiveDirectoryIterator $iterator): ?int
+    {
+        $times = [];
+        /** @var iterable<string, string> $recursiveIterator */
+        $recursiveIterator = new RecursiveIteratorIterator(
+            $iterator,
+            RecursiveIteratorIterator::SELF_FIRST
+        );
+
+        foreach ($recursiveIterator as $path => $_info) {
+            $times[] = self::modifiedTime($path);
+        }
+
+        return $times ? max($times) : null;
     }
 
     private static function modifiedTime(string $path): int
