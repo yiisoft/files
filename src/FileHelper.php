@@ -425,7 +425,7 @@ final class FileHelper
         }
 
         if (is_callable($callback)) {
-            return call_user_func_array($callback, $arguments);
+            return $callback(...$arguments);
         }
 
         $type = is_object($callback) ? get_class($callback) : gettype($callback);

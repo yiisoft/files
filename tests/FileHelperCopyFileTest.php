@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Yiisoft\Files\Tests;
 
 use InvalidArgumentException;
-use RuntimeException;
 use Yiisoft\Files\FileHelper;
 
 final class FileHelperCopyFileTest extends FileSystemTestCase

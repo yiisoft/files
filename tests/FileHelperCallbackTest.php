@@ -39,7 +39,7 @@ final class FileHelperCallbackTest extends FileSystemTestCase
                 } elseif (is_dir($source)) {
                     $this->assertSame($basePath . '/test_src_dir', $source);
                 }
-            }
+            },
         ];
 
         FileHelper::copyDirectory($source, $destination, $options);
@@ -243,11 +243,11 @@ final class FileHelperCallbackTest extends FileSystemTestCase
         $this->expectException(InvalidArgumentException::class);
 
         FileHelper::copyDirectory($source, $destination, [
-            'beforeCopy' => 'not_exists_callback'
+            'beforeCopy' => 'not_exists_callback',
         ]);
 
         FileHelper::copyDirectory($source, $destination, [
-            'afterCopy' => 'not_exists_callback'
+            'afterCopy' => 'not_exists_callback',
         ]);
     }
 }
