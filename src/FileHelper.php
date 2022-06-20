@@ -293,7 +293,7 @@ final class FileHelper
      * @psalm-param array{
      *   dirMode?: int,
      *   fileMode?: int,
-     *   filter?: \Yiisoft\Files\PathMatcher\PathMatcherInterface|mixed,
+     *   filter?: PathMatcherInterface|mixed,
      *   recursive?: bool,
      *   beforeCopy?: callable,
      *   afterCopy?: callable,
@@ -303,9 +303,13 @@ final class FileHelper
     public static function copyDirectory(string $source, string $destination, array $options = []): void
     {
         $filter = self::getFilter($options);
+        $afterCopy = $options['afterCopy'] ?? null;
+        $beforeCopy = $options['beforeCopy'] ?? null;
         $recursive = !array_key_exists('recursive', $options) || $options['recursive'];
-        $fileMode = $options['fileMode'] ?? null;
-        $dirMode = $options['dirMode'] ?? 0775;
+
+        if (!isset($options['dirMode'])) {
+            $options['dirMode'] = 0755;
+        }
 
         $source = self::normalizePath($source);
         $destination = self::normalizePath($destination);
@@ -313,10 +317,12 @@ final class FileHelper
 
         self::assertNotSelfDirectory($source, $destination);
 
-        $destinationExists = is_dir($destination);
-        if (!$destinationExists && $copyEmptyDirectories) {
-            self::ensureDirectory($destination, $dirMode);
-            $destinationExists = true;
+        if (self::processCallback($beforeCopy, $source, $destination) === false) {
+            return;
+        }
+
+        if ($copyEmptyDirectories && !is_dir($destination)) {
+            self::ensureDirectory($destination, $options['dirMode']);
         }
 
         $handle = self::openDirectory($source);
@@ -335,14 +341,7 @@ final class FileHelper
 
             if ($filter === null || $filter->match($from)) {
                 if (is_file($from)) {
-                    if (!$destinationExists) {
-                        self::ensureDirectory($destination, $dirMode);
-                        $destinationExists = true;
-                    }
-                    copy($from, $to);
-                    if ($fileMode !== null) {
-                        chmod($to, $fileMode);
-                    }
+                    self::copyFile($from, $to, $options);
                 } elseif ($recursive) {
                     self::copyDirectory($from, $to, $options);
                 }
@@ -350,6 +349,93 @@ final class FileHelper
         }
 
         closedir($handle);
+
+        self::processCallback($afterCopy, $source, $destination);
+    }
+
+    /**
+     * Copies files with some options.
+     *
+     * - dirMode: integer or null, the permission to be set for newly copied directories. Defaults to null.
+     *   When null - directory will be not created
+     * - fileMode: integer, the permission to be set for newly copied files. Defaults to the current environment
+     *   setting.
+     * - beforeCopy: callback, a PHP callback that is called before copying file. If the callback
+     *   returns false, the copy operation for file will be cancelled. The signature of the
+     *   callback should be: `function ($from, $to)`, where `$from` is the file to be copied from,
+     *   while `$to` is the copy target.
+     * - afterCopy: callback, a PHP callback that is called after file if successfully copied.
+     *   The signature of the callback should be: `function ($from, $to)`, where `$from` is the file
+     *   copied from, while `$to` is the copy target.
+     *
+     * @param string $source The source file
+     * @param string $destination The destination filename
+     * @param array $options
+     *
+     * @psalm-param array{
+     *   dirMode?: int,
+     *   fileMode?: int,
+     *   beforeCopy?: callable,
+     *   afterCopy?: callable,
+     * } $options
+     */
+    public static function copyFile(string $source, string $destination, array $options = []): void
+    {
+        if (!is_file($source)) {
+            throw new InvalidArgumentException('Argument $source must be an existing file.');
+        }
+
+        $dirname = dirname($destination);
+        $dirMode = $options['dirMode'] ?? 0755;
+        $fileMode = $options['fileMode'] ?? null;
+        $afterCopy = $options['afterCopy'] ?? null;
+        $beforeCopy = $options['beforeCopy'] ?? null;
+
+        if (self::processCallback($beforeCopy, $source, $destination) === false) {
+            return;
+        }
+
+        if (!is_dir($dirname)) {
+            self::ensureDirectory($dirname, $dirMode);
+        }
+
+        if (!copy($source, $destination)) {
+            throw new RuntimeException('Failed to copy the file.');
+        }
+
+        if ($fileMode !== null && !chmod($destination, $fileMode)) {
+            throw new RuntimeException(sprintf('Unable to set mode "%s" for "%s".', $fileMode, $destination));
+        }
+
+        self::processCallback($afterCopy, $source, $destination);
+    }
+
+    /**
+     * @param mixed $callback
+     * @param array $arguments
+     *
+     * @throws InvalidArgumentException
+     *
+     * @return mixed
+     */
+    private static function processCallback($callback, ...$arguments)
+    {
+        if ($callback === null) {
+            return;
+        }
+
+        if (is_callable($callback)) {
+            return call_user_func_array($callback, $arguments);
+        }
+
+        $type = is_object($callback) ? get_class($callback) : gettype($callback);
+
+        throw new InvalidArgumentException(
+            sprintf(
+                'Argument $callback must be null, callable or Closure instance. %s given.',
+                $type
+            )
+        );
     }
 
     private static function getFilter(array $options): ?PathMatcherInterface
@@ -360,7 +446,9 @@ final class FileHelper
 
         if (!$options['filter'] instanceof PathMatcherInterface) {
             $type = is_object($options['filter']) ? get_class($options['filter']) : gettype($options['filter']);
-            throw new InvalidArgumentException(sprintf('Filter should be an instance of PathMatcherInterface, %s given.', $type));
+            throw new InvalidArgumentException(
+                sprintf('Filter should be an instance of PathMatcherInterface, %s given.', $type)
+            );
         }
 
         return $options['filter'];
@@ -476,7 +564,7 @@ final class FileHelper
      * - recursive: boolean, whether the subdirectories should also be looked for. Defaults to `true`.
      *
      * @psalm-param array{
-     *   filter?: \Yiisoft\Files\PathMatcher\PathMatcherInterface|mixed,
+     *   filter?: PathMatcherInterface|mixed,
      *   recursive?: bool,
      * } $options
      *
@@ -527,7 +615,7 @@ final class FileHelper
      * - recursive: boolean, whether the files under the subdirectories should also be looked for. Defaults to `true`.
      *
      * @psalm-param array{
-     *   filter?: \Yiisoft\Files\PathMatcher\PathMatcherInterface|mixed,
+     *   filter?: PathMatcherInterface|mixed,
      *   recursive?: bool,
      * } $options
      *
