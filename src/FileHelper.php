@@ -534,7 +534,7 @@ final class FileHelper
                 continue;
             }
 
-            $timestamp = self::lastModifedFromIterator(
+            $timestamp = self::lastModifiedFromIterator(
                 new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS)
             );
 
@@ -547,7 +547,7 @@ final class FileHelper
         return max($times);
     }
 
-    public static function lastModifedFromIterator(RecursiveDirectoryIterator $iterator): ?int
+    public static function lastModifiedFromIterator(RecursiveDirectoryIterator $iterator): ?int
     {
         $times = [];
         /** @var iterable<string, string> $recursiveIterator */
