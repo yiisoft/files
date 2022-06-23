@@ -67,7 +67,7 @@ final class FileHelper
      *
      * - It does not fail if directory already exists.
      * - It uses {@see chmod()} to set the permission of the created directory in order to avoid the impact
-     *   of the `unmask` setting.
+     *   of the `umask` setting.
      * - It throws exceptions instead of returning false and emitting {@see E_WARNING}.
      *
      * @param string $path Path of the directory to be created.
