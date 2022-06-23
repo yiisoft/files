@@ -90,7 +90,9 @@ final class FileHelper
                 return true;
             });
 
-            mkdir($path, $mode, true);
+            if (!mkdir($path, $mode, true) && !is_dir($path)) {
+                throw new RuntimeException(sprintf('Directory "%s" was not created', $path));
+            }
 
             restore_error_handler();
         }
