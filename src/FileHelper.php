@@ -148,7 +148,7 @@ final class FileHelper
     }
 
     /**
-     * Removes a directory (and all its content) recursively. Does nothing if directory does not exists.
+     * Removes a directory (and all its content) recursively. Does nothing if directory does not exist.
      *
      * @param string $directory The directory to be deleted recursively.
      * @param array $options Options for directory remove ({@see clearDirectory()}).
@@ -180,10 +180,10 @@ final class FileHelper
     }
 
     /**
-     * Clear all directory content.
+     * Clears all directory content.
      *
      * @param string $directory The directory to be cleared.
-     * @param array $options Options for directory clear . Valid options are:
+     * @param array $options Options for directory clear. Valid options are:
      *
      * - traverseSymlinks: boolean, whether symlinks to the directories should be traversed too.
      *   Defaults to `false`, meaning the content of the symlinked directory would not be deleted.
@@ -247,7 +247,7 @@ final class FileHelper
     }
 
     /**
-     * Tells whether the path is a empty directory.
+     * Tells whether the path is an empty directory.
      *
      * @param string $path Path to check for being an empty directory.
      *
@@ -265,7 +265,7 @@ final class FileHelper
     /**
      * Copies a whole directory as another one.
      *
-     * The files and sub-directories will also be copied over.
+     * The files and subdirectories will also be copied over.
      *
      * @param string $source The source directory.
      * @param string $destination The destination directory.
@@ -276,12 +276,12 @@ final class FileHelper
      *   setting.
      * - filter: a filter to apply while copying files. It should be an instance of {@see PathMatcherInterface}.
      * - recursive: boolean, whether the files under the subdirectories should also be copied. Defaults to true.
-     * - beforeCopy: callback, a PHP callback that is called before copying each sub-directory or file. If the callback
-     *   returns false, the copy operation for the sub-directory or file will be cancelled. The signature of the
-     *   callback should be: `function ($from, $to)`, where `$from` is the sub-directory or file to be copied from,
+     * - beforeCopy: callback, a PHP callback that is called before copying each subdirectory or file. If the callback
+     *   returns false, the copy operation for the subdirectory or file will be cancelled. The signature of the
+     *   callback should be: `function ($from, $to)`, where `$from` is the subdirectory or file to be copied from,
      *   while `$to` is the copy target.
-     * - afterCopy: callback, a PHP callback that is called after each sub-directory or file is successfully copied.
-     *   The signature of the callback should be: `function ($from, $to)`, where `$from` is the sub-directory or file
+     * - afterCopy: callback, a PHP callback that is called after each subdirectory or file is successfully copied.
+     *   The signature of the callback should be: `function ($from, $to)`, where `$from` is the subdirectory or file
      *   copied from, while `$to` is the copy target.
      * - copyEmptyDirectories: boolean, whether to copy empty directories. Set this to false to avoid creating
      *   directories that do not contain files. This affects directories that do not contain files initially as well as
