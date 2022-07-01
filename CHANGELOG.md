@@ -1,12 +1,13 @@
 # Yii Files Change Log
 
-## 1.1.0 under development
+## 1.1.1 under development
+
+- Raise up php version to ^8.0 and allow `RecursiveDirectoryIterator` as argument in `FileHelper::lastModifiedTime` (Gerych1984)
+
+## 1.1.0 
 
 - Bug #58: Add missed return value and type for callback of `set_error_handler()` function (vjik)
 - New #59: Add `beforeCopy`, `afterCopy` callbacks for `FileHelper::copyFile()` and `FileHelper::copyDirectory()` (Gerych1984)
-- Add new public method `FileHelper::lastModifiedFromIterator`
-- Raise up php version to 8.0 and allow `RecursiveDirectoryIterator` as argument in `FileHelper::lastModifiedTime`
-- Raise up php version to ^8.0 and allow `RecursiveDirectoryIterator` as argument in `FileHelper::lastModifiedTime` (Gerych1984)
 
 ## 1.0.2 January 11, 2022
 
