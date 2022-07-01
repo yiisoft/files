@@ -294,7 +294,8 @@ final class FileHelperTest extends FileSystemTestCase
         $filemtime = FileHelper::lastModifiedTime($basePath);
         $iterator = new RecursiveDirectoryIterator($basePath, FilesystemIterator::SKIP_DOTS);
 
-        $this->assertSame($filemtime, FileHelper::lastModifedFromIterator($iterator));
+        $this->assertNotNull($filemtime);
+        $this->assertSame($filemtime, FileHelper::lastModifiedTime($iterator));
     }
 
     public function testLastModifiedTimeWithoutArguments(): void

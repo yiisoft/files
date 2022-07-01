@@ -15,7 +15,9 @@ use Yiisoft\Files\PathMatcher\PathMatcherInterface;
 use function array_key_exists;
 use function get_class;
 use function gettype;
+use function is_file;
 use function is_object;
+use function is_string;
 
 /**
  * FileHelper provides useful methods to manage files and directories.
@@ -513,54 +515,51 @@ final class FileHelper
      *
      * If the path is a directory, any nested files/directories will be checked as well.
      *
-     * @param string ...$paths The directories to be checked.
+     * @param string[]|RecursiveDirectoryIterator[] $paths The directories to be checked.
      *
      * @throws LogicException If path is not set.
      *
-     * @return int Unix timestamp representing the last modification time.
+     * @return int|null Unix timestamp representing the last modification time.
      */
-    public static function lastModifiedTime(string ...$paths): int
+    public static function lastModifiedTime(string|RecursiveDirectoryIterator ...$paths): ?int
     {
         if (empty($paths)) {
             throw new LogicException('Path is required.');
         }
 
-        $times = [];
+        $time = null;
 
         foreach ($paths as $path) {
-            $times[] = self::modifiedTime($path);
+            if (is_string($path)) {
+                $timestamp = self::modifiedTime($path);
 
-            if (is_file($path)) {
-                continue;
+                if ($timestamp > $time) {
+                    $time = $timestamp;
+                }
+
+                if (is_file($path)) {
+                    continue;
+                }
+
+                $path = new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS);
             }
 
-            $timestamp = self::lastModifiedFromIterator(
-                new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS)
+            /** @var iterable<string, string> $iterator */
+            $iterator = new RecursiveIteratorIterator(
+                $path,
+                RecursiveIteratorIterator::SELF_FIRST
             );
 
-            if ($timestamp !== null) {
-                $times[] = $timestamp;
+            foreach ($iterator as $path => $_info) {
+                $timestamp = self::modifiedTime($path);
+
+                if ($timestamp > $time) {
+                    $time = $timestamp;
+                }
             }
         }
 
-        /** @psalm-suppress ArgumentTypeCoercion */
-        return max($times);
-    }
-
-    public static function lastModifiedFromIterator(RecursiveDirectoryIterator $iterator): ?int
-    {
-        $times = [];
-        /** @var iterable<string, string> $recursiveIterator */
-        $recursiveIterator = new RecursiveIteratorIterator(
-            $iterator,
-            RecursiveIteratorIterator::SELF_FIRST
-        );
-
-        foreach ($recursiveIterator as $path => $_info) {
-            $times[] = self::modifiedTime($path);
-        }
-
-        return $times ? max($times) : null;
+        return $time;
     }
 
     private static function modifiedTime(string $path): int
