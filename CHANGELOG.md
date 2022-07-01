@@ -6,6 +6,7 @@
 - New #59: Add `beforeCopy`, `afterCopy` callbacks for `FileHelper::copyFile()` and `FileHelper::copyDirectory()` (Gerych1984)
 - Add new public method `FileHelper::lastModifiedFromIterator`
 - Raise up php version to 8.0 and allow `RecursiveDirectoryIterator` as argument in `FileHelper::lastModifiedTime`
+- Raise up php version to ^8.0 and allow `RecursiveDirectoryIterator` as argument in `FileHelper::lastModifiedTime` (Gerych1984)
 
 ## 1.0.2 January 11, 2022
 
