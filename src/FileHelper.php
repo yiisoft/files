@@ -11,12 +11,10 @@ use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RuntimeException;
 use Yiisoft\Files\PathMatcher\PathMatcherInterface;
-
 use function array_key_exists;
-use function get_class;
-use function gettype;
+use function filemtime;
+use function get_debug_type;
 use function is_file;
-use function is_object;
 use function is_string;
 
 /**
@@ -413,31 +411,16 @@ final class FileHelper
     }
 
     /**
-     * @param mixed $callback
+     * @param callable|null $callback
      * @param array $arguments
      *
      * @throws InvalidArgumentException
      *
      * @return mixed
      */
-    private static function processCallback($callback, ...$arguments)
+    private static function processCallback(?callable $callback, ...$arguments): mixed
     {
-        if ($callback === null) {
-            return;
-        }
-
-        if (is_callable($callback)) {
-            return $callback(...$arguments);
-        }
-
-        $type = is_object($callback) ? get_class($callback) : gettype($callback);
-
-        throw new InvalidArgumentException(
-            sprintf(
-                'Argument $callback must be null, callable or Closure instance. %s given.',
-                $type
-            )
-        );
+        return $callback ? $callback(...$arguments) : null;
     }
 
     private static function getFilter(array $options): ?PathMatcherInterface
@@ -447,7 +430,7 @@ final class FileHelper
         }
 
         if (!$options['filter'] instanceof PathMatcherInterface) {
-            $type = is_object($options['filter']) ? get_class($options['filter']) : gettype($options['filter']);
+            $type = get_debug_type($options['filter']);
             throw new InvalidArgumentException(
                 sprintf('Filter should be an instance of PathMatcherInterface, %s given.', $type)
             );
@@ -562,9 +545,13 @@ final class FileHelper
         return $time;
     }
 
-    private static function modifiedTime(string $path): int
+    private static function modifiedTime(string $path): ?int
     {
-        return (int)filemtime($path);
+        if ($timestamp = filemtime($path)) {
+            return $timestamp;
+        }
+
+        return null;
     }
 
     /**

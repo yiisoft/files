@@ -2,7 +2,7 @@
 
 ## 2.0.0 under development
 
-- Chg #64: Raise the minimum PHP version to 8.0 and allow `RecursiveDirectoryIterator` as argument in `FileHelper::lastModifiedTime` (@Gerych1984)
+- Chg #64: Raise the minimum PHP version to 8.0 and allow `RecursiveDirectoryIterator` as argument in `FileHelper::lastModifiedTime()` (@Gerych1984)
 
 ## 1.1.0 
 
