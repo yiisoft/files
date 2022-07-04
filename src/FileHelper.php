@@ -11,11 +11,11 @@ use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RuntimeException;
 use Yiisoft\Files\PathMatcher\PathMatcherInterface;
-
 use function array_key_exists;
-use function get_class;
-use function gettype;
-use function is_object;
+use function filemtime;
+use function get_debug_type;
+use function is_file;
+use function is_string;
 
 /**
  * FileHelper provides useful methods to manage files and directories.
@@ -411,31 +411,16 @@ final class FileHelper
     }
 
     /**
-     * @param mixed $callback
+     * @param callable|null $callback
      * @param array $arguments
      *
      * @throws InvalidArgumentException
      *
      * @return mixed
      */
-    private static function processCallback($callback, ...$arguments)
+    private static function processCallback(?callable $callback, ...$arguments): mixed
     {
-        if ($callback === null) {
-            return;
-        }
-
-        if (is_callable($callback)) {
-            return $callback(...$arguments);
-        }
-
-        $type = is_object($callback) ? get_class($callback) : gettype($callback);
-
-        throw new InvalidArgumentException(
-            sprintf(
-                'Argument $callback must be null, callable or Closure instance. %s given.',
-                $type
-            )
-        );
+        return $callback ? $callback(...$arguments) : null;
     }
 
     private static function getFilter(array $options): ?PathMatcherInterface
@@ -445,7 +430,7 @@ final class FileHelper
         }
 
         if (!$options['filter'] instanceof PathMatcherInterface) {
-            $type = is_object($options['filter']) ? get_class($options['filter']) : gettype($options['filter']);
+            $type = get_debug_type($options['filter']);
             throw new InvalidArgumentException(
                 sprintf('Filter should be an instance of PathMatcherInterface, %s given.', $type)
             );
@@ -513,45 +498,60 @@ final class FileHelper
      *
      * If the path is a directory, any nested files/directories will be checked as well.
      *
-     * @param string ...$paths The directories to be checked.
+     * @param string[]|RecursiveDirectoryIterator[] $paths The directories to be checked.
      *
      * @throws LogicException If path is not set.
      *
-     * @return int Unix timestamp representing the last modification time.
+     * @return int|null Unix timestamp representing the last modification time.
      */
-    public static function lastModifiedTime(string ...$paths): int
+    public static function lastModifiedTime(string|RecursiveDirectoryIterator ...$paths): ?int
     {
         if (empty($paths)) {
             throw new LogicException('Path is required.');
         }
 
-        $times = [];
+        $time = null;
 
         foreach ($paths as $path) {
-            $times[] = self::modifiedTime($path);
+            if (is_string($path)) {
+                $timestamp = self::modifiedTime($path);
 
-            if (is_file($path)) {
-                continue;
+                if ($timestamp > $time) {
+                    $time = $timestamp;
+                }
+
+                if (is_file($path)) {
+                    continue;
+                }
+
+                $path = new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS);
             }
 
             /** @var iterable<string, string> $iterator */
             $iterator = new RecursiveIteratorIterator(
-                new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS),
+                $path,
                 RecursiveIteratorIterator::SELF_FIRST
             );
 
-            foreach ($iterator as $p => $_info) {
-                $times[] = self::modifiedTime($p);
+            foreach ($iterator as $path => $_info) {
+                $timestamp = self::modifiedTime($path);
+
+                if ($timestamp > $time) {
+                    $time = $timestamp;
+                }
             }
         }
 
-        /** @psalm-suppress ArgumentTypeCoercion */
-        return max($times);
+        return $time;
     }
 
-    private static function modifiedTime(string $path): int
+    private static function modifiedTime(string $path): ?int
     {
-        return (int)filemtime($path);
+        if ($timestamp = filemtime($path)) {
+            return $timestamp;
+        }
+
+        return null;
     }
 
     /**
