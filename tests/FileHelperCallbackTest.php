@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\Files\Tests;
 
-use InvalidArgumentException;
 use Yiisoft\Files\FileHelper;
 use PHPUnit\Framework\TestCase;
 use TypeError;
@@ -121,7 +120,7 @@ final class FileHelperCallbackTest extends FileSystemTestCase
 
     public function testAfterCopy(): void
     {
-        $compressor = new class() {
+        $compressor = new class () {
             public function compress(string $file): void
             {
                 $mode = 'wb9';
@@ -176,7 +175,7 @@ final class FileHelperCallbackTest extends FileSystemTestCase
 
     public function testCallable(): void
     {
-        $callable = new class($this) {
+        $callable = new class ($this) {
             private TestCase $testCase;
             public bool $beforeCalled = false;
             public bool $afterCalled = false;

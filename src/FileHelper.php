@@ -498,7 +498,7 @@ final class FileHelper
      *
      * If the path is a directory, any nested files/directories will be checked as well.
      *
-     * @param string[]|RecursiveDirectoryIterator[] $paths The directories to be checked.
+     * @param RecursiveDirectoryIterator[]|string[] $paths The directories to be checked.
      *
      * @throws LogicException If path is not set.
      *
