@@ -11,6 +11,7 @@ use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RuntimeException;
 use Yiisoft\Files\PathMatcher\PathMatcherInterface;
+
 use function array_key_exists;
 use function filemtime;
 use function get_debug_type;
@@ -18,7 +19,7 @@ use function is_file;
 use function is_string;
 
 /**
- * FileHelper provides useful methods to manage files and directories.
+ * Provides useful methods to manage files and directories.
  */
 final class FileHelper
 {
@@ -26,7 +27,7 @@ final class FileHelper
      * Opens a file or URL.
      *
      * This method is similar to the PHP {@see fopen()} function, except that it suppresses the {@see E_WARNING}
-     * level error and throws the {@see \RuntimeException} exception if it can't open the file.
+     * level error and throws the {@see RuntimeException} exception if it can't open the file.
      *
      * @param string $filename The file or URL.
      * @param string $mode The type of access.
@@ -116,7 +117,7 @@ final class FileHelper
      */
     public static function normalizePath(string $path): string
     {
-        $isWindowsShare = strpos($path, '\\\\') === 0;
+        $isWindowsShare = str_starts_with($path, '\\\\');
 
         if ($isWindowsShare) {
             $path = substr($path, 2);
@@ -124,7 +125,7 @@ final class FileHelper
 
         $path = rtrim(strtr($path, '/\\', '//'), '/');
 
-        if (strpos('/' . $path, '/.') === false && strpos($path, '//') === false) {
+        if (!str_contains('/' . $path, '/.') && !str_contains($path, '//')) {
             return $isWindowsShare ? "\\\\$path" : $path;
         }
 
@@ -231,7 +232,7 @@ final class FileHelper
             if (is_link($path)) {
                 try {
                     unlink($path);
-                } catch (RuntimeException $e) {
+                } catch (RuntimeException) {
                     rmdir($path);
                 }
             } else {
@@ -418,7 +419,7 @@ final class FileHelper
      *
      * @return mixed
      */
-    private static function processCallback(?callable $callback, ...$arguments): mixed
+    private static function processCallback(?callable $callback, mixed ...$arguments): mixed
     {
         return $callback ? $callback(...$arguments) : null;
     }
@@ -449,7 +450,7 @@ final class FileHelper
      */
     private static function assertNotSelfDirectory(string $source, string $destination): void
     {
-        if ($source === $destination || strpos($destination, $source . '/') === 0) {
+        if ($source === $destination || str_starts_with($destination, $source . '/')) {
             throw new InvalidArgumentException('Trying to copy a directory to itself or a subdirectory.');
         }
     }
@@ -547,7 +548,7 @@ final class FileHelper
 
     private static function modifiedTime(string $path): ?int
     {
-        if ($timestamp = filemtime($path)) {
+        if (false !== $timestamp = filemtime($path)) {
             return $timestamp;
         }
 
