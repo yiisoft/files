@@ -19,7 +19,7 @@ use function is_file;
 use function is_string;
 
 /**
- * `FileHelper` provides useful methods to manage files and directories.
+ * Provides useful methods to manage files and directories.
  */
 final class FileHelper
 {
