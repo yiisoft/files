@@ -2,7 +2,7 @@
 
 ## 2.0.1 under development
 
-- no changes in this release.
+- New #47: Add `filter` option for `FileHelper::clearDirectory()` (@dood-)
 
 ## 2.0.0 July 05, 2022
 

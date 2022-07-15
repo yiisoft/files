@@ -68,7 +68,12 @@ Remove everything within a directory but not directory itself:
 use \Yiisoft\Files\FileHelper;
 
 $directory = '/path/to/dir';
-FileHelper::clearDirectory($directory);
+FileHelper::clearDirectory($directory, [
+    'traverseSymlinks' => false,
+    'filter' => (new PathMatcher())
+        ->only('**.png', '**.jpg')
+        ->except('**/logo.png'),
+]);
 ```
 
 Check if directory is empty:
