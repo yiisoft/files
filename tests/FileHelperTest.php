@@ -226,7 +226,7 @@ final class FileHelperTest extends FileSystemTestCase
                     'standard-file-2.txt' => 'Standard file 2.',
                     'symlinked-file.txt' => ['symlink', '../file1.txt'],
                     'symlinked-file-local.txt' => ['symlink', '../file.txt'],
-                    'symlinked-directory' => ['symlink', '../directory'],
+                    'symlinked-directory' => ['symlink', '../test_sub_dir_2'],
                 ],
                 'readme' => [
                     'readme-local.txt' => 'Readme content',
