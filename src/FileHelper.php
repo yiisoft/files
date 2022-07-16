@@ -204,7 +204,7 @@ final class FileHelper
      *
      * @psalm-param array{
      *     traverseSymlinks?:bool,
-     *     filter?:PathMatcherInterface|mixed
+     *     filter?:PathMatcherInterface
      * } $options
      */
     public static function clearDirectory(string $directory, array $options = []): void
