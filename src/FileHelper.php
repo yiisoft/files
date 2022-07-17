@@ -152,14 +152,17 @@ final class FileHelper
      * Removes a directory (and all its content) recursively. Does nothing if directory does not exist.
      *
      * @param string $directory The directory to be deleted recursively.
-     * @param array $options Options for directory remove ({@see clearDirectory()}).
+     * @param array $options Options for directory remove. Valid options are:
      *
-     * @throw RuntimeException when unable to remove directory.
+     * - traverseSymlinks: boolean, whether symlinks to the directories should be traversed too.
+     *   Defaults to `false`, meaning the content of the symlinked directory would not be deleted.
+     *   Only symlink would be removed in that default case.
      *
      * @psalm-param array{
      *     traverseSymlinks?:bool,
-     *     filter?:PathMatcherInterface
      * } $options
+     *
+     * @throw RuntimeException When unable to remove directory.
      */
     public static function removeDirectory(string $directory, array $options = []): void
     {
@@ -167,26 +170,12 @@ final class FileHelper
             return;
         }
 
-        self::clearDirectory($directory, $options);
+        self::clearDirectory(
+            $directory,
+            ['traverseSymlinks' => $options['traverseSymlinks'] ?? false]
+        );
 
-        if (self::getFilter($options) !== null && !self::isEmptyDirectory($directory)) {
-            return;
-        }
-
-        if (is_link($directory)) {
-            self::unlink($directory);
-        } else {
-            set_error_handler(static function (int $errorNumber, string $errorString) use ($directory): bool {
-                throw new RuntimeException(
-                    sprintf('Failed to remove directory "%s". ', $directory) . $errorString,
-                    $errorNumber
-                );
-            });
-
-            rmdir($directory);
-
-            restore_error_handler();
-        }
+        self::removeLinkOrEmptyDirectory($directory);
     }
 
     /**
@@ -221,7 +210,10 @@ final class FileHelper
 
                 if ($filter === null || $filter->match($path)) {
                     if (is_dir($path)) {
-                        self::removeDirectory($path, $options);
+                        self::clearDirectory($path, $options);
+                        if (is_link($path) || self::isEmptyDirectory($path)) {
+                            self::removeLinkOrEmptyDirectory($path);
+                        }
                     } else {
                         self::unlink($path);
                     }
@@ -676,5 +668,30 @@ final class FileHelper
         closedir($handle);
 
         return $result;
+    }
+
+    /**
+     * Removes a link or an empty directory.
+     *
+     * @param string $directory The empty directory or the link to be deleted.
+     *
+     * @throw RuntimeException When unable to remove directory or link.
+     */
+    private static function removeLinkOrEmptyDirectory(string $directory): void
+    {
+        if (is_link($directory)) {
+            self::unlink($directory);
+        } else {
+            set_error_handler(static function (int $errorNumber, string $errorString) use ($directory): bool {
+                throw new RuntimeException(
+                    sprintf('Failed to remove directory "%s". ', $directory) . $errorString,
+                    $errorNumber
+                );
+            });
+
+            rmdir($directory);
+
+            restore_error_handler();
+        }
     }
 }
