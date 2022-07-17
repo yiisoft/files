@@ -218,7 +218,7 @@ final class FileHelperTest extends FileSystemTestCase
                     'sub_dir_file_2-local.txt' => 'sub dir file 2 content',
                 ],
                 'test_sub_dir_2' => [
-                    'sub_dir_2_file_1-local.txt' => 'sub dir 2 file 2 content'
+                    'sub_dir_2_file_1-local.txt' => 'sub dir 2 file 2 content',
                 ],
                 'file2-local.txt' => 'file 2 content',
                 'file.txt' => 'File',
