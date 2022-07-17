@@ -10,6 +10,7 @@ use LogicException;
 use RecursiveDirectoryIterator;
 use RuntimeException;
 use Yiisoft\Files\FileHelper;
+use Yiisoft\Files\PathMatcher\PathMatcher;
 
 /**
  * File helper tests class.
@@ -203,6 +204,60 @@ final class FileHelperTest extends FileSystemTestCase
 
         $this->expectException(InvalidArgumentException::class);
         FileHelper::clearDirectory($this->testFilePath . '/nonExisting');
+    }
+
+    public function testClearDirectoryWithFilter(): void
+    {
+        $dirName = 'test_dir_for_remove';
+
+        $this->createFileStructure([
+            $dirName => [
+                'file1.txt' => 'file 1 content',
+                'test_sub_dir' => [
+                    'sub_dir_file_1.txt' => 'sub dir file 1 content',
+                    'sub_dir_file_2-local.txt' => 'sub dir file 2 content',
+                ],
+                'test_sub_dir_2' => [
+                    'sub_dir_2_file_1-local.txt' => 'sub dir 2 file 2 content'
+                ],
+                'file2-local.txt' => 'file 2 content',
+                'file.txt' => 'File',
+                'symlinks_dir' => [
+                    'standard-file-2.txt' => 'Standard file 2.',
+                    'symlinked-file.txt' => ['symlink', '../file1.txt'],
+                    'symlinked-file-local.txt' => ['symlink', '../file.txt'],
+                    'symlinked-directory' => ['symlink', '../test_sub_dir_2'],
+                ],
+                'readme' => [
+                    'readme-local.txt' => 'Readme content',
+                ],
+            ],
+        ]);
+
+        $dirName = $this->testFilePath . '/' . $dirName;
+
+        FileHelper::clearDirectory($dirName, [
+            'filter' => (new PathMatcher())
+                ->only('**-local.txt')
+                ->except('**readme/'),
+        ]);
+
+        $this->assertDirectoryExists($dirName);
+        $this->assertDirectoryExists($dirName . '/symlinks_dir');
+        $this->assertDirectoryExists($dirName . '/readme');
+
+        $this->assertDirectoryDoesNotExist($dirName . '/test_sub_dir_2');
+        $this->assertDirectoryDoesNotExist($dirName . '/symlinks_dir/symlinked-directory');
+
+        $this->assertFileExists($dirName . '/file1.txt');
+        $this->assertFileExists($dirName . '/file.txt');
+        $this->assertFileExists($dirName . '/test_sub_dir/sub_dir_file_1.txt');
+        $this->assertFileExists($dirName . '/symlinks_dir/symlinked-file.txt');
+        $this->assertFileExists($dirName . '/readme/readme-local.txt');
+
+        $this->assertFileDoesNotExist($dirName . '/file2-local.txt');
+        $this->assertFileDoesNotExist($dirName . '/test_sub_dir/sub_dir_file_2-local.txt');
+        $this->assertFileDoesNotExist($dirName . '/symlinks_dir/symlinked-file-local.txt');
     }
 
     public function testNormalizePath(): void

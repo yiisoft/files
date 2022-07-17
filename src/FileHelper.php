@@ -155,6 +155,11 @@ final class FileHelper
      * @param array $options Options for directory remove ({@see clearDirectory()}).
      *
      * @throw RuntimeException when unable to remove directory.
+     *
+     * @psalm-param array{
+     *     traverseSymlinks?:bool,
+     *     filter?:PathMatcherInterface
+     * } $options
      */
     public static function removeDirectory(string $directory, array $options = []): void
     {
@@ -163,6 +168,10 @@ final class FileHelper
         }
 
         self::clearDirectory($directory, $options);
+
+        if (self::getFilter($options) !== null && !self::isEmptyDirectory($directory)) {
+            return;
+        }
 
         if (is_link($directory)) {
             self::unlink($directory);
@@ -189,22 +198,33 @@ final class FileHelper
      * - traverseSymlinks: boolean, whether symlinks to the directories should be traversed too.
      *   Defaults to `false`, meaning the content of the symlinked directory would not be deleted.
      *   Only symlink would be removed in that default case.
+     * - filter: a filter to apply while deleting files. It should be an instance of {@see PathMatcherInterface}.
      *
      * @throws RuntimeException if unable to open directory.
+     *
+     * @psalm-param array{
+     *     traverseSymlinks?:bool,
+     *     filter?:PathMatcherInterface
+     * } $options
      */
     public static function clearDirectory(string $directory, array $options = []): void
     {
+        $filter = self::getFilter($options);
         $handle = self::openDirectory($directory);
         if (!empty($options['traverseSymlinks']) || !is_link($directory)) {
             while (($file = readdir($handle)) !== false) {
                 if ($file === '.' || $file === '..') {
                     continue;
                 }
+
                 $path = $directory . '/' . $file;
-                if (is_dir($path)) {
-                    self::removeDirectory($path, $options);
-                } else {
-                    self::unlink($path);
+
+                if ($filter === null || $filter->match($path)) {
+                    if (is_dir($path)) {
+                        self::removeDirectory($path, $options);
+                    } else {
+                        self::unlink($path);
+                    }
                 }
             }
             closedir($handle);
@@ -294,7 +314,7 @@ final class FileHelper
      * @psalm-param array{
      *   dirMode?: int,
      *   fileMode?: int,
-     *   filter?: PathMatcherInterface|mixed,
+     *   filter?: PathMatcherInterface,
      *   recursive?: bool,
      *   beforeCopy?: callable,
      *   afterCopy?: callable,
@@ -565,7 +585,7 @@ final class FileHelper
      * - recursive: boolean, whether the subdirectories should also be looked for. Defaults to `true`.
      *
      * @psalm-param array{
-     *   filter?: PathMatcherInterface|mixed,
+     *   filter?: PathMatcherInterface,
      *   recursive?: bool,
      * } $options
      *
@@ -616,7 +636,7 @@ final class FileHelper
      * - recursive: boolean, whether the files under the subdirectories should also be looked for. Defaults to `true`.
      *
      * @psalm-param array{
-     *   filter?: PathMatcherInterface|mixed,
+     *   filter?: PathMatcherInterface,
      *   recursive?: bool,
      * } $options
      *
