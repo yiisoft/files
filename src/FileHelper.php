@@ -158,7 +158,7 @@ final class FileHelper
      *
      * @psalm-param array{
      *     traverseSymlinks?:bool,
-     *     filter?:PathMatcherInterface|mixed
+     *     filter?:PathMatcherInterface
      * } $options
      */
     public static function removeDirectory(string $directory, array $options = []): void
@@ -314,7 +314,7 @@ final class FileHelper
      * @psalm-param array{
      *   dirMode?: int,
      *   fileMode?: int,
-     *   filter?: PathMatcherInterface|mixed,
+     *   filter?: PathMatcherInterface,
      *   recursive?: bool,
      *   beforeCopy?: callable,
      *   afterCopy?: callable,
@@ -585,7 +585,7 @@ final class FileHelper
      * - recursive: boolean, whether the subdirectories should also be looked for. Defaults to `true`.
      *
      * @psalm-param array{
-     *   filter?: PathMatcherInterface|mixed,
+     *   filter?: PathMatcherInterface,
      *   recursive?: bool,
      * } $options
      *
@@ -636,7 +636,7 @@ final class FileHelper
      * - recursive: boolean, whether the files under the subdirectories should also be looked for. Defaults to `true`.
      *
      * @psalm-param array{
-     *   filter?: PathMatcherInterface|mixed,
+     *   filter?: PathMatcherInterface,
      *   recursive?: bool,
      * } $options
      *
