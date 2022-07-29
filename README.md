@@ -98,6 +98,19 @@ FileHelper::copyDirectory($source, $destination);
 Additional options could be specified as third argument such as `filter` or `copyEmptyDirectories`.
 Check method phpdoc for a full list of options.
 
+Copy file:
+
+```php
+use \Yiisoft\Files\FileHelper;
+
+$source = '/path/to/file';
+$destination = '/path/to/destination';
+FileHelper::copyFile($source, $destination);
+```
+
+Additional options could be specified as third argument such as `beforeCopy` or `afterCopy`.
+Check method phpdoc for a full list of options.
+
 ### Search
 
 Searching for files:
