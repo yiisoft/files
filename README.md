@@ -33,8 +33,6 @@ composer require yiisoft/files --prefer-dist
 
 FileHelper provides static methods you can use for various filesystem-related operations.
 
-Pattern matching is based on `yiisoft/strings` package. See more information here https://github.com/yiisoft/strings#wildcardpattern-usage
-
 ### Working with directories 
 
 Ensure a directory exists:
@@ -138,6 +136,13 @@ $directories = FileHelper::findDirectories('/path/to/where/to/search', [
     'filter' => (new PathMatcher())->except('**meta'),
 ]);
 ```
+
+### Path matchers
+
+An `PathMatcherInterface` can be passed by key `filter` in the `options` method's argument.
+`PathMatcher` and `CompositeMatcher` implements the `PathMatcherInterface`. CompositeMatcher is just a list of items who implements PathMatcherInterface. 
+
+Pattern matching is based on `yiisoft/strings` package. See more information here https://github.com/yiisoft/strings#wildcardpattern-usage
 
 ### Other
 
