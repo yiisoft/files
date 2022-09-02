@@ -33,6 +33,8 @@ composer require yiisoft/files --prefer-dist
 
 FileHelper provides static methods you can use for various filesystem-related operations.
 
+Pattern matching is based on `yiisoft/strings` package. See more information here https://github.com/yiisoft/strings#wildcardpattern-usage
+
 ### Working with directories 
 
 Ensure a directory exists:
