@@ -137,6 +137,14 @@ $directories = FileHelper::findDirectories('/path/to/where/to/search', [
 ]);
 ```
 
+### Path matchers
+
+A `PathMatcherInterface` can be passed by `filter` key in the `options` argument of a method.
+Both `PathMatcher` and `CompositeMatcher` implement the `PathMatcherInterface`. `CompositeMatcher` allows
+using a list of `PathMatcherInterface` sequentially. 
+
+Pattern matching is based on `yiisoft/strings` package [and is described in its readme](https://github.com/yiisoft/strings#wildcardpattern-usage).
+
 ### Other
 
 Open a file. Same as PHP's `fopen()` but throwing exceptions.
