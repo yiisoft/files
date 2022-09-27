@@ -9,25 +9,20 @@ namespace Yiisoft\Files\PathMatcher;
  */
 final class CompositeMatcher implements PathMatcherInterface
 {
-    private bool $matchAny;
-
     /**
      * @var PathMatcherInterface[]
      */
     private array $matchers;
 
-    private function __construct(bool $matchAny, PathMatcherInterface ...$matchers)
+    private function __construct(private bool $matchAny, PathMatcherInterface ...$matchers)
     {
         $this->matchers = $matchers;
-        $this->matchAny = $matchAny;
     }
 
     /**
      * Get an instance of composite matcher that gives a match if any of sub-matchers match.
      *
      * @param PathMatcherInterface ...$matchers Matchers to check.
-     *
-     * @return static
      */
     public static function any(PathMatcherInterface ...$matchers): self
     {
@@ -38,8 +33,6 @@ final class CompositeMatcher implements PathMatcherInterface
      * Get an instance of composite matcher that gives a match only if all of sub-matchers match.
      *
      * @param PathMatcherInterface ...$matchers Matchers to check.
-     *
-     * @return static
      */
     public static function all(PathMatcherInterface ...$matchers): self
     {

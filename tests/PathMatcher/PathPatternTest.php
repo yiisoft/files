@@ -43,11 +43,6 @@ final class PathPatternTest extends TestCase
 
     /**
      * @dataProvider dataMatch
-     *
-     * @param string $pattern
-     * @param string $string
-     * @param bool $expectedResult
-     * @param array $options
      */
     public function testMatch(string $pattern, string $string, bool $expectedResult, array $options = []): void
     {

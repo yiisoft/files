@@ -27,8 +27,6 @@ final class PathPattern implements PathMatcherInterface
 
     /**
      * Make pattern case sensitive.
-     *
-     * @return self
      */
     public function caseSensitive(): self
     {
@@ -39,8 +37,6 @@ final class PathPattern implements PathMatcherInterface
 
     /**
      * If path is not file or file not exists skip matching.
-     *
-     * @return self
      */
     public function onlyFiles(): self
     {
@@ -51,8 +47,6 @@ final class PathPattern implements PathMatcherInterface
 
     /**
      * Skip matching if path is not directory or directory does no exist.
-     *
-     * @return self
      */
     public function onlyDirectories(): self
     {

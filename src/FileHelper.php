@@ -263,8 +263,6 @@ final class FileHelper
      * Tells whether the path is an empty directory.
      *
      * @param string $path Path to check for being an empty directory.
-     *
-     * @return bool
      */
     public static function isEmptyDirectory(string $path): bool
     {
@@ -424,12 +422,10 @@ final class FileHelper
     }
 
     /**
-     * @param callable|null $callback
      * @param array $arguments
      *
      * @throws InvalidArgumentException
      *
-     * @return mixed
      */
     private static function processCallback(?callable $callback, mixed ...$arguments): mixed
     {

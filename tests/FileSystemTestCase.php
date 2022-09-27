@@ -40,7 +40,7 @@ abstract class FileSystemTestCase extends TestCase
      */
     protected function createFileStructure(array $items, ?string $basePath = null): void
     {
-        $basePath = $basePath ?? $this->testFilePath;
+        $basePath ??= $this->testFilePath;
 
         if (empty($basePath)) {
             $basePath = $this->testFilePath;
@@ -62,9 +62,6 @@ abstract class FileSystemTestCase extends TestCase
 
     /**
      * Check if exist filename.
-     *
-     * @param array $exist
-     * @param string $dstDirName
      */
     protected function checkExist(array $exist, string $dstDirName): void
     {
@@ -81,9 +78,6 @@ abstract class FileSystemTestCase extends TestCase
 
     /**
      * Check if no exist filename.
-     *
-     * @param array $noexist
-     * @param string $dstDirName
      */
     protected function checkNoexist(array $noexist, string $dstDirName): void
     {

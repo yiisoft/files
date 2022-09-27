@@ -62,8 +62,6 @@ final class PathMatcher implements PathMatcherInterface
     /**
      * Make string patterns case sensitive.
      * Note: applies only to string patterns.
-     *
-     * @return self
      */
     public function caseSensitive(): self
     {
@@ -75,8 +73,6 @@ final class PathMatcher implements PathMatcherInterface
     /**
      * Match path only as string, do not check if file or directory exists.
      * Note: applies only to string patterns.
-     *
-     * @return self
      */
     public function doNotCheckFilesystem(): self
     {
@@ -88,11 +84,9 @@ final class PathMatcher implements PathMatcherInterface
     /**
      * Set list of patterns that the files or directories should match.
      *
-     * @param PathMatcherInterface|string ...$patterns
      *
-     * @return self
      */
-    public function only(...$patterns): self
+    public function only(\Yiisoft\Files\PathMatcher\PathMatcherInterface|string ...$patterns): self
     {
         $new = clone $this;
         $new->only = $this->prepareMatchers($patterns);
@@ -105,10 +99,8 @@ final class PathMatcher implements PathMatcherInterface
      * @see https://github.com/yiisoft/strings#wildcardpattern-usage
      *
      * @param PathMatcherInterface|string ...$patterns Simple POSIX-style string matching.
-     *
-     * @return self
      */
-    public function except(...$patterns): self
+    public function except(\Yiisoft\Files\PathMatcher\PathMatcherInterface|string ...$patterns): self
     {
         $new = clone $this;
         $new->except = $this->prepareMatchers($patterns);
@@ -122,8 +114,6 @@ final class PathMatcher implements PathMatcherInterface
      * The callback should return `true` if there is a match and `false` otherwise.
      *
      * @param callable ...$callbacks
-     *
-     * @return self
      */
     public function callback(callable ...$callbacks): self
     {
