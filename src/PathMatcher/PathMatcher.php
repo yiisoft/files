@@ -83,10 +83,8 @@ final class PathMatcher implements PathMatcherInterface
 
     /**
      * Set list of patterns that the files or directories should match.
-     *
-     *
      */
-    public function only(\Yiisoft\Files\PathMatcher\PathMatcherInterface|string ...$patterns): self
+    public function only(PathMatcherInterface|string ...$patterns): self
     {
         $new = clone $this;
         $new->only = $this->prepareMatchers($patterns);
@@ -100,7 +98,7 @@ final class PathMatcher implements PathMatcherInterface
      *
      * @param PathMatcherInterface|string ...$patterns Simple POSIX-style string matching.
      */
-    public function except(\Yiisoft\Files\PathMatcher\PathMatcherInterface|string ...$patterns): self
+    public function except(PathMatcherInterface|string ...$patterns): self
     {
         $new = clone $this;
         $new->except = $this->prepareMatchers($patterns);

@@ -425,7 +425,6 @@ final class FileHelper
      * @param array $arguments
      *
      * @throws InvalidArgumentException
-     *
      */
     private static function processCallback(?callable $callback, mixed ...$arguments): mixed
     {
