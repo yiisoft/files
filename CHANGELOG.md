@@ -2,6 +2,7 @@
 
 ## 2.0.1 under development
 
+- Enh: Add composer require checker into CI
 - New #47: Add `filter` option for `FileHelper::clearDirectory()` (@dood-, @vjik)
 - Enh #72: In `PathMatcher::only()` and `PathMatcher::except()` methods move a type hints from annotation
   to signature (@xepozz)
