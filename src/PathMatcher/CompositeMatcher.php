@@ -14,8 +14,10 @@ final class CompositeMatcher implements PathMatcherInterface
      */
     private array $matchers;
 
-    private function __construct(private bool $matchAny, PathMatcherInterface ...$matchers)
-    {
+    private function __construct(
+        private bool $matchAny,
+        PathMatcherInterface ...$matchers
+    ) {
         $this->matchers = $matchers;
     }
 
