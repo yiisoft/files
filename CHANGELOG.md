@@ -3,6 +3,8 @@
 ## 2.0.1 under development
 
 - New #47: Add `filter` option for `FileHelper::clearDirectory()` (@dood-, @vjik)
+- Enh #72: In `PathMatcher::only()` and `PathMatcher::except()` methods move a type hints from annotation
+  to signature (@xepozz)
 
 ## 2.0.0 July 05, 2022
 
