@@ -176,13 +176,11 @@ final class FileHelperCallbackTest extends FileSystemTestCase
     public function testCallable(): void
     {
         $callable = new class ($this) {
-            private TestCase $testCase;
             public bool $beforeCalled = false;
             public bool $afterCalled = false;
 
-            public function __construct(TestCase $testCase)
+            public function __construct(private TestCase $testCase)
             {
-                $this->testCase = $testCase;
             }
 
             public function beforeCopy(string $source, string $destination): void
