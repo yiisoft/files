@@ -6,6 +6,7 @@ namespace Yiisoft\Files\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Yiisoft\Files\FileHelper;
+
 use function is_array;
 
 abstract class FileSystemTestCase extends TestCase
