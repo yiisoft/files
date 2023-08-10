@@ -110,8 +110,6 @@ final class PathMatcher implements PathMatcherInterface
      *
      * The signature of the callback should be: `function ($path)`, where `$path` refers the full path to be filtered.
      * The callback should return `true` if there is a match and `false` otherwise.
-     *
-     * @param callable ...$callbacks
      */
     public function callback(callable ...$callbacks): self
     {
