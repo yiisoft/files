@@ -381,7 +381,6 @@ final class FileHelper
      *
      * @param string $source The source file
      * @param string $destination The destination filename
-     * @param array $options
      *
      * @psalm-param array{
      *   dirMode?: int,
