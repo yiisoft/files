@@ -26,7 +26,7 @@ The package provides useful methods to manage files and directories.
 The package could be installed with composer:
 
 ```shell
-composer require yiisoft/files --prefer-dist
+composer require yiisoft/files
 ```
 
 ## FileHelper usage
