@@ -13,10 +13,35 @@ use RuntimeException;
 use Yiisoft\Files\PathMatcher\PathMatcherInterface;
 
 use function array_key_exists;
+use function array_pop;
+use function chmod;
+use function closedir;
+use function copy;
+use function dirname;
+use function end;
+use function explode;
+use function file_exists;
 use function filemtime;
+use function fopen;
 use function get_debug_type;
+use function implode;
+use function is_dir;
 use function is_file;
+use function is_link;
 use function is_string;
+use function is_writable;
+use function opendir;
+use function readdir;
+use function realpath;
+use function restore_error_handler;
+use function rmdir;
+use function rtrim;
+use function set_error_handler;
+use function sprintf;
+use function str_contains;
+use function str_replace;
+use function str_starts_with;
+use function substr;
 
 /**
  * Provides useful methods to manage files and directories.
@@ -123,7 +148,7 @@ final class FileHelper
             $path = substr($path, 2);
         }
 
-        $path = rtrim(strtr($path, '/\\', '//'), '/');
+        $path = rtrim(str_replace('\\', '/', $path), '/');
 
         if (!str_contains('/' . $path, '/.') && !str_contains($path, '//')) {
             return $isWindowsShare ? "\\\\$path" : $path;
@@ -313,23 +338,21 @@ final class FileHelper
      */
     public static function copyDirectory(string $source, string $destination, array $options = []): void
     {
-        $filter = self::getFilter($options);
-        $afterCopy = $options['afterCopy'] ?? null;
-        $beforeCopy = $options['beforeCopy'] ?? null;
-        $recursive = !array_key_exists('recursive', $options) || $options['recursive'];
-
-        if (!isset($options['dirMode'])) {
-            $options['dirMode'] = 0755;
-        }
-
         $source = self::normalizePath($source);
         $destination = self::normalizePath($destination);
-        $copyEmptyDirectories = !array_key_exists('copyEmptyDirectories', $options) || $options['copyEmptyDirectories'];
 
         self::assertNotSelfDirectory($source, $destination);
 
-        if (self::processCallback($beforeCopy, $source, $destination) === false) {
+        if (self::processCallback($options['beforeCopy'] ?? null, $source, $destination) === false) {
             return;
+        }
+
+        $filter = self::getFilter($options);
+        $recursive = !array_key_exists('recursive', $options) || $options['recursive'];
+        $copyEmptyDirectories = !array_key_exists('copyEmptyDirectories', $options) || $options['copyEmptyDirectories'];
+
+        if (!isset($options['dirMode'])) {
+            $options['dirMode'] = 0755;
         }
 
         if ($copyEmptyDirectories && !is_dir($destination)) {
@@ -361,7 +384,7 @@ final class FileHelper
 
         closedir($handle);
 
-        self::processCallback($afterCopy, $source, $destination);
+        self::processCallback($options['afterCopy'] ?? null, $source, $destination);
     }
 
     /**
@@ -395,15 +418,13 @@ final class FileHelper
             throw new InvalidArgumentException('Argument $source must be an existing file.');
         }
 
+        if (self::processCallback($options['beforeCopy'] ?? null, $source, $destination) === false) {
+            return;
+        }
+
         $dirname = dirname($destination);
         $dirMode = $options['dirMode'] ?? 0755;
         $fileMode = $options['fileMode'] ?? null;
-        $afterCopy = $options['afterCopy'] ?? null;
-        $beforeCopy = $options['beforeCopy'] ?? null;
-
-        if (self::processCallback($beforeCopy, $source, $destination) === false) {
-            return;
-        }
 
         if (!is_dir($dirname)) {
             self::ensureDirectory($dirname, $dirMode);
@@ -417,7 +438,7 @@ final class FileHelper
             throw new RuntimeException(sprintf('Unable to set mode "%s" for "%s".', $fileMode, $destination));
         }
 
-        self::processCallback($afterCopy, $source, $destination);
+        self::processCallback($options['afterCopy'] ?? null, $source, $destination);
     }
 
     /**
