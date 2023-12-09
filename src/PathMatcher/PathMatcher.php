@@ -165,7 +165,7 @@ final class PathMatcher implements PathMatcherInterface
 
             if ($match === false) {
                 $hasFalse = true;
-            } elseif ($match === null) {
+            } else {
                 $hasNull = true;
             }
         }
