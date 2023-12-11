@@ -39,8 +39,8 @@ use function rtrim;
 use function set_error_handler;
 use function sprintf;
 use function str_contains;
-use function str_replace;
 use function str_starts_with;
+use function strtr;
 use function substr;
 
 /**
@@ -148,7 +148,7 @@ final class FileHelper
             $path = substr($path, 2);
         }
 
-        $path = rtrim(str_replace('\\', '/', $path), '/');
+        $path = rtrim(strtr($path, '\\', '/'), '/');
 
         if (!str_contains('/' . $path, '/.') && !str_contains($path, '//')) {
             return $isWindowsShare ? "\\\\$path" : $path;

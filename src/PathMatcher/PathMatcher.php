@@ -9,7 +9,7 @@ use Yiisoft\Strings\StringHelper;
 use function is_dir;
 use function is_file;
 use function str_ends_with;
-use function str_replace;
+use function strtr;
 
 /**
  * Path matcher is based on {@see PathPattern} with the following logic:
@@ -211,7 +211,7 @@ final class PathMatcher implements PathMatcherInterface
                 continue;
             }
 
-            $pattern = str_replace('\\', '/', $pattern);
+            $pattern = strtr($pattern, '\\', '/');
             $isDirectoryPattern = str_ends_with($pattern, '/');
 
             if ($isDirectoryPattern) {
