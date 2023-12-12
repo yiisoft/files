@@ -6,6 +6,11 @@ namespace Yiisoft\Files\PathMatcher;
 
 use Yiisoft\Strings\StringHelper;
 
+use function is_dir;
+use function is_file;
+use function str_ends_with;
+use function strtr;
+
 /**
  * Path matcher is based on {@see PathPattern} with the following logic:
  *
@@ -127,11 +132,7 @@ final class PathMatcher implements PathMatcherInterface
      */
     public function match(string $path): bool
     {
-        if (!$this->matchOnly($path)) {
-            return false;
-        }
-
-        if ($this->matchExcept($path)) {
+        if (!$this->matchOnly($path) || $this->matchExcept($path)) {
             return false;
         }
 
@@ -156,13 +157,15 @@ final class PathMatcher implements PathMatcherInterface
         $hasNull = false;
 
         foreach ($this->only as $pattern) {
-            if ($pattern->match($path) === true) {
+            $match = $pattern->match($path);
+
+            if ($match === true) {
                 return true;
             }
-            if ($pattern->match($path) === false) {
+
+            if ($match === false) {
                 $hasFalse = true;
-            }
-            if ($pattern->match($path) === null) {
+            } else {
                 $hasNull = true;
             }
         }
@@ -208,9 +211,9 @@ final class PathMatcher implements PathMatcherInterface
                 continue;
             }
 
-            $pattern = strtr($pattern, '/\\', '//');
-
+            $pattern = strtr($pattern, '\\', '/');
             $isDirectoryPattern = str_ends_with($pattern, '/');
+
             if ($isDirectoryPattern) {
                 $pattern = StringHelper::substring($pattern, 0, -1);
             }

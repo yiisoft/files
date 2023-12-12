@@ -6,6 +6,10 @@ namespace Yiisoft\Files\PathMatcher;
 
 use Yiisoft\Strings\WildcardPattern;
 
+use function is_dir;
+use function is_file;
+use function str_replace;
+
 /**
  * A shell path pattern to match against. Based on {@see WildcardPattern}.
  */
