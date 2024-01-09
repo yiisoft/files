@@ -133,7 +133,7 @@ final class FileHelperCallbackTest extends FileSystemTestCase
                 if ($fp_out = gzopen($destination, $mode)) {
                     if ($fp_in = fopen($file, 'rb')) {
                         while (!feof($fp_in)) {
-                            gzwrite($fp_out, fread($fp_in, 1024*512));
+                            gzwrite($fp_out, fread($fp_in, 1024 * 512));
                         }
 
                         fclose($fp_in);
