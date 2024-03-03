@@ -74,10 +74,11 @@ final class FileHelper
                 $errorNumber
             );
         });
-
-        $filePointer = fopen($filename, $mode, $useIncludePath, $context);
-
-        restore_error_handler();
+        try {
+            $filePointer = fopen($filename, $mode, $useIncludePath, $context);
+        } finally {
+            restore_error_handler();
+        }
 
         if ($filePointer === false) {
             throw new RuntimeException(sprintf('Failed to open a file "%s". ', $filename));
@@ -115,10 +116,11 @@ final class FileHelper
                 }
                 return true;
             });
-
-            mkdir($path, $mode, true);
-
-            restore_error_handler();
+            try {
+                mkdir($path, $mode, true);
+            } finally {
+                restore_error_handler();
+            }
         }
 
         if (!chmod($path, $mode)) {
@@ -262,26 +264,27 @@ final class FileHelper
                 $errorNumber
             );
         });
-
-        $isWindows = DIRECTORY_SEPARATOR === '\\';
-
-        if ($isWindows) {
-            if (is_link($path)) {
-                try {
+        try {
+            $isWindows = DIRECTORY_SEPARATOR === '\\';
+            if ($isWindows) {
+                if (is_link($path)) {
+                    try {
+                        unlink($path);
+                    } catch (RuntimeException) {
+                        rmdir($path);
+                    }
+                } else {
+                    if (file_exists($path) && !is_writable($path)) {
+                        chmod($path, 0777);
+                    }
                     unlink($path);
-                } catch (RuntimeException) {
-                    rmdir($path);
                 }
             } else {
-                if (file_exists($path) && !is_writable($path)) {
-                    chmod($path, 0777);
-                }
                 unlink($path);
             }
-        } else {
-            unlink($path);
+        } finally {
+            restore_error_handler();
         }
-        restore_error_handler();
     }
 
     /**
@@ -508,13 +511,14 @@ final class FileHelper
             );
         });
 
-        $handle = opendir($directory);
-
-        if ($handle === false) {
-            throw new RuntimeException(sprintf('Unable to open directory "%s". ', $directory));
+        try {
+            $handle = opendir($directory);
+            if ($handle === false) {
+                throw new RuntimeException(sprintf('Unable to open directory "%s". ', $directory));
+            }
+        } finally {
+            restore_error_handler();
         }
-
-        restore_error_handler();
 
         return $handle;
     }
@@ -701,10 +705,11 @@ final class FileHelper
                     $errorNumber
                 );
             });
-
-            rmdir($directory);
-
-            restore_error_handler();
+            try {
+                rmdir($directory);
+            } finally {
+                restore_error_handler();
+            }
         }
     }
 }
