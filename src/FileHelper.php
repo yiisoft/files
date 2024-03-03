@@ -374,6 +374,7 @@ final class FileHelper
             $to = $destination . '/' . $file;
 
             if ($filter === null || $filter->match($from)) {
+                /** @psalm-suppress InvalidArgument $options is compatible with `copyFile()` and `copyDirectory()` */
                 if (is_file($from)) {
                     self::copyFile($from, $to, $options);
                 } elseif ($recursive) {
