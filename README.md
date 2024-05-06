@@ -23,7 +23,7 @@ The package provides useful methods to manage files and directories.
 
 ## Installation
 
-The package could be installed via [composer](https://getcomposer.org/download/)
+The package could be installed with [Composer](https://getcomposer.org):
 
 ```shell
 composer require yiisoft/files
