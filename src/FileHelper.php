@@ -576,13 +576,13 @@ final class FileHelper
         return $time;
     }
 
+    /**
+     * @see https://www.php.net/manual/function.filemtime.php
+     */
     private static function modifiedTime(string $path): ?int
     {
-        if (false !== $timestamp = filemtime($path)) {
-            return $timestamp;
-        }
-
-        return null;
+        $timestamp = @filemtime($path);
+        return $timestamp === false ? null : $timestamp;
     }
 
     /**
