@@ -18,7 +18,7 @@ The package provides useful methods to manage files and directories.
 
 ## Requirements
 
-- PHP 8.0 or higher.
+- PHP 8.0 - 8.5.
 
 ## Installation
 
