@@ -8,7 +8,7 @@
 - Enh #87: Use FQN for built-in PHP functions, minor refactoring `FileHelper` and `PathMatcher` (@Tigrov)
 - Bug #91: Restore error handler after handling exception (@vjik)
 - Enh #99: Suppress warnings that emitted when path not exist on `FileHelper::lastModifiedTime()` usage (@vjik)  
-- Chg #101: Change PHP constraint in `composer.json` to `8.0 - 8.4` (@vjik)
+- Chg #101, #102: Change PHP constraint in `composer.json` to `8.0 - 8.5` (@vjik)
 
 ## 2.0.0 July 05, 2022
 
