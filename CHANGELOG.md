@@ -1,14 +1,14 @@
 # Yii Files Change Log
 
-## 3.0.0 under development
+## 2.1.0 December 01, 2025
 
 - New #47: Add `filter` option for `FileHelper::clearDirectory()` (@dood-, @vjik)
+- Chg #101, #102: Change PHP constraint in `composer.json` to `8.0 - 8.5` (@vjik)
 - Enh #72: In `PathMatcher::only()` and `PathMatcher::except()` methods move a type hints from annotation
   to signature (@xepozz)
 - Enh #87: Use FQN for built-in PHP functions, minor refactoring `FileHelper` and `PathMatcher` (@Tigrov)
+- Enh #99: Suppress warnings that emitted when path not exist on `FileHelper::lastModifiedTime()` usage (@vjik)
 - Bug #91: Restore error handler after handling exception (@vjik)
-- Enh #99: Suppress warnings that emitted when path not exist on `FileHelper::lastModifiedTime()` usage (@vjik)  
-- Chg #101, #102: Change PHP constraint in `composer.json` to `8.0 - 8.5` (@vjik)
 
 ## 2.0.0 July 05, 2022
 
