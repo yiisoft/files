@@ -1,5 +1,9 @@
 # Yii Files Change Log
 
+## 2.1.1 under development
+
+- no changes in this release.
+
 ## 2.1.0 December 01, 2025
 
 - New #47: Add `filter` option for `FileHelper::clearDirectory()` (@dood-, @vjik)
