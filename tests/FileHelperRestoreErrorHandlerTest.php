@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Yiisoft\Files\FileHelper;
 use Yiisoft\Files\Tests\Support\StubErrorHandler;
+use ReflectionClass;
 
 final class FileHelperRestoreErrorHandlerTest extends TestCase
 {
@@ -44,7 +45,7 @@ final class FileHelperRestoreErrorHandlerTest extends TestCase
     {
         $fn = function () {
             try {
-                FileHelper::ensureDirectory((new \ReflectionClass($this))->getFileName());
+                FileHelper::ensureDirectory((new ReflectionClass($this))->getFileName());
             } catch (RuntimeException) {
                 return 42;
             }

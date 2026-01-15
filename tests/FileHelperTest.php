@@ -320,7 +320,7 @@ final class FileHelperTest extends FileSystemTestCase
                         'stub.js' => 'testMe',
                     ],
                 ],
-            ]
+            ],
         );
 
         $this->assertIsInt(FileHelper::lastModifiedTime($basePath));
@@ -343,7 +343,7 @@ final class FileHelperTest extends FileSystemTestCase
                         'stub.js' => 'testMe',
                     ],
                 ],
-            ]
+            ],
         );
 
         $filemtime = FileHelper::lastModifiedTime($basePath);

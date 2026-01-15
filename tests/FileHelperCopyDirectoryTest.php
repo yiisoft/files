@@ -8,6 +8,11 @@ use InvalidArgumentException;
 use Yiisoft\Files\FileHelper;
 use Yiisoft\Files\PathMatcher\PathMatcher;
 
+use function is_array;
+use function sprintf;
+
+use const DIRECTORY_SEPARATOR;
+
 final class FileHelperCopyDirectoryTest extends FileSystemTestCase
 {
     public function testBase(): void
@@ -178,7 +183,7 @@ final class FileHelperCopyDirectoryTest extends FileSystemTestCase
 
         FileHelper::copyDirectory(
             $this->testFilePath . '/backup',
-            $this->testFilePath . '/backup/data'
+            $this->testFilePath . '/backup/data',
         );
     }
 
@@ -196,7 +201,7 @@ final class FileHelperCopyDirectoryTest extends FileSystemTestCase
 
         FileHelper::copyDirectory(
             $this->testFilePath . '/data',
-            $this->testFilePath . '/backup/data'
+            $this->testFilePath . '/backup/data',
         );
 
         $this->assertFileExists($this->testFilePath . '/backup/data');
@@ -216,7 +221,7 @@ final class FileHelperCopyDirectoryTest extends FileSystemTestCase
 
         FileHelper::copyDirectory(
             $this->testFilePath . '/data',
-            $this->testFilePath . '/data-backup'
+            $this->testFilePath . '/data-backup',
         );
 
         $this->assertTrue(true, 'no error');

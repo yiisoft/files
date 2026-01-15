@@ -8,6 +8,8 @@ use Yiisoft\Files\FileHelper;
 use PHPUnit\Framework\TestCase;
 use TypeError;
 
+use const PATHINFO_EXTENSION;
+
 final class FileHelperCallbackTest extends FileSystemTestCase
 {
     public function testSimpleBeforeCopy(): void
@@ -64,7 +66,7 @@ final class FileHelperCallbackTest extends FileSystemTestCase
         $destination = $basePath . '/test_dst_dir';
 
         $options = [
-            'beforeCopy' => static fn () => false,
+            'beforeCopy' => static fn() => false,
         ];
 
         FileHelper::copyDirectory($source, $destination, $options);
@@ -120,7 +122,7 @@ final class FileHelperCallbackTest extends FileSystemTestCase
 
     public function testAfterCopy(): void
     {
-        $compressor = new class () {
+        $compressor = new class {
             public function compress(string $file): void
             {
                 $mode = 'wb9';
@@ -159,7 +161,7 @@ final class FileHelperCallbackTest extends FileSystemTestCase
         $destination = $basePath . '/test_dst_dir';
 
         $options = [
-            'afterCopy' => static fn ($source, $destination) => $compressor->compress($destination),
+            'afterCopy' => static fn($source, $destination) => $compressor->compress($destination),
         ];
 
         FileHelper::copyDirectory($source, $destination, $options);
@@ -179,9 +181,7 @@ final class FileHelperCallbackTest extends FileSystemTestCase
             public bool $beforeCalled = false;
             public bool $afterCalled = false;
 
-            public function __construct(private TestCase $testCase)
-            {
-            }
+            public function __construct(private TestCase $testCase) {}
 
             public function beforeCopy(string $source, string $destination): void
             {

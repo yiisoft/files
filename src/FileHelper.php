@@ -43,6 +43,8 @@ use function str_starts_with;
 use function strtr;
 use function substr;
 
+use const DIRECTORY_SEPARATOR;
+
 /**
  * Provides useful methods to manage files and directories.
  */
@@ -71,7 +73,7 @@ final class FileHelper
         set_error_handler(static function (int $errorNumber, string $errorString) use ($filename): bool {
             throw new RuntimeException(
                 sprintf('Failed to open a file "%s". ', $filename) . $errorString,
-                $errorNumber
+                $errorNumber,
             );
         });
         try {
@@ -111,7 +113,7 @@ final class FileHelper
                 if (!is_dir($path)) {
                     throw new RuntimeException(
                         sprintf('Failed to create directory "%s". ', $path) . $errorString,
-                        $errorNumber
+                        $errorNumber,
                     );
                 }
                 return true;
@@ -199,7 +201,7 @@ final class FileHelper
 
         self::clearDirectory(
             $directory,
-            ['traverseSymlinks' => $options['traverseSymlinks'] ?? false]
+            ['traverseSymlinks' => $options['traverseSymlinks'] ?? false],
         );
 
         self::removeLinkOrEmptyDirectory($directory);
@@ -261,7 +263,7 @@ final class FileHelper
         set_error_handler(static function (int $errorNumber, string $errorString) use ($path): bool {
             throw new RuntimeException(
                 sprintf('Failed to unlink "%s". ', $path) . $errorString,
-                $errorNumber
+                $errorNumber,
             );
         });
         try {
@@ -446,85 +448,6 @@ final class FileHelper
     }
 
     /**
-     * @throws InvalidArgumentException
-     */
-    private static function processCallback(?callable $callback, mixed ...$arguments): mixed
-    {
-        return $callback ? $callback(...$arguments) : null;
-    }
-
-    private static function getFilter(array $options): ?PathMatcherInterface
-    {
-        if (!array_key_exists('filter', $options)) {
-            return null;
-        }
-
-        if (!$options['filter'] instanceof PathMatcherInterface) {
-            $type = get_debug_type($options['filter']);
-            throw new InvalidArgumentException(
-                sprintf('Filter should be an instance of PathMatcherInterface, %s given.', $type)
-            );
-        }
-
-        return $options['filter'];
-    }
-
-    /**
-     * Assert that destination is not within the source directory.
-     *
-     * @param string $source Path to source.
-     * @param string $destination Path to destination.
-     *
-     * @throws InvalidArgumentException
-     */
-    private static function assertNotSelfDirectory(string $source, string $destination): void
-    {
-        if ($source === $destination || str_starts_with($destination, $source . '/')) {
-            throw new InvalidArgumentException('Trying to copy a directory to itself or a subdirectory.');
-        }
-    }
-
-    /**
-     * Open directory handle.
-     *
-     * @param string $directory Path to directory.
-     *
-     * @throws RuntimeException if unable to open directory.
-     * @throws InvalidArgumentException if argument is not a directory.
-     *
-     * @return resource
-     */
-    private static function openDirectory(string $directory)
-    {
-        if (!file_exists($directory)) {
-            throw new InvalidArgumentException("\"$directory\" does not exist.");
-        }
-
-        if (!is_dir($directory)) {
-            throw new InvalidArgumentException("\"$directory\" is not a directory.");
-        }
-
-        /** @psalm-suppress InvalidArgument, MixedArgumentTypeCoercion */
-        set_error_handler(static function (int $errorNumber, string $errorString) use ($directory): bool {
-            throw new RuntimeException(
-                sprintf('Unable to open directory "%s". ', $directory) . $errorString,
-                $errorNumber
-            );
-        });
-
-        try {
-            $handle = opendir($directory);
-            if ($handle === false) {
-                throw new RuntimeException(sprintf('Unable to open directory "%s". ', $directory));
-            }
-        } finally {
-            restore_error_handler();
-        }
-
-        return $handle;
-    }
-
-    /**
      * Returns the last modification time for the given paths.
      *
      * If the path is a directory, any nested files/directories will be checked as well.
@@ -561,7 +484,7 @@ final class FileHelper
             /** @var iterable<string, string> $iterator */
             $iterator = new RecursiveIteratorIterator(
                 $path,
-                RecursiveIteratorIterator::SELF_FIRST
+                RecursiveIteratorIterator::SELF_FIRST,
             );
 
             foreach ($iterator as $path => $_info) {
@@ -574,15 +497,6 @@ final class FileHelper
         }
 
         return $time;
-    }
-
-    /**
-     * @see https://www.php.net/manual/function.filemtime.php
-     */
-    private static function modifiedTime(string $path): ?int
-    {
-        $timestamp = @filemtime($path);
-        return $timestamp === false ? null : $timestamp;
     }
 
     /**
@@ -689,6 +603,94 @@ final class FileHelper
     }
 
     /**
+     * @throws InvalidArgumentException
+     */
+    private static function processCallback(?callable $callback, mixed ...$arguments): mixed
+    {
+        return $callback ? $callback(...$arguments) : null;
+    }
+
+    private static function getFilter(array $options): ?PathMatcherInterface
+    {
+        if (!array_key_exists('filter', $options)) {
+            return null;
+        }
+
+        if (!$options['filter'] instanceof PathMatcherInterface) {
+            $type = get_debug_type($options['filter']);
+            throw new InvalidArgumentException(
+                sprintf('Filter should be an instance of PathMatcherInterface, %s given.', $type),
+            );
+        }
+
+        return $options['filter'];
+    }
+
+    /**
+     * Assert that destination is not within the source directory.
+     *
+     * @param string $source Path to source.
+     * @param string $destination Path to destination.
+     *
+     * @throws InvalidArgumentException
+     */
+    private static function assertNotSelfDirectory(string $source, string $destination): void
+    {
+        if ($source === $destination || str_starts_with($destination, $source . '/')) {
+            throw new InvalidArgumentException('Trying to copy a directory to itself or a subdirectory.');
+        }
+    }
+
+    /**
+     * Open directory handle.
+     *
+     * @param string $directory Path to directory.
+     *
+     * @throws RuntimeException if unable to open directory.
+     * @throws InvalidArgumentException if argument is not a directory.
+     *
+     * @return resource
+     */
+    private static function openDirectory(string $directory)
+    {
+        if (!file_exists($directory)) {
+            throw new InvalidArgumentException("\"$directory\" does not exist.");
+        }
+
+        if (!is_dir($directory)) {
+            throw new InvalidArgumentException("\"$directory\" is not a directory.");
+        }
+
+        /** @psalm-suppress InvalidArgument, MixedArgumentTypeCoercion */
+        set_error_handler(static function (int $errorNumber, string $errorString) use ($directory): bool {
+            throw new RuntimeException(
+                sprintf('Unable to open directory "%s". ', $directory) . $errorString,
+                $errorNumber,
+            );
+        });
+
+        try {
+            $handle = opendir($directory);
+            if ($handle === false) {
+                throw new RuntimeException(sprintf('Unable to open directory "%s". ', $directory));
+            }
+        } finally {
+            restore_error_handler();
+        }
+
+        return $handle;
+    }
+
+    /**
+     * @see https://www.php.net/manual/function.filemtime.php
+     */
+    private static function modifiedTime(string $path): ?int
+    {
+        $timestamp = @filemtime($path);
+        return $timestamp === false ? null : $timestamp;
+    }
+
+    /**
      * Removes a link or an empty directory.
      *
      * @param string $directory The empty directory or the link to be deleted.
@@ -703,7 +705,7 @@ final class FileHelper
             set_error_handler(static function (int $errorNumber, string $errorString) use ($directory): bool {
                 throw new RuntimeException(
                     sprintf('Failed to remove directory "%s". ', $directory) . $errorString,
-                    $errorNumber
+                    $errorNumber,
                 );
             });
             try {
