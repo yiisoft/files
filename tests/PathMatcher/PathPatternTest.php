@@ -51,6 +51,14 @@ final class PathPatternTest extends TestCase
         $this->assertSame($expectedResult, $pathPattern->match($string));
     }
 
+    public function testImmutability(): void
+    {
+        $original = new PathPattern('*');
+        $this->assertNotSame($original, $original->caseSensitive());
+        $this->assertNotSame($original, $original->onlyFiles());
+        $this->assertNotSame($original, $original->onlyDirectories());
+    }
+
     private function getPathPattern(string $pattern, array $options): PathPattern
     {
         $pathPattern = new PathPattern($pattern);
@@ -59,13 +67,5 @@ final class PathPatternTest extends TestCase
         }
 
         return $pathPattern;
-    }
-
-    public function testImmutability(): void
-    {
-        $original = new PathPattern('*');
-        $this->assertNotSame($original, $original->caseSensitive());
-        $this->assertNotSame($original, $original->onlyFiles());
-        $this->assertNotSame($original, $original->onlyDirectories());
     }
 }

@@ -72,8 +72,8 @@ final class PathPattern implements PathMatcherInterface
         $path = str_replace('\\', '/', $path);
 
         if (
-            ($this->matchOnly === self::FILES && is_dir($path)) ||
-            ($this->matchOnly === self::DIRECTORIES && is_file($path))
+            ($this->matchOnly === self::FILES && is_dir($path))
+            || ($this->matchOnly === self::DIRECTORIES && is_file($path))
         ) {
             return null;
         }

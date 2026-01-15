@@ -42,7 +42,7 @@ final class PathMatcherTest extends FileSystemTestCase
     {
         $matcher = (new PathMatcher())
             ->doNotCheckFilesystem()
-            ->callback(fn ($path) => false);
+            ->callback(fn($path) => false);
 
         $this->assertFalse($matcher->match('hello.png'));
     }
@@ -103,7 +103,7 @@ final class PathMatcherTest extends FileSystemTestCase
             ->doNotCheckFilesystem()
             ->only(
                 '.png',
-                '**.jpg'
+                '**.jpg',
             );
 
         $this->assertTrue($matcher->match('42.jpg'));
@@ -149,6 +149,6 @@ final class PathMatcherTest extends FileSystemTestCase
         $this->assertNotSame($original, $original->doNotCheckFilesystem());
         $this->assertNotSame($original, $original->only('42.txt'));
         $this->assertNotSame($original, $original->except('42.txt'));
-        $this->assertNotSame($original, $original->callback(fn ($path) => false));
+        $this->assertNotSame($original, $original->callback(fn($path) => false));
     }
 }

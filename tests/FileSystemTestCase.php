@@ -8,6 +8,9 @@ use PHPUnit\Framework\TestCase;
 use Yiisoft\Files\FileHelper;
 
 use function is_array;
+use function sprintf;
+
+use const DIRECTORY_SEPARATOR;
 
 abstract class FileSystemTestCase extends TestCase
 {

@@ -32,7 +32,7 @@ final class FileHelperFindFilesTest extends FileSystemTestCase
                 $basePath . '/subdir/file3.txt',
                 $basePath . '/subdir/file4.txt',
             ],
-            FileHelper::findFiles($basePath)
+            FileHelper::findFiles($basePath),
         );
     }
 
@@ -58,7 +58,7 @@ final class FileHelperFindFilesTest extends FileSystemTestCase
             ],
             FileHelper::findFiles($basePath, [
                 'filter' => (new PathMatcher())->except('**-local.txt'),
-            ])
+            ]),
         );
     }
 
@@ -93,7 +93,7 @@ final class FileHelperFindFilesTest extends FileSystemTestCase
             ],
             FileHelper::findFiles($basePath, [
                 'recursive' => false,
-            ])
+            ]),
         );
     }
 
@@ -117,7 +117,7 @@ final class FileHelperFindFilesTest extends FileSystemTestCase
                 $basePath . '/dir/file2.txt',
                 $basePath . '/symdir/file2.txt',
             ],
-            FileHelper::findFiles($basePath)
+            FileHelper::findFiles($basePath),
         );
     }
 

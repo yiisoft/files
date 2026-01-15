@@ -35,7 +35,7 @@ final class FileHelperFindDirectoriesTest extends FileSystemTestCase
                 $basePath . '/dir1/subdir',
                 $basePath . '/dir2',
             ],
-            FileHelper::findDirectories($basePath)
+            FileHelper::findDirectories($basePath),
         );
     }
 
@@ -63,7 +63,7 @@ final class FileHelperFindDirectoriesTest extends FileSystemTestCase
                 $basePath . '/dir1',
                 $basePath . '/dir2',
             ],
-            FileHelper::findDirectories($basePath, ['recursive' => false])
+            FileHelper::findDirectories($basePath, ['recursive' => false]),
         );
     }
 
@@ -100,7 +100,7 @@ final class FileHelperFindDirectoriesTest extends FileSystemTestCase
             ],
             FileHelper::findDirectories($basePath, [
                 'filter' => (new PathMatcher())->except('**-local/'),
-            ])
+            ]),
         );
     }
 
@@ -145,7 +145,7 @@ final class FileHelperFindDirectoriesTest extends FileSystemTestCase
             ],
             FileHelper::findDirectories($basePath, [
                 'filter' => (new PathMatcher())->only('**-local/'),
-            ])
+            ]),
         );
     }
 
