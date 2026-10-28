@@ -1,36 +1,28 @@
+name: static analysis
+
 on:
   pull_request:
-    paths-ignore:
-      - 'docs/**'
-      - 'README.md'
-      - 'CHANGELOG.md'
-      - '.gitignore'
-      - '.gitattributes'
-      - 'infection.json.dist'
-      - 'phpunit.xml.dist'
-
+    paths: &paths
+      - 'src/**'
+      - 'phpstan.neon'
+      - 'composer.json'
+      - '.github/workflows/static.yml'
   push:
-    branches:
-      - master
-    paths-ignore:
-      - 'docs/**'
-      - 'README.md'
-      - 'CHANGELOG.md'
-      - '.gitignore'
-      - '.gitattributes'
-      - 'infection.json.dist'
-      - 'phpunit.xml.dist'
-
-name: static analysis
+    branches: ['master']
+    paths: *paths
 
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  psalm:
-    uses: yiisoft/actions/.github/workflows/psalm.yml@master
+  phpstan:
+    uses: yiisoft/actions/.github/workflows/phpstan.yml@master
     with:
       os: >-
         ['ubuntu-latest']
       php: >-
-        ['8.0', '8.1', '8.2', '8.3', '8.4']
+        ['8.0', '8.1', '8.2', '8.3', '8.4', '8.5']

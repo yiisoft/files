@@ -64,12 +64,9 @@ final class FileHelper
      * @throws RuntimeException If the file could not be opened.
      *
      * @return resource The file pointer resource.
-     *
-     * @psalm-suppress PossiblyNullArgument
      */
     public static function openFile(string $filename, string $mode, bool $useIncludePath = false, $context = null)
     {
-        /** @psalm-suppress InvalidArgument, MixedArgumentTypeCoercion */
         set_error_handler(static function (int $errorNumber, string $errorString) use ($filename): bool {
             throw new RuntimeException(
                 sprintf('Failed to open a file "%s". ', $filename) . $errorString,
@@ -181,15 +178,13 @@ final class FileHelper
      * Removes a directory (and all its content) recursively. Does nothing if directory does not exist.
      *
      * @param string $directory The directory to be deleted recursively.
-     * @param array $options Options for directory remove. Valid options are:
+     * @param array{
+     *     traverseSymlinks?:bool,
+     * } $options Options for directory remove. Valid options are:
      *
      * - traverseSymlinks: boolean, whether symlinks to the directories should be traversed too.
      *   Defaults to `false`, meaning the content of the symlinked directory would not be deleted.
      *   Only symlink would be removed in that default case.
-     *
-     * @psalm-param array{
-     *     traverseSymlinks?:bool,
-     * } $options
      *
      * @throw RuntimeException When unable to remove directory.
      */
@@ -211,7 +206,10 @@ final class FileHelper
      * Clears all directory content.
      *
      * @param string $directory The directory to be cleared.
-     * @param array $options Options for directory clear. Valid options are:
+     * @param array{
+     *     traverseSymlinks?:bool,
+     *     filter?:PathMatcherInterface
+     * } $options Options for directory clear. Valid options are:
      *
      * - traverseSymlinks: boolean, whether symlinks to the directories should be traversed too.
      *   Defaults to `false`, meaning the content of the symlinked directory would not be deleted.
@@ -219,11 +217,6 @@ final class FileHelper
      * - filter: a filter to apply while deleting files. It should be an instance of {@see PathMatcherInterface}.
      *
      * @throws RuntimeException if unable to open directory.
-     *
-     * @psalm-param array{
-     *     traverseSymlinks?:bool,
-     *     filter?:PathMatcherInterface
-     * } $options
      */
     public static function clearDirectory(string $directory, array $options = []): void
     {
@@ -259,7 +252,6 @@ final class FileHelper
      */
     public static function unlink(string $path): void
     {
-        /** @psalm-suppress InvalidArgument, MixedArgumentTypeCoercion */
         set_error_handler(static function (int $errorNumber, string $errorString) use ($path): bool {
             throw new RuntimeException(
                 sprintf('Failed to unlink "%s". ', $path) . $errorString,
@@ -310,7 +302,15 @@ final class FileHelper
      *
      * @param string $source The source directory.
      * @param string $destination The destination directory.
-     * @param array $options Options for directory copy. Valid options are:
+     * @param array{
+     *   dirMode?: int,
+     *   fileMode?: int,
+     *   filter?: PathMatcherInterface,
+     *   recursive?: bool,
+     *   beforeCopy?: callable,
+     *   afterCopy?: callable,
+     *   copyEmptyDirectories?: bool,
+     * } $options Options for directory copy. Valid options are:
      *
      * - dirMode: integer, the permission to be set for newly copied directories. Defaults to 0775.
      * - fileMode: integer, the permission to be set for newly copied files. Defaults to the current environment
@@ -330,16 +330,6 @@ final class FileHelper
      *   `except`. Defaults to true.
      *
      * @throws RuntimeException if unable to open directory
-     *
-     * @psalm-param array{
-     *   dirMode?: int,
-     *   fileMode?: int,
-     *   filter?: PathMatcherInterface,
-     *   recursive?: bool,
-     *   beforeCopy?: callable,
-     *   afterCopy?: callable,
-     *   copyEmptyDirectories?: bool,
-     * } $options
      */
     public static function copyDirectory(string $source, string $destination, array $options = []): void
     {
@@ -366,10 +356,6 @@ final class FileHelper
 
         $handle = self::openDirectory($source);
 
-        if (!array_key_exists('basePath', $options)) {
-            $options['basePath'] = realpath($source);
-        }
-
         while (($file = readdir($handle)) !== false) {
             if ($file === '.' || $file === '..') {
                 continue;
@@ -379,7 +365,6 @@ final class FileHelper
             $to = $destination . '/' . $file;
 
             if ($filter === null || $filter->match($from)) {
-                /** @psalm-suppress InvalidArgument $options is compatible with `copyFile()` and `copyDirectory()` */
                 if (is_file($from)) {
                     self::copyFile($from, $to, $options);
                 } elseif ($recursive) {
@@ -411,7 +396,7 @@ final class FileHelper
      * @param string $source The source file
      * @param string $destination The destination filename
      *
-     * @psalm-param array{
+     * @param array{
      *   dirMode?: int,
      *   fileMode?: int,
      *   beforeCopy?: callable,
@@ -452,7 +437,7 @@ final class FileHelper
      *
      * If the path is a directory, any nested files/directories will be checked as well.
      *
-     * @param RecursiveDirectoryIterator[]|string[] $paths The directories to be checked.
+     * @param RecursiveDirectoryIterator|string ...$paths The directories to be checked.
      *
      * @throws LogicException If path is not set.
      *
@@ -503,15 +488,13 @@ final class FileHelper
      * Returns the directories found under the specified directory and subdirectories.
      *
      * @param string $directory The directory under which the files will be looked for.
-     * @param array $options Options for directory searching. Valid options are:
+     * @param array{
+     *   filter?: PathMatcherInterface,
+     *   recursive?: bool,
+     * } $options Options for directory searching. Valid options are:
      *
      * - filter: a filter to apply while looked directories. It should be an instance of {@see PathMatcherInterface}.
      * - recursive: boolean, whether the subdirectories should also be looked for. Defaults to `true`.
-     *
-     * @psalm-param array{
-     *   filter?: PathMatcherInterface,
-     *   recursive?: bool,
-     * } $options
      *
      * @throws InvalidArgumentException If the directory is invalid.
      *
@@ -554,15 +537,13 @@ final class FileHelper
      * Returns the files found under the specified directory and subdirectories.
      *
      * @param string $directory The directory under which the files will be looked for.
-     * @param array $options Options for file searching. Valid options are:
+     * @param array{
+     *   filter?: PathMatcherInterface,
+     *   recursive?: bool,
+     * } $options Options for file searching. Valid options are:
      *
      * - filter: a filter to apply while looked files. It should be an instance of {@see PathMatcherInterface}.
      * - recursive: boolean, whether the files under the subdirectories should also be looked for. Defaults to `true`.
-     *
-     * @psalm-param array{
-     *   filter?: PathMatcherInterface,
-     *   recursive?: bool,
-     * } $options
      *
      * @throws InvalidArgumentException If the directory is invalid.
      *
@@ -610,6 +591,9 @@ final class FileHelper
         return $callback ? $callback(...$arguments) : null;
     }
 
+    /**
+     * @param array<string, mixed> $options
+     */
     private static function getFilter(array $options): ?PathMatcherInterface
     {
         if (!array_key_exists('filter', $options)) {
@@ -661,7 +645,6 @@ final class FileHelper
             throw new InvalidArgumentException("\"$directory\" is not a directory.");
         }
 
-        /** @psalm-suppress InvalidArgument, MixedArgumentTypeCoercion */
         set_error_handler(static function (int $errorNumber, string $errorString) use ($directory): bool {
             throw new RuntimeException(
                 sprintf('Unable to open directory "%s". ', $directory) . $errorString,

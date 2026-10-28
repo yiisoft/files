@@ -33,6 +33,7 @@
         "ext-zlib": "*",
         "bamarni/composer-bin-plugin": "^1.9.1",
         "friendsofphp/php-cs-fixer": "^3.66",
+        "phpstan/phpstan": "^2.3",
         "phpunit/phpunit": "^9.6.22",
         "rector/rector": "^2.0.10",
         "shipmonk/composer-dependency-analyser": "^1.8",
@@ -64,6 +65,7 @@
     },
     "scripts": {
         "dependency-analyser": "composer-dependency-analyser",
+        "phpstan": "phpstan",
         "test": "phpunit --testdox --no-interaction",
         "test-watch": "phpunit-watcher watch"
     }
