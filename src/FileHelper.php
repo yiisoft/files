@@ -32,7 +32,6 @@ use function is_string;
 use function is_writable;
 use function opendir;
 use function readdir;
-use function realpath;
 use function restore_error_handler;
 use function rmdir;
 use function rtrim;
@@ -346,9 +345,7 @@ final class FileHelper
         $recursive = !array_key_exists('recursive', $options) || $options['recursive'];
         $copyEmptyDirectories = !array_key_exists('copyEmptyDirectories', $options) || $options['copyEmptyDirectories'];
 
-        if (!isset($options['dirMode'])) {
-            $options['dirMode'] = 0755;
-        }
+        $options['dirMode'] ??= 0755;
 
         if ($copyEmptyDirectories && !is_dir($destination)) {
             self::ensureDirectory($destination, $options['dirMode']);
