@@ -12,7 +12,6 @@
 [![Code Coverage](https://codecov.io/gh/yiisoft/files/graph/badge.svg?token=LpKH0C8PYc)](https://codecov.io/gh/yiisoft/files)
 [![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fyiisoft%2Ffiles%2Fmaster)](https://dashboard.stryker-mutator.io/reports/github.com/yiisoft/files/master)
 [![static analysis](https://github.com/yiisoft/files/workflows/static%20analysis/badge.svg)](https://github.com/yiisoft/files/actions?query=workflow%3A%22static+analysis%22)
-[![type-coverage](https://shepherd.dev/github/yiisoft/files/coverage.svg)](https://shepherd.dev/github/yiisoft/files)
 
 The package provides useful methods to manage files and directories.
 
