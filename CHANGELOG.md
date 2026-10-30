@@ -5,6 +5,7 @@
 - Chg #121: Replace Psalm with PHPStan (@vjik)
 - Enh #104: Explicitly import constants in "use" section (@mspirkov)
 - Enh #121: Remove unused `basePath` option assignment in `FileHelper::copyDirectory()` (@vjik)
+- Enh #122: Add PHP 8.6 support (@vjik)
 
 ## 2.1.0 December 01, 2025
 
