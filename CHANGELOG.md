@@ -1,5 +1,9 @@
 # Yii Files Change Log
 
+## 2.1.2 under development
+
+- no changes in this release.
+
 ## 2.1.1 October 30, 2026
 
 - Chg #121: Replace Psalm with PHPStan (@vjik)
