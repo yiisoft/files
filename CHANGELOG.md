@@ -1,6 +1,6 @@
 # Yii Files Change Log
 
-## 2.1.1 under development
+## 2.1.1 October 30, 2026
 
 - Chg #121: Replace Psalm with PHPStan (@vjik)
 - Enh #104: Explicitly import constants in "use" section (@mspirkov)
